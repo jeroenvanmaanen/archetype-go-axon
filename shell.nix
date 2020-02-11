@@ -1,4 +1,4 @@
-{ pkgs ? import ./pkgs.nix }:
+{ pkgs ? import <nixpkgs> {} }:
 
 with pkgs;
 let
@@ -15,7 +15,7 @@ in
       export GOCACHE=""
       export GO111MODULE='on'
 
-      go mod init ${attrs.goPackagePath}
+      [ -f go.mod ] || go mod init ${attrs.goPackagePath}
 
       set +v
     '';
