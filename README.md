@@ -40,6 +40,12 @@ docker hub automatically the first time you run `docker run` or
 [host]$ src/bin/docker-build.sh # Optional. It is also available on Docker Hub
 ```
 
+You might need to update `deps.nix`:
+```
+[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
+[container]# vgo2nix
+```
+
 After that, build the executables from the Go code:
 ```
 [host]$ src/bin/nix-build.sh
@@ -49,6 +55,7 @@ I generated Go stubs for axon-server as follows:
 ```
 [host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
 [container]# go get -u github.com/golang/protobuf/protoc-gen-go
+[container]# go get google.golang.org/grpc
 [container]# PATH="$PATH:/root/go/bin"
 [container]# cd /src/axon-server-api/src/main/proto
 [container]# bash WORKING_AREA/archetype-nix-go/src/bin/generate-proto-package.sh

@@ -4,8 +4,12 @@
 package axonserver
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1196,4 +1200,583 @@ var fileDescriptor_2d17a9d3f0ddf27e = []byte{
 	0x3e, 0xba, 0xba, 0x67, 0xfd, 0x7c, 0x59, 0x70, 0x6f, 0x23, 0x3e, 0xea, 0x6f, 0x28, 0xb9, 0x8d,
 	0x91, 0xde, 0xc1, 0xbc, 0x7e, 0x3c, 0xdf, 0xfd, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x79, 0x84, 0x2b,
 	0x0c, 0x7a, 0x0f, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// EventStoreClient is the client API for EventStore service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type EventStoreClient interface {
+	// Accepts a stream of Events returning a Confirmation when completed.
+	AppendEvent(ctx context.Context, opts ...grpc.CallOption) (EventStore_AppendEventClient, error)
+	// Accepts a Snapshot event returning a Confirmation when completed.
+	AppendSnapshot(ctx context.Context, in *Event, opts ...grpc.CallOption) (*Confirmation, error)
+	// Retrieves the Events for a given aggregate. Results are streamed rather than returned at once.
+	ListAggregateEvents(ctx context.Context, in *GetAggregateEventsRequest, opts ...grpc.CallOption) (EventStore_ListAggregateEventsClient, error)
+	// Retrieves the Snapshots for a given aggregate. Results are streamed rather than returned at once.
+	ListAggregateSnapshots(ctx context.Context, in *GetAggregateSnapshotsRequest, opts ...grpc.CallOption) (EventStore_ListAggregateSnapshotsClient, error)
+	// Retrieves the Events from a given tracking token. Results are streamed rather than returned at once.
+	ListEvents(ctx context.Context, opts ...grpc.CallOption) (EventStore_ListEventsClient, error)
+	// Gets the highest sequence number for a specific aggregate.
+	ReadHighestSequenceNr(ctx context.Context, in *ReadHighestSequenceNrRequest, opts ...grpc.CallOption) (*ReadHighestSequenceNrResponse, error)
+	// Performs a query on the event store, returns a stream of results. Input is a stream to allow flow control from the
+	// client
+	QueryEvents(ctx context.Context, opts ...grpc.CallOption) (EventStore_QueryEventsClient, error)
+	// Retrieves the first token available in event store (typically 0). Returns 0 when no events in store.
+	GetFirstToken(ctx context.Context, in *GetFirstTokenRequest, opts ...grpc.CallOption) (*TrackingToken, error)
+	// Retrieves the last committed token in event store. Returns -1 when no events in store.
+	GetLastToken(ctx context.Context, in *GetLastTokenRequest, opts ...grpc.CallOption) (*TrackingToken, error)
+	// Retrieves the token of the first token of an event from specified time in event store. Returns -1 when no events in store.
+	GetTokenAt(ctx context.Context, in *GetTokenAtRequest, opts ...grpc.CallOption) (*TrackingToken, error)
+}
+
+type eventStoreClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewEventStoreClient(cc grpc.ClientConnInterface) EventStoreClient {
+	return &eventStoreClient{cc}
+}
+
+func (c *eventStoreClient) AppendEvent(ctx context.Context, opts ...grpc.CallOption) (EventStore_AppendEventClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventStore_serviceDesc.Streams[0], "/io.axoniq.axonserver.grpc.event.EventStore/AppendEvent", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventStoreAppendEventClient{stream}
+	return x, nil
+}
+
+type EventStore_AppendEventClient interface {
+	Send(*Event) error
+	CloseAndRecv() (*Confirmation, error)
+	grpc.ClientStream
+}
+
+type eventStoreAppendEventClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventStoreAppendEventClient) Send(m *Event) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *eventStoreAppendEventClient) CloseAndRecv() (*Confirmation, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Confirmation)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *eventStoreClient) AppendSnapshot(ctx context.Context, in *Event, opts ...grpc.CallOption) (*Confirmation, error) {
+	out := new(Confirmation)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.event.EventStore/AppendSnapshot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventStoreClient) ListAggregateEvents(ctx context.Context, in *GetAggregateEventsRequest, opts ...grpc.CallOption) (EventStore_ListAggregateEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventStore_serviceDesc.Streams[1], "/io.axoniq.axonserver.grpc.event.EventStore/ListAggregateEvents", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventStoreListAggregateEventsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type EventStore_ListAggregateEventsClient interface {
+	Recv() (*Event, error)
+	grpc.ClientStream
+}
+
+type eventStoreListAggregateEventsClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventStoreListAggregateEventsClient) Recv() (*Event, error) {
+	m := new(Event)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *eventStoreClient) ListAggregateSnapshots(ctx context.Context, in *GetAggregateSnapshotsRequest, opts ...grpc.CallOption) (EventStore_ListAggregateSnapshotsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventStore_serviceDesc.Streams[2], "/io.axoniq.axonserver.grpc.event.EventStore/ListAggregateSnapshots", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventStoreListAggregateSnapshotsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type EventStore_ListAggregateSnapshotsClient interface {
+	Recv() (*Event, error)
+	grpc.ClientStream
+}
+
+type eventStoreListAggregateSnapshotsClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventStoreListAggregateSnapshotsClient) Recv() (*Event, error) {
+	m := new(Event)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *eventStoreClient) ListEvents(ctx context.Context, opts ...grpc.CallOption) (EventStore_ListEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventStore_serviceDesc.Streams[3], "/io.axoniq.axonserver.grpc.event.EventStore/ListEvents", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventStoreListEventsClient{stream}
+	return x, nil
+}
+
+type EventStore_ListEventsClient interface {
+	Send(*GetEventsRequest) error
+	Recv() (*EventWithToken, error)
+	grpc.ClientStream
+}
+
+type eventStoreListEventsClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventStoreListEventsClient) Send(m *GetEventsRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *eventStoreListEventsClient) Recv() (*EventWithToken, error) {
+	m := new(EventWithToken)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *eventStoreClient) ReadHighestSequenceNr(ctx context.Context, in *ReadHighestSequenceNrRequest, opts ...grpc.CallOption) (*ReadHighestSequenceNrResponse, error) {
+	out := new(ReadHighestSequenceNrResponse)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.event.EventStore/ReadHighestSequenceNr", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventStoreClient) QueryEvents(ctx context.Context, opts ...grpc.CallOption) (EventStore_QueryEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventStore_serviceDesc.Streams[4], "/io.axoniq.axonserver.grpc.event.EventStore/QueryEvents", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventStoreQueryEventsClient{stream}
+	return x, nil
+}
+
+type EventStore_QueryEventsClient interface {
+	Send(*QueryEventsRequest) error
+	Recv() (*QueryEventsResponse, error)
+	grpc.ClientStream
+}
+
+type eventStoreQueryEventsClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventStoreQueryEventsClient) Send(m *QueryEventsRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *eventStoreQueryEventsClient) Recv() (*QueryEventsResponse, error) {
+	m := new(QueryEventsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *eventStoreClient) GetFirstToken(ctx context.Context, in *GetFirstTokenRequest, opts ...grpc.CallOption) (*TrackingToken, error) {
+	out := new(TrackingToken)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.event.EventStore/GetFirstToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventStoreClient) GetLastToken(ctx context.Context, in *GetLastTokenRequest, opts ...grpc.CallOption) (*TrackingToken, error) {
+	out := new(TrackingToken)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.event.EventStore/GetLastToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventStoreClient) GetTokenAt(ctx context.Context, in *GetTokenAtRequest, opts ...grpc.CallOption) (*TrackingToken, error) {
+	out := new(TrackingToken)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.event.EventStore/GetTokenAt", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// EventStoreServer is the server API for EventStore service.
+type EventStoreServer interface {
+	// Accepts a stream of Events returning a Confirmation when completed.
+	AppendEvent(EventStore_AppendEventServer) error
+	// Accepts a Snapshot event returning a Confirmation when completed.
+	AppendSnapshot(context.Context, *Event) (*Confirmation, error)
+	// Retrieves the Events for a given aggregate. Results are streamed rather than returned at once.
+	ListAggregateEvents(*GetAggregateEventsRequest, EventStore_ListAggregateEventsServer) error
+	// Retrieves the Snapshots for a given aggregate. Results are streamed rather than returned at once.
+	ListAggregateSnapshots(*GetAggregateSnapshotsRequest, EventStore_ListAggregateSnapshotsServer) error
+	// Retrieves the Events from a given tracking token. Results are streamed rather than returned at once.
+	ListEvents(EventStore_ListEventsServer) error
+	// Gets the highest sequence number for a specific aggregate.
+	ReadHighestSequenceNr(context.Context, *ReadHighestSequenceNrRequest) (*ReadHighestSequenceNrResponse, error)
+	// Performs a query on the event store, returns a stream of results. Input is a stream to allow flow control from the
+	// client
+	QueryEvents(EventStore_QueryEventsServer) error
+	// Retrieves the first token available in event store (typically 0). Returns 0 when no events in store.
+	GetFirstToken(context.Context, *GetFirstTokenRequest) (*TrackingToken, error)
+	// Retrieves the last committed token in event store. Returns -1 when no events in store.
+	GetLastToken(context.Context, *GetLastTokenRequest) (*TrackingToken, error)
+	// Retrieves the token of the first token of an event from specified time in event store. Returns -1 when no events in store.
+	GetTokenAt(context.Context, *GetTokenAtRequest) (*TrackingToken, error)
+}
+
+// UnimplementedEventStoreServer can be embedded to have forward compatible implementations.
+type UnimplementedEventStoreServer struct {
+}
+
+func (*UnimplementedEventStoreServer) AppendEvent(srv EventStore_AppendEventServer) error {
+	return status.Errorf(codes.Unimplemented, "method AppendEvent not implemented")
+}
+func (*UnimplementedEventStoreServer) AppendSnapshot(ctx context.Context, req *Event) (*Confirmation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppendSnapshot not implemented")
+}
+func (*UnimplementedEventStoreServer) ListAggregateEvents(req *GetAggregateEventsRequest, srv EventStore_ListAggregateEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListAggregateEvents not implemented")
+}
+func (*UnimplementedEventStoreServer) ListAggregateSnapshots(req *GetAggregateSnapshotsRequest, srv EventStore_ListAggregateSnapshotsServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListAggregateSnapshots not implemented")
+}
+func (*UnimplementedEventStoreServer) ListEvents(srv EventStore_ListEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListEvents not implemented")
+}
+func (*UnimplementedEventStoreServer) ReadHighestSequenceNr(ctx context.Context, req *ReadHighestSequenceNrRequest) (*ReadHighestSequenceNrResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadHighestSequenceNr not implemented")
+}
+func (*UnimplementedEventStoreServer) QueryEvents(srv EventStore_QueryEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method QueryEvents not implemented")
+}
+func (*UnimplementedEventStoreServer) GetFirstToken(ctx context.Context, req *GetFirstTokenRequest) (*TrackingToken, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFirstToken not implemented")
+}
+func (*UnimplementedEventStoreServer) GetLastToken(ctx context.Context, req *GetLastTokenRequest) (*TrackingToken, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastToken not implemented")
+}
+func (*UnimplementedEventStoreServer) GetTokenAt(ctx context.Context, req *GetTokenAtRequest) (*TrackingToken, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTokenAt not implemented")
+}
+
+func RegisterEventStoreServer(s *grpc.Server, srv EventStoreServer) {
+	s.RegisterService(&_EventStore_serviceDesc, srv)
+}
+
+func _EventStore_AppendEvent_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(EventStoreServer).AppendEvent(&eventStoreAppendEventServer{stream})
+}
+
+type EventStore_AppendEventServer interface {
+	SendAndClose(*Confirmation) error
+	Recv() (*Event, error)
+	grpc.ServerStream
+}
+
+type eventStoreAppendEventServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventStoreAppendEventServer) SendAndClose(m *Confirmation) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *eventStoreAppendEventServer) Recv() (*Event, error) {
+	m := new(Event)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _EventStore_AppendSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Event)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventStoreServer).AppendSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.event.EventStore/AppendSnapshot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventStoreServer).AppendSnapshot(ctx, req.(*Event))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventStore_ListAggregateEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetAggregateEventsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(EventStoreServer).ListAggregateEvents(m, &eventStoreListAggregateEventsServer{stream})
+}
+
+type EventStore_ListAggregateEventsServer interface {
+	Send(*Event) error
+	grpc.ServerStream
+}
+
+type eventStoreListAggregateEventsServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventStoreListAggregateEventsServer) Send(m *Event) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _EventStore_ListAggregateSnapshots_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetAggregateSnapshotsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(EventStoreServer).ListAggregateSnapshots(m, &eventStoreListAggregateSnapshotsServer{stream})
+}
+
+type EventStore_ListAggregateSnapshotsServer interface {
+	Send(*Event) error
+	grpc.ServerStream
+}
+
+type eventStoreListAggregateSnapshotsServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventStoreListAggregateSnapshotsServer) Send(m *Event) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _EventStore_ListEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(EventStoreServer).ListEvents(&eventStoreListEventsServer{stream})
+}
+
+type EventStore_ListEventsServer interface {
+	Send(*EventWithToken) error
+	Recv() (*GetEventsRequest, error)
+	grpc.ServerStream
+}
+
+type eventStoreListEventsServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventStoreListEventsServer) Send(m *EventWithToken) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *eventStoreListEventsServer) Recv() (*GetEventsRequest, error) {
+	m := new(GetEventsRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _EventStore_ReadHighestSequenceNr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadHighestSequenceNrRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventStoreServer).ReadHighestSequenceNr(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.event.EventStore/ReadHighestSequenceNr",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventStoreServer).ReadHighestSequenceNr(ctx, req.(*ReadHighestSequenceNrRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventStore_QueryEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(EventStoreServer).QueryEvents(&eventStoreQueryEventsServer{stream})
+}
+
+type EventStore_QueryEventsServer interface {
+	Send(*QueryEventsResponse) error
+	Recv() (*QueryEventsRequest, error)
+	grpc.ServerStream
+}
+
+type eventStoreQueryEventsServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventStoreQueryEventsServer) Send(m *QueryEventsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *eventStoreQueryEventsServer) Recv() (*QueryEventsRequest, error) {
+	m := new(QueryEventsRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _EventStore_GetFirstToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFirstTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventStoreServer).GetFirstToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.event.EventStore/GetFirstToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventStoreServer).GetFirstToken(ctx, req.(*GetFirstTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventStore_GetLastToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLastTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventStoreServer).GetLastToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.event.EventStore/GetLastToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventStoreServer).GetLastToken(ctx, req.(*GetLastTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventStore_GetTokenAt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenAtRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventStoreServer).GetTokenAt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.event.EventStore/GetTokenAt",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventStoreServer).GetTokenAt(ctx, req.(*GetTokenAtRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _EventStore_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "io.axoniq.axonserver.grpc.event.EventStore",
+	HandlerType: (*EventStoreServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AppendSnapshot",
+			Handler:    _EventStore_AppendSnapshot_Handler,
+		},
+		{
+			MethodName: "ReadHighestSequenceNr",
+			Handler:    _EventStore_ReadHighestSequenceNr_Handler,
+		},
+		{
+			MethodName: "GetFirstToken",
+			Handler:    _EventStore_GetFirstToken_Handler,
+		},
+		{
+			MethodName: "GetLastToken",
+			Handler:    _EventStore_GetLastToken_Handler,
+		},
+		{
+			MethodName: "GetTokenAt",
+			Handler:    _EventStore_GetTokenAt_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "AppendEvent",
+			Handler:       _EventStore_AppendEvent_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ListAggregateEvents",
+			Handler:       _EventStore_ListAggregateEvents_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListAggregateSnapshots",
+			Handler:       _EventStore_ListAggregateSnapshots_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListEvents",
+			Handler:       _EventStore_ListEvents_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "QueryEvents",
+			Handler:       _EventStore_QueryEvents_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "event.proto",
 }

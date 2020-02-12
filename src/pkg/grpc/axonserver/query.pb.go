@@ -4,8 +4,12 @@
 package axonserver
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1251,4 +1255,253 @@ var fileDescriptor_5c6ac9b241082464 = []byte{
 	0x5f, 0x3f, 0x91, 0xbe, 0x5b, 0x73, 0xa9, 0xba, 0xed, 0x9c, 0x77, 0xb7, 0xbd, 0xb8, 0xed, 0x21,
 	0x4e, 0x3b, 0xcf, 0x3f, 0x94, 0xbd, 0xf5, 0x5f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x4f, 0x79, 0x44,
 	0xd5, 0x66, 0x13, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// QueryServiceClient is the client API for QueryService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type QueryServiceClient interface {
+	// Opens a Query- and Instruction stream to AxonServer.
+	OpenStream(ctx context.Context, opts ...grpc.CallOption) (QueryService_OpenStreamClient, error)
+	// Sends a point-to-point or scatter-gather Query
+	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (QueryService_QueryClient, error)
+	// Opens a Subscription Query
+	Subscription(ctx context.Context, opts ...grpc.CallOption) (QueryService_SubscriptionClient, error)
+}
+
+type queryServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewQueryServiceClient(cc grpc.ClientConnInterface) QueryServiceClient {
+	return &queryServiceClient{cc}
+}
+
+func (c *queryServiceClient) OpenStream(ctx context.Context, opts ...grpc.CallOption) (QueryService_OpenStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_QueryService_serviceDesc.Streams[0], "/io.axoniq.axonserver.grpc.query.QueryService/OpenStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &queryServiceOpenStreamClient{stream}
+	return x, nil
+}
+
+type QueryService_OpenStreamClient interface {
+	Send(*QueryProviderOutbound) error
+	Recv() (*QueryProviderInbound, error)
+	grpc.ClientStream
+}
+
+type queryServiceOpenStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *queryServiceOpenStreamClient) Send(m *QueryProviderOutbound) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *queryServiceOpenStreamClient) Recv() (*QueryProviderInbound, error) {
+	m := new(QueryProviderInbound)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *queryServiceClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (QueryService_QueryClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_QueryService_serviceDesc.Streams[1], "/io.axoniq.axonserver.grpc.query.QueryService/Query", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &queryServiceQueryClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type QueryService_QueryClient interface {
+	Recv() (*QueryResponse, error)
+	grpc.ClientStream
+}
+
+type queryServiceQueryClient struct {
+	grpc.ClientStream
+}
+
+func (x *queryServiceQueryClient) Recv() (*QueryResponse, error) {
+	m := new(QueryResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *queryServiceClient) Subscription(ctx context.Context, opts ...grpc.CallOption) (QueryService_SubscriptionClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_QueryService_serviceDesc.Streams[2], "/io.axoniq.axonserver.grpc.query.QueryService/Subscription", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &queryServiceSubscriptionClient{stream}
+	return x, nil
+}
+
+type QueryService_SubscriptionClient interface {
+	Send(*SubscriptionQueryRequest) error
+	Recv() (*SubscriptionQueryResponse, error)
+	grpc.ClientStream
+}
+
+type queryServiceSubscriptionClient struct {
+	grpc.ClientStream
+}
+
+func (x *queryServiceSubscriptionClient) Send(m *SubscriptionQueryRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *queryServiceSubscriptionClient) Recv() (*SubscriptionQueryResponse, error) {
+	m := new(SubscriptionQueryResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// QueryServiceServer is the server API for QueryService service.
+type QueryServiceServer interface {
+	// Opens a Query- and Instruction stream to AxonServer.
+	OpenStream(QueryService_OpenStreamServer) error
+	// Sends a point-to-point or scatter-gather Query
+	Query(*QueryRequest, QueryService_QueryServer) error
+	// Opens a Subscription Query
+	Subscription(QueryService_SubscriptionServer) error
+}
+
+// UnimplementedQueryServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedQueryServiceServer struct {
+}
+
+func (*UnimplementedQueryServiceServer) OpenStream(srv QueryService_OpenStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method OpenStream not implemented")
+}
+func (*UnimplementedQueryServiceServer) Query(req *QueryRequest, srv QueryService_QueryServer) error {
+	return status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (*UnimplementedQueryServiceServer) Subscription(srv QueryService_SubscriptionServer) error {
+	return status.Errorf(codes.Unimplemented, "method Subscription not implemented")
+}
+
+func RegisterQueryServiceServer(s *grpc.Server, srv QueryServiceServer) {
+	s.RegisterService(&_QueryService_serviceDesc, srv)
+}
+
+func _QueryService_OpenStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(QueryServiceServer).OpenStream(&queryServiceOpenStreamServer{stream})
+}
+
+type QueryService_OpenStreamServer interface {
+	Send(*QueryProviderInbound) error
+	Recv() (*QueryProviderOutbound, error)
+	grpc.ServerStream
+}
+
+type queryServiceOpenStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *queryServiceOpenStreamServer) Send(m *QueryProviderInbound) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *queryServiceOpenStreamServer) Recv() (*QueryProviderOutbound, error) {
+	m := new(QueryProviderOutbound)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _QueryService_Query_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(QueryRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(QueryServiceServer).Query(m, &queryServiceQueryServer{stream})
+}
+
+type QueryService_QueryServer interface {
+	Send(*QueryResponse) error
+	grpc.ServerStream
+}
+
+type queryServiceQueryServer struct {
+	grpc.ServerStream
+}
+
+func (x *queryServiceQueryServer) Send(m *QueryResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _QueryService_Subscription_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(QueryServiceServer).Subscription(&queryServiceSubscriptionServer{stream})
+}
+
+type QueryService_SubscriptionServer interface {
+	Send(*SubscriptionQueryResponse) error
+	Recv() (*SubscriptionQueryRequest, error)
+	grpc.ServerStream
+}
+
+type queryServiceSubscriptionServer struct {
+	grpc.ServerStream
+}
+
+func (x *queryServiceSubscriptionServer) Send(m *SubscriptionQueryResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *queryServiceSubscriptionServer) Recv() (*SubscriptionQueryRequest, error) {
+	m := new(SubscriptionQueryRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+var _QueryService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "io.axoniq.axonserver.grpc.query.QueryService",
+	HandlerType: (*QueryServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "OpenStream",
+			Handler:       _QueryService_OpenStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Query",
+			Handler:       _QueryService_Query_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Subscription",
+			Handler:       _QueryService_Subscription_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "query.proto",
 }

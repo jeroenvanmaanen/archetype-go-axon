@@ -4,8 +4,12 @@
 package axonserver
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -591,4 +595,157 @@ var fileDescriptor_213c0bb044472049 = []byte{
 	0xfa, 0x8a, 0x07, 0xb9, 0x96, 0x3b, 0xdb, 0xbf, 0x35, 0x1e, 0xf6, 0x22, 0x49, 0x8e, 0xc2, 0x7e,
 	0xef, 0x28, 0xde, 0x7b, 0x94, 0x61, 0x3b, 0xeb, 0xc9, 0x3f, 0xa4, 0x8f, 0xff, 0x0a, 0x00, 0x00,
 	0xff, 0xff, 0x5e, 0xec, 0x47, 0xfb, 0x63, 0x09, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// CommandServiceClient is the client API for CommandService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type CommandServiceClient interface {
+	// Opens a stream allowing clients to register command handlers and receive commands.
+	OpenStream(ctx context.Context, opts ...grpc.CallOption) (CommandService_OpenStreamClient, error)
+	// Dispatches the given command, returning the result of command execution
+	Dispatch(ctx context.Context, in *Command, opts ...grpc.CallOption) (*CommandResponse, error)
+}
+
+type commandServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCommandServiceClient(cc grpc.ClientConnInterface) CommandServiceClient {
+	return &commandServiceClient{cc}
+}
+
+func (c *commandServiceClient) OpenStream(ctx context.Context, opts ...grpc.CallOption) (CommandService_OpenStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_CommandService_serviceDesc.Streams[0], "/io.axoniq.axonserver.grpc.command.CommandService/OpenStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &commandServiceOpenStreamClient{stream}
+	return x, nil
+}
+
+type CommandService_OpenStreamClient interface {
+	Send(*CommandProviderOutbound) error
+	Recv() (*CommandProviderInbound, error)
+	grpc.ClientStream
+}
+
+type commandServiceOpenStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *commandServiceOpenStreamClient) Send(m *CommandProviderOutbound) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *commandServiceOpenStreamClient) Recv() (*CommandProviderInbound, error) {
+	m := new(CommandProviderInbound)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *commandServiceClient) Dispatch(ctx context.Context, in *Command, opts ...grpc.CallOption) (*CommandResponse, error) {
+	out := new(CommandResponse)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.command.CommandService/Dispatch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CommandServiceServer is the server API for CommandService service.
+type CommandServiceServer interface {
+	// Opens a stream allowing clients to register command handlers and receive commands.
+	OpenStream(CommandService_OpenStreamServer) error
+	// Dispatches the given command, returning the result of command execution
+	Dispatch(context.Context, *Command) (*CommandResponse, error)
+}
+
+// UnimplementedCommandServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedCommandServiceServer struct {
+}
+
+func (*UnimplementedCommandServiceServer) OpenStream(srv CommandService_OpenStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method OpenStream not implemented")
+}
+func (*UnimplementedCommandServiceServer) Dispatch(ctx context.Context, req *Command) (*CommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Dispatch not implemented")
+}
+
+func RegisterCommandServiceServer(s *grpc.Server, srv CommandServiceServer) {
+	s.RegisterService(&_CommandService_serviceDesc, srv)
+}
+
+func _CommandService_OpenStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CommandServiceServer).OpenStream(&commandServiceOpenStreamServer{stream})
+}
+
+type CommandService_OpenStreamServer interface {
+	Send(*CommandProviderInbound) error
+	Recv() (*CommandProviderOutbound, error)
+	grpc.ServerStream
+}
+
+type commandServiceOpenStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *commandServiceOpenStreamServer) Send(m *CommandProviderInbound) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *commandServiceOpenStreamServer) Recv() (*CommandProviderOutbound, error) {
+	m := new(CommandProviderOutbound)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _CommandService_Dispatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Command)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommandServiceServer).Dispatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.command.CommandService/Dispatch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommandServiceServer).Dispatch(ctx, req.(*Command))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _CommandService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "io.axoniq.axonserver.grpc.command.CommandService",
+	HandlerType: (*CommandServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Dispatch",
+			Handler:    _CommandService_Dispatch_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "OpenStream",
+			Handler:       _CommandService_OpenStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "command.proto",
 }

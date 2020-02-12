@@ -4,8 +4,12 @@
 package axonserver
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -976,4 +980,157 @@ var fileDescriptor_0c5120591600887d = []byte{
 	0x69, 0x58, 0x3a, 0xf0, 0xbe, 0xf4, 0x5e, 0xed, 0xb5, 0xbc, 0x37, 0xf7, 0x94, 0x8c, 0x0f, 0xb3,
 	0xab, 0xee, 0xa1, 0xc9, 0x3d, 0x1c, 0x71, 0x5d, 0xac, 0xda, 0xff, 0x40, 0x9e, 0xfe, 0x17, 0x00,
 	0x00, 0xff, 0xff, 0x6d, 0xc6, 0x01, 0x46, 0xc3, 0x0c, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// PlatformServiceClient is the client API for PlatformService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type PlatformServiceClient interface {
+	// Obtains connection information for the Server that a Client should use for its connections.
+	GetPlatformServer(ctx context.Context, in *ClientIdentification, opts ...grpc.CallOption) (*PlatformInfo, error)
+	// Opens an instruction stream to the Platform, allowing AxonServer to provide management instructions to the application
+	OpenStream(ctx context.Context, opts ...grpc.CallOption) (PlatformService_OpenStreamClient, error)
+}
+
+type platformServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPlatformServiceClient(cc grpc.ClientConnInterface) PlatformServiceClient {
+	return &platformServiceClient{cc}
+}
+
+func (c *platformServiceClient) GetPlatformServer(ctx context.Context, in *ClientIdentification, opts ...grpc.CallOption) (*PlatformInfo, error) {
+	out := new(PlatformInfo)
+	err := c.cc.Invoke(ctx, "/io.axoniq.axonserver.grpc.control.PlatformService/GetPlatformServer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *platformServiceClient) OpenStream(ctx context.Context, opts ...grpc.CallOption) (PlatformService_OpenStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PlatformService_serviceDesc.Streams[0], "/io.axoniq.axonserver.grpc.control.PlatformService/OpenStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &platformServiceOpenStreamClient{stream}
+	return x, nil
+}
+
+type PlatformService_OpenStreamClient interface {
+	Send(*PlatformInboundInstruction) error
+	Recv() (*PlatformOutboundInstruction, error)
+	grpc.ClientStream
+}
+
+type platformServiceOpenStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *platformServiceOpenStreamClient) Send(m *PlatformInboundInstruction) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *platformServiceOpenStreamClient) Recv() (*PlatformOutboundInstruction, error) {
+	m := new(PlatformOutboundInstruction)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PlatformServiceServer is the server API for PlatformService service.
+type PlatformServiceServer interface {
+	// Obtains connection information for the Server that a Client should use for its connections.
+	GetPlatformServer(context.Context, *ClientIdentification) (*PlatformInfo, error)
+	// Opens an instruction stream to the Platform, allowing AxonServer to provide management instructions to the application
+	OpenStream(PlatformService_OpenStreamServer) error
+}
+
+// UnimplementedPlatformServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedPlatformServiceServer struct {
+}
+
+func (*UnimplementedPlatformServiceServer) GetPlatformServer(ctx context.Context, req *ClientIdentification) (*PlatformInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPlatformServer not implemented")
+}
+func (*UnimplementedPlatformServiceServer) OpenStream(srv PlatformService_OpenStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method OpenStream not implemented")
+}
+
+func RegisterPlatformServiceServer(s *grpc.Server, srv PlatformServiceServer) {
+	s.RegisterService(&_PlatformService_serviceDesc, srv)
+}
+
+func _PlatformService_GetPlatformServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientIdentification)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlatformServiceServer).GetPlatformServer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/io.axoniq.axonserver.grpc.control.PlatformService/GetPlatformServer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlatformServiceServer).GetPlatformServer(ctx, req.(*ClientIdentification))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PlatformService_OpenStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PlatformServiceServer).OpenStream(&platformServiceOpenStreamServer{stream})
+}
+
+type PlatformService_OpenStreamServer interface {
+	Send(*PlatformOutboundInstruction) error
+	Recv() (*PlatformInboundInstruction, error)
+	grpc.ServerStream
+}
+
+type platformServiceOpenStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *platformServiceOpenStreamServer) Send(m *PlatformOutboundInstruction) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *platformServiceOpenStreamServer) Recv() (*PlatformInboundInstruction, error) {
+	m := new(PlatformInboundInstruction)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+var _PlatformService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "io.axoniq.axonserver.grpc.control.PlatformService",
+	HandlerType: (*PlatformServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetPlatformServer",
+			Handler:    _PlatformService_GetPlatformServer_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "OpenStream",
+			Handler:       _PlatformService_OpenStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "control.proto",
 }
