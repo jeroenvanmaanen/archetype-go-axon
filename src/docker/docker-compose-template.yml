@@ -1,0 +1,47 @@
+version: '3.3'
+
+networks:
+  example:
+    driver: overlay
+
+services:
+  axon-server:
+    image: axoniq/axonserver:${AXON_VERSION}
+    networks:
+    - example
+    ports:
+    - target: 8024
+      published: ${AXON_SERVER_PORT}
+    expose:
+    - "8024"
+    - "8124"
+    volumes:
+    -
+      type: volume
+      source: axon-data
+      target: /opt/axonserver/data
+  example:
+    image: jeroenvm/archetype-nix-go
+    command:
+      - "sh"
+      - "-c"
+      - "while true ; do sleep 5 ; done"
+    hostname: example
+    networks:
+    - example
+    ports:
+    - target: 8080
+      published: ${API_SERVER_PORT}
+    depends_on:
+    - axon-server
+    volumes:
+      - type: volume
+        source: jeroenvm-nix-store
+        target: /nix/store
+#${EXTRA_VOLUMES}
+
+volumes:
+  axon-data:
+  jeroenvm-nix-store:
+    external: true
+

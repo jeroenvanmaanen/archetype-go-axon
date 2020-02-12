@@ -1,4 +1,6 @@
 *.iml
+*-local.*
+docker-compose.yml
 /.idea
 /result
 /target

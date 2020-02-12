@@ -12,7 +12,7 @@ var _ axonserver.PlatformOutboundInstruction
 
 func main() {
     fmt.Println(submathpackage.Add(1,2))
-    serverAddress := "localhost:7000"
+    serverAddress := "axon-server:8124"
     conn, e := grpc.Dial(serverAddress, grpc.WithInsecure())
 
     if e != nil {
