@@ -45,20 +45,11 @@ After that, build the executables from the Go code:
 [host]$ src/bin/nix-build.sh
 ```
 
-This is a list of commands that I figured out and might come in handy:
+I generated Go stubs for axon-server as follows:
 ```
-[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go
-[container]$ nix-shell -p "haskellPackages.ghcWithPackages (pkgs: [pkgs.http2-grpc-proto-lens])"
-[nix-shell]# ghci
-Prelude> import Network.GRPC.HTTP2.ProtoLens
-
-[container]$ nix-shell --pure shell.nix
-[nix-shell]# ghci
-Prelude> import Network.HTTP2.Client
-
-[container]$ nix-env -f '<.>' -iA haskellPackages."http2-grpc-proto-lens"
-[container]$ nix-env -f '<.>' -iA haskellPackages.hoogle
-[container]$ hoogle generate --insecure
-
-[container]$ nix-shell --pure shell.nix --run "cabal repl"
+[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
+[container]# go get -u github.com/golang/protobuf/protoc-gen-go
+[container]# PATH="$PATH:/root/go/bin"
+[container]# cd /src/axon-server-api/src/main/proto
+[container]# bash WORKING_AREA/archetype-nix-go/src/bin/generate-proto-package.sh
 ```
