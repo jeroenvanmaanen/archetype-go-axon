@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+    "fmt"
+    submathpackage "github.com/jeroenvm/archetype-nix-go/src/pkg/submathpackage"
+)
 
 func main() {
-	fmt.Println("Hello, world.")
+	fmt.Println(submathpackage.Add(1,2))
 }
