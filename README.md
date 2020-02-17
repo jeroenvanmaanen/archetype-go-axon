@@ -1,4 +1,4 @@
-# Archetype of a Go project that can be built with Nix
+# Archetype of a Go project that uses Axon for Event Sourcing and CQRS
 
 This project is still **Work In Progress**. It was cloned from [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
 The next phase is to communicate with Axon Server properly:
