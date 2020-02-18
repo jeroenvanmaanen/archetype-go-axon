@@ -10,12 +10,13 @@ esac
 export SED_EXT
 
 COMPOSE="$(cd "$(dirname "$0")" ; pwd)"
-PROJECT="$(dirname "${COMPOSE}")"
+SRC="$(dirname "${COMPOSE}")"
+PROJECT="$(dirname "${SRC}")"
 PRESENT="${PROJECT}/present"
 DOCKER_REPOSITORY='jeroenvm'
 
 : ${SILENT:=true}
-. "${PROJECT}/bin/verbose.sh"
+. "${SRC}/bin/verbose.sh"
 
 : ${EXTRA_VOLUMES:=}
 source "${COMPOSE}/etc/settings-local.sh"

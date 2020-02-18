@@ -15,4 +15,9 @@ fi
 
 mkdir -p ~/.cache/nix
 
-docker run -ti --rm -v "jeroenvm-nix-store:/nix/store" -v "${HOME}/.cache/nix:/root/.cache/nix" -v "${BIND}:${BIND}" -w "$(pwd)" 'jeroenvm/archetype-nix-go' "$@"
+if type nix >/dev/null 2>&1
+then
+  "$@"
+else
+  docker run -ti --rm -v "jeroenvm-nix-store:/nix/store" -v "${HOME}/.cache/nix:/root/.cache/nix" -v "${BIND}:${BIND}" -w "$(pwd)" 'jeroenvm/archetype-nix-go' "$@"
+fi

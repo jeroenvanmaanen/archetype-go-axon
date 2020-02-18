@@ -7,6 +7,8 @@ ENV NIX_PATH='/nix/var/nix/profiles/per-user/root/channels/nixos'
 RUN rm -f '/root/.nix-defexpr/nixos'
 
 RUN nix-env -i bash-interactive
+RUN ln -s /root/.nix-profile/bin/bash /bin/.
+
 RUN nix-env -f '<.>' -iA curl
 RUN nix-env -f '<.>' -iA gnumake
 RUN nix-env -f '<.>' -iA go

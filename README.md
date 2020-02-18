@@ -46,6 +46,12 @@ docker hub automatically the first time you run `docker run` or
 [host]$ src/bin/docker-build.sh # Optional. It is also available on Docker Hub
 ```
 
+The docker compose script that we are going to run later, needs some local settings.
+Create them from provided sample files for now:
+```
+[host]$ src/bin/create-local-settings.sh
+```
+
 You might need to update `deps.nix`:
 ```
 [host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
@@ -55,6 +61,17 @@ You might need to update `deps.nix`:
 After that, build the executables from the Go code:
 ```
 [host]$ src/bin/nix-build.sh
+```
+
+Now it is time to start two docker containers:
+```
+[host]$ src/docker/docker-compose-up.sh
+```
+
+In another terminal window, open a bash prompt in the container that can run the example and run it:
+```
+[host2]$ docker exec -ti -w "$(pwd)" example_example_1 bash
+[container]# result/bin/example
 ```
 
 I generated Go stubs for axon-server as follows:
