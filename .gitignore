@@ -1,7 +1,8 @@
 *.iml
 *-local.*
 docker-compose.yml
-/.idea
+/.idea/
 /result
-/target
+/target/
+/data/
 /go.sum

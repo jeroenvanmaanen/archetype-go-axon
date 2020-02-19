@@ -68,10 +68,20 @@ Now it is time to start two docker containers:
 [host]$ src/docker/docker-compose-up.sh
 ```
 
+This is a good time to open a browser window for the [AxonDashboard](http://localhost:8024)
+and keep it in view when running the example.
+
 In another terminal window, open a bash prompt in the container that can run the example and run it:
 ```
 [host2]$ docker exec -ti -w "$(pwd)" example_example_1 bash
 [container]# result/bin/example
+```
+During the built-in sleep of 10 seconds, a box labeled GoClient should pop up
+in the AxonDashboard. Id disappears again when the example application stops.
+
+Building executables also works inside the docker container:
+```
+[container]# src/bin/nix-build.sh
 ```
 
 I generated Go stubs for axon-server as follows:
