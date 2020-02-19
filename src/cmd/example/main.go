@@ -4,7 +4,7 @@ import (
     context "context"
     "fmt"
     "time"
-    submathpackage "github.com/jeroenvm/archetype-nix-go/src/pkg/submathpackage"
+    control "github.com/jeroenvm/archetype-nix-go/src/pkg/control"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     grpc "google.golang.org/grpc"
 )
@@ -12,7 +12,6 @@ import (
 var _ axonserver.PlatformOutboundInstruction
 
 func main() {
-    fmt.Println(submathpackage.Add(1,2))
     serverAddress := "axon-server:8124"
     conn, e := grpc.Dial(serverAddress, grpc.WithInsecure())
 
@@ -56,7 +55,7 @@ func main() {
     }
 
     // Listen to messages from Axon Server in a separate go routine
-    go listen(&streamClient)
+    go control.Listen(&streamClient)
 
     // Send a heartbeat
     heartbeat := axonserver.Heartbeat{}
@@ -70,15 +69,4 @@ func main() {
 
     d, e := time.ParseDuration("10s")
     time.Sleep(d)
-}
-
-func listen(streamClient *axonserver.PlatformService_OpenStreamClient) {
-    for {
-        fmt.Println("Waiting for next message...")
-        message, e := (*streamClient).Recv()
-        if e != nil {
-            panic(fmt.Sprintf("Error while receiving message %v", e))
-        }
-        fmt.Println(fmt.Sprintf("Received message: %v", message))
-    }
 }
