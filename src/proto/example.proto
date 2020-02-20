@@ -1,0 +1,19 @@
+syntax = "proto3";
+package org.leialearns.grpc.example;
+option go_package = "src/pkg/grpc/example";
+
+/* The GreeterService defines the gRPC requests for greeting AxonServer. */
+service CommandService {
+
+    /* Greets AxonServer. */
+    rpc Greet (Greeting) returns (Acknowledgement) {
+    }
+}
+
+message Greeting {
+    string message = 1;
+}
+
+message Acknowledgement {
+    string message = 1;
+}
