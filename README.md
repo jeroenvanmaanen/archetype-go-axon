@@ -63,6 +63,8 @@ After that, build the executables from the Go code:
 [host]$ src/bin/nix-build.sh
 ```
 
+## Run
+
 Now it is time to start two docker containers:
 ```
 [host]$ src/docker/docker-compose-up.sh
@@ -84,6 +86,13 @@ Building executables also works inside the docker container:
 [container]# src/bin/nix-build.sh
 ```
 
+## To do
+
+Separate Docker image with build tools from Docker image for running the
+compiled commands.
+
+Add steps to generate te Go and JS stubs from the protocol buffer specifications to the Nix build.
+
 I generated Go stubs for axon-server as follows:
 ```
 [host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
@@ -92,4 +101,14 @@ I generated Go stubs for axon-server as follows:
 [container]# PATH="$PATH:/root/go/bin"
 [container]# cd /src/axon-server-api/src/main/proto
 [container]# bash WORKING_AREA/archetype-nix-go/src/bin/generate-proto-package.sh
+```
+
+Likewise I generated JS stubs for the example service:
+```
+[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/archetype-nix-go bash
+[container]# mkdir -p ~/home/bin
+[container]# PATH="${PATH}:${HOME}/bin"
+[container]# curl -L -sS -D - https://github.com/grpc/grpc-web/releases/download/1.0.7/protoc-gen-grpc-web-1.0.7-linux-x86_64 -o ~/bin/protoc-gen-grpc-web
+[container]# chmod a+x ~/bin/protoc-gen-grpc-web
+[container]# bash WORKING_AREA/archetype-nix-go/src/bin/generate-proto-js-package.sh
 ```

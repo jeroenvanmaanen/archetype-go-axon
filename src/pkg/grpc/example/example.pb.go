@@ -110,19 +110,19 @@ func init() {
 func init() { proto.RegisterFile("example.proto", fileDescriptor_15a1dc8d40dadaa6) }
 
 var fileDescriptor_15a1dc8d40dadaa6 = []byte{
-	// 180 bytes of a gzipped FileDescriptorProto
+	// 177 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4d, 0xad, 0x48, 0xcc,
 	0x2d, 0xc8, 0x49, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x92, 0xce, 0x2f, 0x4a, 0xd7, 0xcb,
 	0x49, 0xcd, 0x4c, 0xcc, 0x49, 0x4d, 0x2c, 0xca, 0x2b, 0xd6, 0x4b, 0x2f, 0x2a, 0x48, 0xd6, 0x83,
 	0x2a, 0x51, 0x52, 0xe1, 0xe2, 0x70, 0x2f, 0x4a, 0x4d, 0x2d, 0xc9, 0xcc, 0x4b, 0x17, 0x92, 0xe0,
 	0x62, 0xcf, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82,
 	0x71, 0x95, 0xb4, 0xb9, 0xf8, 0x1d, 0x93, 0xb3, 0xf3, 0xf2, 0xcb, 0x73, 0x52, 0x53, 0xd2, 0x53,
-	0x73, 0x53, 0xf3, 0x4a, 0x70, 0x2b, 0x36, 0x2a, 0xe0, 0xe2, 0x73, 0xce, 0xcf, 0xcd, 0x4d, 0xcc,
-	0x4b, 0x09, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c, 0x4e, 0x15, 0x8a, 0xe3, 0x62, 0x05, 0x5b, 0x22, 0xa4,
-	0xaa, 0x87, 0xc7, 0x2d, 0x7a, 0x30, 0x87, 0x48, 0xe9, 0xe0, 0x55, 0x86, 0xe6, 0x12, 0x25, 0x06,
-	0x27, 0xb1, 0x28, 0x91, 0xe2, 0xa2, 0x64, 0xfd, 0x82, 0xec, 0x74, 0x7d, 0x90, 0x4a, 0x7d, 0xa8,
-	0xca, 0x24, 0x36, 0x70, 0x00, 0x18, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xac, 0x1c, 0x65, 0x65,
-	0x11, 0x01, 0x00, 0x00,
+	0x73, 0x53, 0xf3, 0x4a, 0x70, 0x2b, 0x36, 0x2a, 0xe0, 0xe2, 0x03, 0x1b, 0x99, 0x5a, 0x14, 0x9c,
+	0x5a, 0x54, 0x96, 0x99, 0x9c, 0x2a, 0x14, 0xc7, 0xc5, 0x0a, 0x16, 0x11, 0x52, 0xd5, 0xc3, 0xe3,
+	0x16, 0x3d, 0x98, 0x43, 0xa4, 0x74, 0xf0, 0x2a, 0x43, 0x73, 0x89, 0x12, 0x83, 0x93, 0x58, 0x94,
+	0x48, 0x71, 0x51, 0xb2, 0x7e, 0x41, 0x76, 0xba, 0x3e, 0x48, 0xa5, 0x3e, 0x54, 0x65, 0x12, 0x1b,
+	0x38, 0x00, 0x8c, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x0f, 0x93, 0xb4, 0x85, 0x11, 0x01, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -133,74 +133,74 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// CommandServiceClient is the client API for CommandService service.
+// GreeterServiceClient is the client API for GreeterService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type CommandServiceClient interface {
+type GreeterServiceClient interface {
 	// Greets AxonServer.
 	Greet(ctx context.Context, in *Greeting, opts ...grpc.CallOption) (*Acknowledgement, error)
 }
 
-type commandServiceClient struct {
+type greeterServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCommandServiceClient(cc grpc.ClientConnInterface) CommandServiceClient {
-	return &commandServiceClient{cc}
+func NewGreeterServiceClient(cc grpc.ClientConnInterface) GreeterServiceClient {
+	return &greeterServiceClient{cc}
 }
 
-func (c *commandServiceClient) Greet(ctx context.Context, in *Greeting, opts ...grpc.CallOption) (*Acknowledgement, error) {
+func (c *greeterServiceClient) Greet(ctx context.Context, in *Greeting, opts ...grpc.CallOption) (*Acknowledgement, error) {
 	out := new(Acknowledgement)
-	err := c.cc.Invoke(ctx, "/org.leialearns.grpc.example.CommandService/Greet", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/org.leialearns.grpc.example.GreeterService/Greet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CommandServiceServer is the server API for CommandService service.
-type CommandServiceServer interface {
+// GreeterServiceServer is the server API for GreeterService service.
+type GreeterServiceServer interface {
 	// Greets AxonServer.
 	Greet(context.Context, *Greeting) (*Acknowledgement, error)
 }
 
-// UnimplementedCommandServiceServer can be embedded to have forward compatible implementations.
-type UnimplementedCommandServiceServer struct {
+// UnimplementedGreeterServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedGreeterServiceServer struct {
 }
 
-func (*UnimplementedCommandServiceServer) Greet(ctx context.Context, req *Greeting) (*Acknowledgement, error) {
+func (*UnimplementedGreeterServiceServer) Greet(ctx context.Context, req *Greeting) (*Acknowledgement, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Greet not implemented")
 }
 
-func RegisterCommandServiceServer(s *grpc.Server, srv CommandServiceServer) {
-	s.RegisterService(&_CommandService_serviceDesc, srv)
+func RegisterGreeterServiceServer(s *grpc.Server, srv GreeterServiceServer) {
+	s.RegisterService(&_GreeterService_serviceDesc, srv)
 }
 
-func _CommandService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GreeterService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Greeting)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommandServiceServer).Greet(ctx, in)
+		return srv.(GreeterServiceServer).Greet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/org.leialearns.grpc.example.CommandService/Greet",
+		FullMethod: "/org.leialearns.grpc.example.GreeterService/Greet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommandServiceServer).Greet(ctx, req.(*Greeting))
+		return srv.(GreeterServiceServer).Greet(ctx, req.(*Greeting))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _CommandService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "org.leialearns.grpc.example.CommandService",
-	HandlerType: (*CommandServiceServer)(nil),
+var _GreeterService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "org.leialearns.grpc.example.GreeterService",
+	HandlerType: (*GreeterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Greet",
-			Handler:    _CommandService_Greet_Handler,
+			Handler:    _GreeterService_Greet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

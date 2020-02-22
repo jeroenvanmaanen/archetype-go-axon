@@ -2,10 +2,11 @@ package main
 
 import (
     context "context"
-    "fmt"
-    "time"
+    fmt "fmt"
+    time "time"
     control "github.com/jeroenvm/archetype-nix-go/src/pkg/control"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    example "github.com/jeroenvm/archetype-nix-go/src/pkg/example"
     grpc "google.golang.org/grpc"
 )
 
@@ -56,6 +57,9 @@ func main() {
 
     // Listen to messages from Axon Server in a separate go routine
     go control.Listen(&streamClient)
+
+    // Listen to incoming gRPC requests in a separate go routine
+    go example.Serve()
 
     // Send a heartbeat
     heartbeat := axonserver.Heartbeat{}

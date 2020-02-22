@@ -25,7 +25,7 @@ option go_package = \"src/pkg/grpc/axonserver${SUFFIX}\";" \
   -e 's/^old_option/option/' \
   *.proto
 
-if [ -z "${FRAMGMENT}" ]
+if [ -z "${FRAGMENT}" ]
 then
   protoc --go_out=plugins=grpc:/Users/jeroen/src/archetype-nix-go -I. *.proto
 else
