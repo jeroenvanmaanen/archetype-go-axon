@@ -7,6 +7,7 @@ import (
     log "log"
     grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
+    reflection "google.golang.org/grpc/reflection"
 )
 
 type GreeterServer struct {
@@ -29,6 +30,7 @@ func Serve() {
     log.Printf("Listening on port: %d", port)
     grpcServer := grpc.NewServer()
     grpcExample.RegisterGreeterServiceServer(grpcServer, &GreeterServer{})
+    reflection.Register(grpcServer)
     // ... // determine whether to use TLS
     grpcServer.Serve(lis)
 }

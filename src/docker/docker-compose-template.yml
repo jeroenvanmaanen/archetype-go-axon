@@ -30,7 +30,7 @@ services:
     networks:
     - example
     ports:
-    - target: 8080
+    - target: 8181
       published: ${API_SERVER_PORT}
     depends_on:
     - axon-server
