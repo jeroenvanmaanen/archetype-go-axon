@@ -13,6 +13,10 @@ import (
 var _ axonserver.PlatformOutboundInstruction
 
 func main() {
+    fmt.Println("Waiting for AxonServer to start")
+    d, e := time.ParseDuration("30s")
+    time.Sleep(d)
+
     serverAddress := "axon-server:8124"
     conn, e := grpc.Dial(serverAddress, grpc.WithInsecure())
 
@@ -58,9 +62,6 @@ func main() {
     // Listen to messages from Axon Server in a separate go routine
     go control.Listen(&streamClient)
 
-    // Listen to incoming gRPC requests in a separate go routine
-    go example.Serve()
-
     // Send a heartbeat
     heartbeat := axonserver.Heartbeat{}
     heartbeatRequest := axonserver.PlatformInboundInstruction_Heartbeat{
@@ -71,6 +72,6 @@ func main() {
         panic(fmt.Sprintf("Error sending clientInfo %v", e))
     }
 
-    d, e := time.ParseDuration("10s")
-    time.Sleep(d)
+    // Listen to incoming gRPC requests
+    example.Serve()
 }
