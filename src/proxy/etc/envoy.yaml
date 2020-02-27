@@ -23,9 +23,10 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
-                            prefix: "/api"
+                            prefix: "/"
+                            grpc: {}
                           route:
-                            host_rewrite: example-core
+                            host_rewrite: example-command-api
                             cluster: service_core
                         - match:
                             prefix: "/"
@@ -103,7 +104,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: example-core
+                      address: example-command-api
                       port_value: 8181
 
 admin:

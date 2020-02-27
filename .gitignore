@@ -1,6 +1,8 @@
 *.iml
 *-local.*
 docker-compose.yml
+node_modules
+/src/present/build
 /.idea/
 /result
 /target/

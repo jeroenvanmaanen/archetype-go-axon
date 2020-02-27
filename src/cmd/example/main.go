@@ -13,35 +13,13 @@ import (
 var _ axonserver.PlatformOutboundInstruction
 
 func main() {
-    fmt.Println("Waiting for AxonServer to start")
-    d, e := time.ParseDuration("30s")
-    time.Sleep(d)
-
-    serverAddress := "axon-server:8124"
-    conn, e := grpc.Dial(serverAddress, grpc.WithInsecure())
-
-    if e != nil {
-        panic(e)
-    }
-    defer conn.Close()
-
-    // Get platform server
-    client := axonserver.NewPlatformServiceClient(conn)
     clientInfo := axonserver.ClientIdentification {
         ClientId: "12345",
         ComponentName: "GoClient",
         Version: "0.0.1",
     }
-    fmt.Println(fmt.Sprintf("Client identification: %v", clientInfo))
-    response, e := client.GetPlatformServer(context.Background(), &clientInfo)
-    if e != nil {
-        panic(fmt.Sprintf("Was not able to get Axon platform server %v", e))
-    }
-    fmt.Println(response)
-    fmt.Println(response.SameConnection)
-    if !response.SameConnection {
-        panic(fmt.Sprintf("Need to setup a new connection %v", e))
-    }
+    conn, client := waitForServer("example-proxy", 8124, clientInfo)
+    defer conn.Close()
 
     // Open stream
     streamClient, e := client.OpenStream(context.Background())
@@ -74,4 +52,29 @@ func main() {
 
     // Listen to incoming gRPC requests
     example.Serve()
+}
+
+func waitForServer(host string, port int, clientInfo axonserver.ClientIdentification) (*grpc.ClientConn, axonserver.PlatformServiceClient) {
+    serverAddress := fmt.Sprintf("%s:%d", host, port)
+    fmt.Println(fmt.Sprintf("Client identification: %v", clientInfo))
+    d, _ := time.ParseDuration("3s")
+    for {
+        conn, e := grpc.Dial(serverAddress, grpc.WithInsecure())
+        if e == nil {
+            // Get platform server
+            client := axonserver.NewPlatformServiceClient(conn)
+            response, e := client.GetPlatformServer(context.Background(), &clientInfo)
+            if e == nil {
+                fmt.Println("Connected")
+                fmt.Println(response)
+                fmt.Println(response.SameConnection)
+                if !response.SameConnection {
+                    panic(fmt.Sprintf("Need to setup a new connection %v", e))
+                }
+                return conn, client
+            }
+        }
+        time.Sleep(d)
+        fmt.Println(".")
+    }
 }

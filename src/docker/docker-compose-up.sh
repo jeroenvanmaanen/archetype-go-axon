@@ -18,6 +18,7 @@ DOCKER_REPOSITORY='jeroenvm'
 : ${SILENT:=true}
 . "${SRC}/bin/verbose.sh"
 
+: ${ENSEMBLE_NAME=example}
 : ${EXTRA_VOLUMES:=}
 source "${COMPOSE}/etc/settings-local.sh"
 
@@ -73,5 +74,5 @@ done
 
 (
     cd "${COMPOSE}"
-    docker-compose -p example up
+    docker-compose -p "${ENSEMBLE_NAME}" up
 )
