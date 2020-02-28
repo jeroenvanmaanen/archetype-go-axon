@@ -12,7 +12,7 @@ export SED_EXT
 COMPOSE="$(cd "$(dirname "$0")" ; pwd)"
 SRC="$(dirname "${COMPOSE}")"
 PROJECT="$(dirname "${SRC}")"
-PRESENT="${PROJECT}/present"
+PRESENT="${PROJECT}/src/present"
 DOCKER_REPOSITORY='jeroenvm'
 
 : ${SILENT:=true}
