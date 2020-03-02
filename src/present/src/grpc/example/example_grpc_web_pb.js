@@ -1,3 +1,5 @@
+/*eslint-disabled */
+//@ts-nocheck
 /**
  * @fileoverview gRPC-Web generated client stub for org.leialearns.grpc.example
  * @enhanceable

@@ -5,7 +5,9 @@
   "dependencies": {
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.4.0"
+    "react-scripts": "3.4.0",
+    "grpc-web": "1.0.7",
+    "google-protobuf": "3.11.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -18,5 +20,11 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "eslintConfig": {
+    "extends": "react-app",
+    "ignorePatterns": [
+      "**/*_pb.js"
+    ]
+  }
 }

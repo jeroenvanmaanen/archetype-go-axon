@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import './App.css';
-// import MyComponent from './MyComponent';
+import example from './grpc/example/example_grpc_web_pb';
 
 class App extends Component {
 
   render() {
     return (
       <div className="App">
-        <h2>My application</h2>
+        <h2>Example application</h2>
       </div>
     );
   }
