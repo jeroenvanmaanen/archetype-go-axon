@@ -59,6 +59,13 @@ services:
     depends_on:
       - example-command-api
       - axon-server
+  grpc-swagger:
+    image: ${DOCKER_REPOSITORY}/grpc-swagger
+    networks:
+      - example
+    ports:
+      - target: '8080'
+        published: '8123'
 
 volumes:
   axon-data:

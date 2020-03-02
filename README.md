@@ -38,7 +38,35 @@ The components that I want to combine are:
 I mostly followed [Golang Demo](https://github.com/MatrixAI/Golang-Demo)
 by _Roger Qiu_. Any flaws are of course my own.
 
-To work with this project, you need to install docker. The first step after
+To work with this project, you need to install docker.
+
+Then, open a terminal (on windows either use git-bash or expose the  
+docker daemon inside a docker container that has bash) and run:
+```
+[host]$ src/bin/clobber-build-and-run.sh --dev
+```
+The `--dev` flag specifies a configuration that runs React in development-mode
+rather than optimized production mode. This makes fiddling with the UI much more straight-forward.
+
+Then point your browser at
+```
+http://localhost:8123
+```
+Specify:
+```
+Grpc-swagger Server: localhost:8123
+Endpoint Register: example-command-api:8181
+```
+Click "Register". Then a link appears under services:
+org.leialearns.grpc.example.GreeterService. Click it and try the
+method `/org.leialearns.grpc.example.GreeterService.Greet`.
+
+## Setup step-by-step
+
+Again, the main prerequisite is docker and either an extracted ZIP or a
+clone of this project.
+
+The first step after
 that is to acquire a docker image that has Nix and Go tools. It will be pulled from
 docker hub automatically the first time you run `docker run` or
 `docker-compose up`. You can also build it yourself with:

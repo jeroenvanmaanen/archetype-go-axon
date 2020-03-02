@@ -93,6 +93,9 @@ function waitForDockerComposeReady() {
 
         # Build docker images for proxy
         docker build -t "${DOCKER_REPOSITORY}/example-proxy:${EXAMPLE_IMAGE_VERSION}" src/proxy
+
+        # Build docker image for Swagger UI
+        docker build -t "${DOCKER_REPOSITORY}/grpc-swagger" src/swagger
     fi
 
     (
