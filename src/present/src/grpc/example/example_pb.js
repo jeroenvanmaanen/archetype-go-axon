@@ -1,5 +1,4 @@
-/*eslint-disabled */
-//@ts-nocheck
+/* eslint-disable */
 /**
  * @fileoverview
  * @enhanceable
