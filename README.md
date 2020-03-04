@@ -3,7 +3,7 @@
 This project is still **Work In Progress**. It was cloned from [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
 First point to solve:
 
-*  ☐ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
+*  ☑ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
 
 The next phase is to communicate with Axon Server properly:
 1. ☑ Set up a session
