@@ -23,7 +23,10 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
-                            prefix: "/org.leialearns.grpc.example.GreeterService"
+                            prefix: "/"
+                            headers:
+                              - name: Content-Type
+                                exact_match : application/grpc-web-text
                           route:
                             host_rewrite: example-command-api
                             cluster: service_core
