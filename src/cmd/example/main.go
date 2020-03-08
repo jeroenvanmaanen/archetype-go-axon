@@ -48,6 +48,9 @@ func main() {
         panic(fmt.Sprintf("Error sending clientInfo %v", e))
     }
 
+    // Handle commands
+    go example.HandleCommands(conn)
+
     // Listen to incoming gRPC requests
     example.Serve(conn)
 }
