@@ -1,7 +1,7 @@
 package example
 
 import (
-//    context "context"
+    context "context"
     log "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     grpc "google.golang.org/grpc"
@@ -22,6 +22,6 @@ func SubmitCommand(message string, conn *grpc.ClientConn) {
     }
     log.Printf("Command: %v", command)
 
-//    response, e := client.Dispatch(context.Background(), &command)
-//    log.Printf("Response: %v: %v", response, e)
+    response, e := client.Dispatch(context.Background(), &command)
+    log.Printf("Response: %v: %v", response, e)
 }
