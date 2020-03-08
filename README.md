@@ -3,16 +3,17 @@
 This project is still **Work In Progress**. It was cloned from [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
 First point to solve:
 
-*  ☑ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
-
 The next phase is to communicate with Axon Server properly:
 1. ☑ Set up a session
-2. ☐ Issue commands
+   *  ☑ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
+2. ☑ Issue commands
 3. ☐ Register a command handler and handle commands
 4. ☐ Submit events
-5. ☐ Register a tracking event processor and handle events
-6. ☐ Store records in a query model (Elastic Search?)
-7. ☐ Register a query handler and handle queries
+   * ☐ Stream events to UI
+6. ☐ Register a tracking event processor and handle events
+7. ☐ Store records in a query model (Elastic Search?)
+8. ☐ Register a query handler and handle queries
+   * ☐ Show query results in UI
 
 ## Introduction
 
