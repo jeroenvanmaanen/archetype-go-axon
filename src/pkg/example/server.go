@@ -11,6 +11,7 @@ import (
 )
 
 type GreeterServer struct {
+    conn *grpc.ClientConn;
 }
 
 func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting) (*grpcExample.Acknowledgement, error) {
@@ -18,10 +19,11 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
     ack := grpcExample.Acknowledgement{
         Message: "Good day to you too!",
     }
-    return &ack, nil;
+    SubmitCommand("bliep", s.conn)
+    return &ack, nil
 }
 
-func Serve() {
+func Serve(conn *grpc.ClientConn) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
     if err != nil {
@@ -29,7 +31,7 @@ func Serve() {
     }
     log.Printf("Listening on port: %d", port)
     grpcServer := grpc.NewServer()
-    grpcExample.RegisterGreeterServiceServer(grpcServer, &GreeterServer{})
+    grpcExample.RegisterGreeterServiceServer(grpcServer, &GreeterServer{conn})
     reflection.Register(grpcServer)
     // ... // determine whether to use TLS
     grpcServer.Serve(lis)

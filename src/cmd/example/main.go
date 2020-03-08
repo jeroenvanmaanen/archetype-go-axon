@@ -10,8 +10,6 @@ import (
     grpc "google.golang.org/grpc"
 )
 
-var _ axonserver.PlatformOutboundInstruction
-
 func main() {
     clientInfo := axonserver.ClientIdentification {
         ClientId: "12345",
@@ -51,7 +49,7 @@ func main() {
     }
 
     // Listen to incoming gRPC requests
-    example.Serve()
+    example.Serve(conn)
 }
 
 func waitForServer(host string, port int, clientInfo axonserver.ClientIdentification) (*grpc.ClientConn, axonserver.PlatformServiceClient) {

@@ -91,6 +91,15 @@
     };
   }
   {
+    goPackagePath = "github.com/google/uuid";
+    fetch = {
+      type = "git";
+      url = "https://github.com/google/uuid";
+      rev = "v1.1.1";
+      sha256 = "0hfxcf9frkb57k6q0rdkrmnfs78ms21r1qfk9fhlqga2yh5xg8zb";
+    };
+  }
+  {
     goPackagePath = "github.com/prometheus/client_model";
     fetch = {
       type = "git";
