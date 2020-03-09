@@ -23,6 +23,7 @@ After that:
 * Store snapshots
 * Use TLS
 * Add claim-based security
+* Extract reusable code into a proper library that can be included as a dependency
 
 ## Introduction
 
