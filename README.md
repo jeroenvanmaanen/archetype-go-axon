@@ -21,6 +21,8 @@ After that:
 
 * Cache projections
 * Store snapshots
+* Use TLS
+* Add claim-based security
 
 ## Introduction
 
