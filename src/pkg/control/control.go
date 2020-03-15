@@ -1,17 +1,18 @@
 package control
 
 import (
-    "fmt"
+    "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
 )
 
 func Listen(streamClient *axonserver.PlatformService_OpenStreamClient) {
     for {
-        fmt.Println("Waiting for next message...")
+        log.Printf("Listen: Waiting for next message...")
         message, e := (*streamClient).Recv()
         if e != nil {
-            panic(fmt.Sprintf("Error while receiving message %v", e))
+            log.Printf("Listen: Error while receiving message %v", e)
+            panic("Listen: Panic!")
         }
-        fmt.Println(fmt.Sprintf("Received message: %v", message))
+        log.Printf("Listen: Received message: %v", message)
     }
 }

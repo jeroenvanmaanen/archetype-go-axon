@@ -2,27 +2,31 @@ package example
 
 import (
     context "context"
+    fmt "fmt"
     log "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     grpc "google.golang.org/grpc"
-//    uuid "github.com/google/uuid"
+    uuid "github.com/google/uuid"
 )
 
-func HandleCommands(conn *grpc.ClientConn) {
-    log.Printf("Connection: %v", conn)
+func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
+    conn, clientInfo := WaitForServer(host, port, "Command Handler")
+
+    log.Printf("Command handler: Connection: %v", conn)
     client := axonserver.NewCommandServiceClient(conn)
-    log.Printf("Client: %v", client)
+    log.Printf("Command handler: Client: %v", client)
 
     stream, e := client.OpenStream(context.Background())
-    log.Printf("Stream: %v: %v", stream, e)
+    log.Printf("Command handler: Stream: %v: %v", stream, e)
 
+    id := uuid.New()
     subscription := axonserver.CommandSubscription {
-        MessageId: "54321", // uuid.String(),
+        MessageId: id.String(),
         Command: "GreetCommand",
-        ClientId: "12345",
-        ComponentName: "GoClient",
+        ClientId: clientInfo.ClientId,
+        ComponentName: clientInfo.ComponentName,
     }
-    log.Printf("Subscription: %v", subscription)
+    log.Printf("Command handler: Subscription: %v", subscription)
     subscriptionRequest := axonserver.CommandProviderOutbound_Subscribe {
         Subscribe: &subscription,
     }
@@ -31,14 +35,71 @@ func HandleCommands(conn *grpc.ClientConn) {
         Request: &subscriptionRequest,
     }
 
-    stream.Send(&outbound)
+    e = stream.Send(&outbound)
+    if e != nil {
+        panic(fmt.Sprintf("Command handler: Error sending subscription", e))
+    }
+
+    go worker(stream, clientInfo.ClientId)
+
+    return conn;
+}
+
+func worker(stream axonserver.CommandService_OpenStreamClient, clientId string) {
     for true {
-        inbound, _ := stream.Recv()
-        log.Printf("Inbound: %v", inbound)
-// TODO: Ack
-//         command = inbound.GetCommand()
-//         if (command != null) {
-//
-//         }
+        addPermits(1, stream, clientId)
+
+        log.Printf("Command handler: Waiting for command")
+        inbound, e := stream.Recv()
+        if (e != nil) {
+          log.Printf("Command handler: Error on receive, %v", e)
+          continue
+        }
+        log.Printf("Command handler: Inbound: %v", inbound)
+        command := inbound.GetCommand()
+        if (command != nil) {
+            respond(stream, command.MessageIdentifier)
+        }
+    }
+}
+
+func respond(stream axonserver.CommandService_OpenStreamClient, requestId string) {
+    id := uuid.New()
+    commandResponse := axonserver.CommandResponse {
+        MessageIdentifier: id.String(),
+        RequestIdentifier: requestId,
+    }
+    log.Printf("Command handler: Command response: %v", commandResponse)
+    commandResponseRequest := axonserver.CommandProviderOutbound_CommandResponse {
+        CommandResponse: &commandResponse,
+    }
+
+    outbound := axonserver.CommandProviderOutbound {
+        Request: &commandResponseRequest,
+    }
+
+    e := stream.Send(&outbound)
+    if e != nil {
+        panic(fmt.Sprintf("Command handler: Error sending command response", e))
+    }
+}
+
+func addPermits(amount int64, stream axonserver.CommandService_OpenStreamClient, clientId string) {
+    flowControl := axonserver.FlowControl {
+        ClientId: clientId,
+        Permits: amount,
+    }
+    log.Printf("Command handler: Flow control: %v", flowControl)
+    flowControlRequest := axonserver.CommandProviderOutbound_FlowControl {
+        FlowControl: &flowControl,
+    }
+
+    outbound := axonserver.CommandProviderOutbound {
+        Request: &flowControlRequest,
+    }
+
+    e := stream.Send(&outbound)
+    if e != nil {
+        panic(fmt.Sprintf("Command handler: Error sending flow control", e))
     }
 }
