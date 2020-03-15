@@ -133,6 +133,7 @@ func appendEvent(message string, conn *grpc.ClientConn) {
         MessageIdentifier: id.String(),
         AggregateIdentifier: aggregateId,
         AggregateSequenceNumber: next,
+        AggregateType: "ExampleAggregate",
         Timestamp: timestamp,
         Snapshot: false,
     }
