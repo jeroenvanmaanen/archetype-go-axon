@@ -7,7 +7,7 @@ The next phase is to communicate with Axon Server properly:
 1. ☑ Set up a session
    *  ☑ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
 2. ☑ Issue commands
-3. ☐ Register a command handler and handle commands
+3. ☑ Register a command handler and handle commands
 4. ☐ Submit events
    * ☐ Stream events to UI
 5. ☐ Retrieve the events for an aggregate and build a projection
