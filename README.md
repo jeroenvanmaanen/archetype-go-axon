@@ -24,6 +24,7 @@ After that:
 * Use TLS
 * Add claim-based security
 * Extract reusable code into a proper library that can be included as a dependency
+* Add context management with proper canceling of operations
 
 ## Introduction
 
