@@ -909,7 +909,9 @@ func init() {
 	proto.RegisterType((*Heartbeat)(nil), "io.axoniq.axonserver.grpc.control.Heartbeat")
 }
 
-func init() { proto.RegisterFile("control.proto", fileDescriptor_0c5120591600887d) }
+func init() {
+	proto.RegisterFile("control.proto", fileDescriptor_0c5120591600887d)
+}
 
 var fileDescriptor_0c5120591600887d = []byte{
 	// 1067 bytes of a gzipped FileDescriptorProto

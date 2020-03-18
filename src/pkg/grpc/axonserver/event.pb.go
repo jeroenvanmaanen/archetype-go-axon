@@ -1114,7 +1114,9 @@ func init() {
 	proto.RegisterType((*PayloadDescription)(nil), "io.axoniq.axonserver.grpc.event.PayloadDescription")
 }
 
-func init() { proto.RegisterFile("event.proto", fileDescriptor_2d17a9d3f0ddf27e) }
+func init() {
+	proto.RegisterFile("event.proto", fileDescriptor_2d17a9d3f0ddf27e)
+}
 
 var fileDescriptor_2d17a9d3f0ddf27e = []byte{
 	// 1301 bytes of a gzipped FileDescriptorProto

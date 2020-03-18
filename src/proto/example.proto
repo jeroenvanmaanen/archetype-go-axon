@@ -23,3 +23,11 @@ message Acknowledgement {
 
 //message Stopper {
 //}
+
+message GreetCommand {
+    Greeting message = 1;
+}
+
+message GreetedEvent {
+    Greeting message = 1;
+}

@@ -1173,7 +1173,9 @@ func init() {
 	proto.RegisterType((*QuerySubscription)(nil), "io.axoniq.axonserver.grpc.query.QuerySubscription")
 }
 
-func init() { proto.RegisterFile("query.proto", fileDescriptor_5c6ac9b241082464) }
+func init() {
+	proto.RegisterFile("query.proto", fileDescriptor_5c6ac9b241082464)
+}
 
 var fileDescriptor_5c6ac9b241082464 = []byte{
 	// 1237 bytes of a gzipped FileDescriptorProto

@@ -542,7 +542,9 @@ func init() {
 	proto.RegisterType((*CommandSubscription)(nil), "io.axoniq.axonserver.grpc.command.CommandSubscription")
 }
 
-func init() { proto.RegisterFile("command.proto", fileDescriptor_213c0bb044472049) }
+func init() {
+	proto.RegisterFile("command.proto", fileDescriptor_213c0bb044472049)
+}
 
 var fileDescriptor_213c0bb044472049 = []byte{
 	// 778 bytes of a gzipped FileDescriptorProto
