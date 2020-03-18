@@ -25,7 +25,8 @@ message Acknowledgement {
 //}
 
 message GreetCommand {
-    Greeting message = 1;
+    string aggregateIdentifier = 1;
+    Greeting message = 2;
 }
 
 message GreetedEvent {

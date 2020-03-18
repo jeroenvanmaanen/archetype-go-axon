@@ -25,6 +25,7 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
         Message: "Good day to you too!",
     }
     command := grpcExample.GreetCommand {
+        AggregateIdentifier: "single_aggregate",
         Message: greeting,
     }
     data, err := proto.Marshal(&command)
