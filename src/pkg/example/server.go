@@ -2,12 +2,14 @@ package example
 
 import (
     context "context"
+    errors "errors"
     fmt "fmt"
     net "net"
     log "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
+    proto "github.com/golang/protobuf/proto"
     reflection "google.golang.org/grpc/reflection"
 )
 
@@ -17,11 +19,24 @@ type GreeterServer struct {
 }
 
 func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting) (*grpcExample.Acknowledgement, error) {
-    log.Printf("Server: Received greeting: %v", (*greeting).Message)
+    message := (*greeting).Message
+    log.Printf("Server: Received greeting: %v", message)
     ack := grpcExample.Acknowledgement{
         Message: "Good day to you too!",
     }
-    SubmitCommand("beep", s.conn, s.clientInfo)
+    command := grpcExample.GreetCommand {
+        Message: greeting,
+    }
+    data, err := proto.Marshal(&command)
+    if err != nil {
+        log.Printf("Server: Error while marshalling command")
+        return nil, errors.New("Marshalling error")
+    }
+    serializedCommand := axonserver.SerializedObject{
+        Type: "GreetCommand",
+        Data: data,
+    }
+    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
     return &ack, nil
 }
 

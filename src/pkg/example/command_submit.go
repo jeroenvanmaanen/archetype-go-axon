@@ -8,15 +8,16 @@ import (
     uuid "github.com/google/uuid"
 )
 
-func SubmitCommand(message string, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
-    log.Printf("Submit command: %v: %v", message, conn)
+func SubmitCommand(message *axonserver.SerializedObject, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
+    log.Printf("Submit command: %v: %v", message.Type, conn)
     client := axonserver.NewCommandServiceClient(conn)
     log.Printf("Submit command: Client: %v", client)
 
     id := uuid.New()
     command := axonserver.Command {
         MessageIdentifier: id.String(),
-        Name: "GreetCommand",
+        Name: (*message).Type,
+        Payload: message,
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
     }
