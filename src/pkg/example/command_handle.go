@@ -6,7 +6,9 @@ import (
     log "log"
     time "time"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
+    proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 )
 
@@ -59,7 +61,33 @@ func worker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.Client
         log.Printf("Command handler: Inbound: %v", inbound)
         command := inbound.GetCommand()
         if (command != nil) {
-            appendEvent("???", conn)
+            commandName := command.Name
+            if (commandName == "GreetCommand") {
+                log.Printf("Received GreetCommand")
+            } else {
+                continue
+            }
+
+            deserializedCommand := grpcExample.GreetCommand{}
+            e = proto.Unmarshal(command.Payload.Data, &deserializedCommand)
+            if (e != nil) {
+                log.Printf("Could not unmarshall GreetCommand")
+            }
+
+            event := grpcExample.GreetedEvent {
+                Message: deserializedCommand.Message,
+            }
+            data, err := proto.Marshal(&event)
+            if err != nil {
+                log.Printf("Server: Error while marshalling event")
+                continue
+            }
+            serializedEvent := axonserver.SerializedObject{
+                Type: "GreetedEvent",
+                Data: data,
+            }
+
+            appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
             respond(stream, command.MessageIdentifier)
         }
     }
@@ -106,9 +134,8 @@ func addPermits(amount int64, stream axonserver.CommandService_OpenStreamClient,
     }
 }
 
-func appendEvent(message string, conn *grpc.ClientConn) {
+func appendEvent(message *axonserver.SerializedObject, aggregateId string, conn *grpc.ClientConn) {
     client := axonserver.NewEventStoreClient(conn)
-    aggregateId := "single_aggregate"
 
     readRequest := axonserver.ReadHighestSequenceNrRequest {
         AggregateId: aggregateId,
@@ -136,6 +163,7 @@ func appendEvent(message string, conn *grpc.ClientConn) {
         AggregateType: "ExampleAggregate",
         Timestamp: timestamp,
         Snapshot: false,
+        Payload: message,
     }
     log.Printf("Command handler: Event: %v", event)
 
