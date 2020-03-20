@@ -4,6 +4,7 @@ import (
     context "context"
     errors "errors"
     fmt "fmt"
+    io "io"
     net "net"
     log "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
@@ -45,9 +46,47 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
     greeting := grpcExample.Greeting {
         Message: "Hello, World!",
     }
-    log.Printf("Greetings streamed reply: %v", greeting)
+    log.Printf("Server: Greetings streamed reply: %v", greeting)
     greetingsServer.Send(&greeting)
-    log.Printf("Greetings streamed reply sent")
+    log.Printf("Server: Greetings streamed reply sent")
+
+    eventStoreClient := axonserver.NewEventStoreClient(s.conn)
+    requestEvents := axonserver.GetAggregateEventsRequest {
+        AggregateId: "single_aggregate",
+        InitialSequence: 0,
+        AllowSnapshots: false,
+    }
+    log.Printf("Server: Request events: %v", requestEvents)
+    client, e := eventStoreClient.ListAggregateEvents(context.Background(), &requestEvents)
+    if e != nil {
+        log.Printf("Server: Error while requesting aggregate events: %v", e)
+        return nil
+    }
+    for {
+        eventMessage, e := client.Recv()
+        if e == io.EOF {
+            log.Printf("Server: End of stream")
+            break
+        } else if e != nil {
+            log.Printf("Server: Error while receiving next event: %v", e)
+            break
+        }
+        log.Printf("Server: Received event: %v", eventMessage)
+        if eventMessage.Payload != nil {
+            log.Printf("Server: Payload: %v", eventMessage.Payload)
+            event := grpcExample.GreetedEvent{}
+            e = proto.Unmarshal(eventMessage.Payload.Data, &event)
+            if e != nil {
+                log.Printf("Server: Error while unmarshalling GreetedEvent")
+                continue
+            }
+            log.Printf("Server: GreetedEvent: %v", event)
+            log.Printf("Server: Greetings streamed reply: %v", event.Message)
+            greetingsServer.Send(event.Message)
+            log.Printf("Server: Greetings streamed reply sent")
+        }
+    }
+
     return nil
 }
 
