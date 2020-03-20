@@ -13,6 +13,7 @@ AXON_PROTO="${PROJECT}/data/axon-server-api/src/main/proto"
 if [[ -d "${AXON_PROTO}" ]]
 then
   cd "${AXON_PROTO}"
+  log "Generating Go stubs from $(pwd)"
 
   sed -E -i \
     -e 's/^option/old_option/' \
@@ -26,5 +27,6 @@ option go_package = \"src/pkg/grpc/axonserver\";" \
 fi
 
 cd "${SRC}/proto"
+log "Generating Go stubs from $(pwd)"
 
 protoc --go_out="plugins=grpc:${PROJECT}" -I. *.proto
