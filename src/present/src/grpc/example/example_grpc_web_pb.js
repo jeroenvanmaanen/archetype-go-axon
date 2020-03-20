@@ -150,5 +150,80 @@ proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.greet =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Greeting>}
+ */
+const methodDescriptor_GreeterService_Greetings = new grpc.web.MethodDescriptor(
+  '/org.leialearns.grpc.example.GreeterService/Greetings',
+  grpc.web.MethodType.SERVER_STREAMING,
+  proto.org.leialearns.grpc.example.Empty,
+  proto.org.leialearns.grpc.example.Greeting,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Greeting.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Greeting>}
+ */
+const methodInfo_GreeterService_Greetings = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.org.leialearns.grpc.example.Greeting,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Greeting.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.Greeting>}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServiceClient.prototype.greetings =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Greetings',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Greetings);
+};
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.Greeting>}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.greetings =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Greetings',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Greetings);
+};
+
+
 module.exports = proto.org.leialearns.grpc.example;
 

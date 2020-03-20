@@ -2,6 +2,7 @@ import * as grpcWeb from 'grpc-web';
 
 import {
   Acknowledgement,
+  Empty,
   Greeting} from './example_pb';
 
 export class GreeterServiceClient {
@@ -16,6 +17,11 @@ export class GreeterServiceClient {
                response: Acknowledgement) => void
   ): grpcWeb.ClientReadableStream<Acknowledgement>;
 
+  greetings(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<Greeting>;
+
 }
 
 export class GreeterServicePromiseClient {
@@ -27,6 +33,11 @@ export class GreeterServicePromiseClient {
     request: Greeting,
     metadata?: grpcWeb.Metadata
   ): Promise<Acknowledgement>;
+
+  greetings(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<Greeting>;
 
 }
 

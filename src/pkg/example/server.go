@@ -41,6 +41,16 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
     return &ack, nil
 }
 
+func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpcExample.GreeterService_GreetingsServer) error {
+    greeting := grpcExample.Greeting {
+        Message: "Hello, World!",
+    }
+    log.Printf("Greetings streamed reply: %v", greeting)
+    greetingsServer.Send(&greeting)
+    log.Printf("Greetings streamed reply sent")
+    return nil
+}
+
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))

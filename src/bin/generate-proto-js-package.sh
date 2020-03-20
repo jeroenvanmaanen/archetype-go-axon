@@ -18,3 +18,12 @@ OUT_DIR="${SRC}/present/src/grpc/example"
 mkdir -p "${OUT_DIR}"
 
 protoc --js_out="import_style=commonjs:${OUT_DIR}" --grpc-web_out="import_style=commonjs+dts,mode=grpcwebtext:${OUT_DIR}" -I. *.proto
+
+# Add /* eslint-disable */
+cd "${SRC}/present/src/grpc/example"
+sed -E -i \
+  -e '1s:^/\* eslint-disable \*/$:/*@@@ eslint-disable @@@*/:' \
+  -e "1i\\
+/* eslint-disable */" \
+  -e '/^\/\*@@@ eslint-disable @@@\*\//d' \
+  *.js

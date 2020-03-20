@@ -9,6 +9,8 @@ service GreeterService {
     rpc Greet (Greeting) returns (Acknowledgement) {
     }
 
+    rpc Greetings (Empty) returns (stream Greeting) {
+    }
 //    rpc Stop (Stopper) returns (Acknowledgement) {
 //    }
 }
@@ -20,6 +22,8 @@ message Greeting {
 message Acknowledgement {
     string message = 1;
 }
+
+message Empty {}
 
 //message Stopper {
 //}
