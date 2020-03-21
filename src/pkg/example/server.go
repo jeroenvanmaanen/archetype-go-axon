@@ -38,7 +38,10 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
         Type: "GreetCommand",
         Data: data,
     }
-    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    if err != nil {
+        return nil, err
+    }
     return &ack, nil
 }
 
@@ -109,7 +112,10 @@ func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (
         Type: "RecordCommand",
         Data: data,
     }
-    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    if err != nil {
+        return nil, err
+    }
     return &empty, nil
 }
 
@@ -126,7 +132,10 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*g
         Type: "StopCommand",
         Data: data,
     }
-    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    if err != nil {
+        return nil, err
+    }
     return &empty, nil
 }
 

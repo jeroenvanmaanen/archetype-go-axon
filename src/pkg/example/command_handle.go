@@ -91,6 +91,12 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
         log.Printf("Could not unmarshall GreetCommand")
     }
 
+    projection := RestoreProjection(deserializedCommand.AggregateIdentifier, conn)
+    if !projection.Recording {
+        reportError(stream, command.MessageIdentifier, "EX001", "Not recording: " + deserializedCommand.AggregateIdentifier)
+        return
+    }
+
     event := grpcExample.GreetedEvent {
         Message: deserializedCommand.Message,
     }
@@ -168,6 +174,35 @@ func respond(stream axonserver.CommandService_OpenStreamClient, requestId string
     e := stream.Send(&outbound)
     if e != nil {
         panic(fmt.Sprintf("Command handler: Error sending command response", e))
+    }
+}
+
+func reportError(stream axonserver.CommandService_OpenStreamClient, requestId string, errorCode string, errorMessageText string) {
+    errorMessage := axonserver.ErrorMessage{
+        Message: errorMessageText,
+        Location: "",
+        Details: nil,
+    }
+
+    id := uuid.New()
+    commandResponse := axonserver.CommandResponse {
+        MessageIdentifier: id.String(),
+        RequestIdentifier: requestId,
+        ErrorCode: errorCode,
+        ErrorMessage: &errorMessage,
+    }
+    log.Printf("Command handler: Command error: %v", commandResponse)
+    commandResponseRequest := axonserver.CommandProviderOutbound_CommandResponse {
+        CommandResponse: &commandResponse,
+    }
+
+    outbound := axonserver.CommandProviderOutbound {
+        Request: &commandResponseRequest,
+    }
+
+    e := stream.Send(&outbound)
+    if e != nil {
+        panic(fmt.Sprintf("Command handler: Error sending command error", e))
     }
 }
 

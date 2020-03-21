@@ -7,14 +7,18 @@ class Greet extends Component {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
+        this.handleRecord = this.handleRecord.bind(this);
+        this.handleStop = this.handleStop.bind(this);
         console.log('Example grpc-web stub:', example);
-//        console.log('Example message:', example_message);
     }
 
     render() {
         return (
             <div>
                 <h3>Greetings</h3>
+                <p><input type='submit' id='record' value=' Record ' onClick={this.handleRecord}/>
+                   <input type='submit' id='stop' value=' Stop ' onClick={this.handleStop}/>
+                </p>
                 <p><input type='text' id='message' /> <input type='submit' id='submit-greeting' value=' Go! ' onClick={this.handleSubmit}/></p>
                 <p><input type='submit' id='refresh-greetings' value=' Refresh! ' onClick={this.handleRefresh}/></p>
                 <div id='greetings'><div><i>greetings appear here</i></div></div>
@@ -24,16 +28,21 @@ class Greet extends Component {
 
     handleSubmit(event) {
         const message = document.getElementById('message').value;
-        console.log('Message:', message);
+        console.log('Submit: message:', message);
         const request = new example.Greeting();
-        console.log('New request:', request);
+        console.log('Submit: new request:', request);
         request.setMessage(message);
-        console.log('Request:', request);
+        console.log('Submit: request:', request);
         const client = new example.GreeterServiceClient('http://localhost:3000');
-        console.log('Client:', client);
+        console.log('Submit: client:', client);
         const response = client.greet(request);
-        console.log('Response:', response);
+        console.log('Submit: response:', response);
         response.on('data', function(r) {console.log('Greet event:', r);})
+        response.on('status', function(status) {
+          console.log('Submit: stream status: code:', status.code);
+          console.log('Submit: stream status: details:', status.details);
+          console.log('Submit: stream status: metadata:', status.metadata);
+        });
     }
 
     handleRefresh(event) {
@@ -66,6 +75,36 @@ class Greet extends Component {
         });
         response.on('end', function(end) {
           // stream end signal
+        });
+    }
+
+    handleRecord(event) {
+        const request = new example.Empty();
+        console.log('Record: new request:', request);
+        const client = new example.GreeterServiceClient('http://localhost:3000');
+        console.log('Record: client:', client);
+        const response = client.record(request);
+        console.log('Record: response:', response);
+        response.on('data', function(r) {console.log('Record response data:', r);})
+        response.on('status', function(status) {
+          console.log('Record: stream status: code:', status.code);
+          console.log('Record: stream status: details:', status.details);
+          console.log('Record: stream status: metadata:', status.metadata);
+        });
+    }
+
+    handleStop(event) {
+        const request = new example.Empty();
+        console.log('Stop: new request:', request);
+        const client = new example.GreeterServiceClient('http://localhost:3000');
+        console.log('Stop: client:', client);
+        const response = client.stop(request);
+        console.log('Stop: response:', response);
+        response.on('data', function(r) {console.log('Stop response data:', r);})
+        response.on('status', function(status) {
+          console.log('Stop: stream status: code:', status.code);
+          console.log('Stop: stream status: details:', status.details);
+          console.log('Stop: stream status: metadata:', status.metadata);
         });
     }
 }
