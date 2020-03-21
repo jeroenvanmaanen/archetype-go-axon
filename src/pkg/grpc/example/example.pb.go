@@ -180,6 +180,84 @@ func (m *GreetCommand) GetMessage() *Greeting {
 	return nil
 }
 
+type RecordCommand struct {
+	AggregateIdentifier  string   `protobuf:"bytes,1,opt,name=aggregateIdentifier,proto3" json:"aggregateIdentifier,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RecordCommand) Reset()         { *m = RecordCommand{} }
+func (m *RecordCommand) String() string { return proto.CompactTextString(m) }
+func (*RecordCommand) ProtoMessage()    {}
+func (*RecordCommand) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{4}
+}
+
+func (m *RecordCommand) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RecordCommand.Unmarshal(m, b)
+}
+func (m *RecordCommand) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RecordCommand.Marshal(b, m, deterministic)
+}
+func (m *RecordCommand) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecordCommand.Merge(m, src)
+}
+func (m *RecordCommand) XXX_Size() int {
+	return xxx_messageInfo_RecordCommand.Size(m)
+}
+func (m *RecordCommand) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecordCommand.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecordCommand proto.InternalMessageInfo
+
+func (m *RecordCommand) GetAggregateIdentifier() string {
+	if m != nil {
+		return m.AggregateIdentifier
+	}
+	return ""
+}
+
+type StopCommand struct {
+	AggregateIdentifier  string   `protobuf:"bytes,1,opt,name=aggregateIdentifier,proto3" json:"aggregateIdentifier,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopCommand) Reset()         { *m = StopCommand{} }
+func (m *StopCommand) String() string { return proto.CompactTextString(m) }
+func (*StopCommand) ProtoMessage()    {}
+func (*StopCommand) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{5}
+}
+
+func (m *StopCommand) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopCommand.Unmarshal(m, b)
+}
+func (m *StopCommand) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopCommand.Marshal(b, m, deterministic)
+}
+func (m *StopCommand) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopCommand.Merge(m, src)
+}
+func (m *StopCommand) XXX_Size() int {
+	return xxx_messageInfo_StopCommand.Size(m)
+}
+func (m *StopCommand) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopCommand.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopCommand proto.InternalMessageInfo
+
+func (m *StopCommand) GetAggregateIdentifier() string {
+	if m != nil {
+		return m.AggregateIdentifier
+	}
+	return ""
+}
+
 type GreetedEvent struct {
 	Message              *Greeting `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
@@ -191,7 +269,7 @@ func (m *GreetedEvent) Reset()         { *m = GreetedEvent{} }
 func (m *GreetedEvent) String() string { return proto.CompactTextString(m) }
 func (*GreetedEvent) ProtoMessage()    {}
 func (*GreetedEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{4}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{6}
 }
 
 func (m *GreetedEvent) XXX_Unmarshal(b []byte) error {
@@ -219,12 +297,78 @@ func (m *GreetedEvent) GetMessage() *Greeting {
 	return nil
 }
 
+type StartedRecordingEvent struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartedRecordingEvent) Reset()         { *m = StartedRecordingEvent{} }
+func (m *StartedRecordingEvent) String() string { return proto.CompactTextString(m) }
+func (*StartedRecordingEvent) ProtoMessage()    {}
+func (*StartedRecordingEvent) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{7}
+}
+
+func (m *StartedRecordingEvent) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartedRecordingEvent.Unmarshal(m, b)
+}
+func (m *StartedRecordingEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartedRecordingEvent.Marshal(b, m, deterministic)
+}
+func (m *StartedRecordingEvent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartedRecordingEvent.Merge(m, src)
+}
+func (m *StartedRecordingEvent) XXX_Size() int {
+	return xxx_messageInfo_StartedRecordingEvent.Size(m)
+}
+func (m *StartedRecordingEvent) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartedRecordingEvent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartedRecordingEvent proto.InternalMessageInfo
+
+type StoppedRecordingEvent struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StoppedRecordingEvent) Reset()         { *m = StoppedRecordingEvent{} }
+func (m *StoppedRecordingEvent) String() string { return proto.CompactTextString(m) }
+func (*StoppedRecordingEvent) ProtoMessage()    {}
+func (*StoppedRecordingEvent) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{8}
+}
+
+func (m *StoppedRecordingEvent) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StoppedRecordingEvent.Unmarshal(m, b)
+}
+func (m *StoppedRecordingEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StoppedRecordingEvent.Marshal(b, m, deterministic)
+}
+func (m *StoppedRecordingEvent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoppedRecordingEvent.Merge(m, src)
+}
+func (m *StoppedRecordingEvent) XXX_Size() int {
+	return xxx_messageInfo_StoppedRecordingEvent.Size(m)
+}
+func (m *StoppedRecordingEvent) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoppedRecordingEvent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoppedRecordingEvent proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*Greeting)(nil), "org.leialearns.grpc.example.Greeting")
 	proto.RegisterType((*Acknowledgement)(nil), "org.leialearns.grpc.example.Acknowledgement")
 	proto.RegisterType((*Empty)(nil), "org.leialearns.grpc.example.Empty")
 	proto.RegisterType((*GreetCommand)(nil), "org.leialearns.grpc.example.GreetCommand")
+	proto.RegisterType((*RecordCommand)(nil), "org.leialearns.grpc.example.RecordCommand")
+	proto.RegisterType((*StopCommand)(nil), "org.leialearns.grpc.example.StopCommand")
 	proto.RegisterType((*GreetedEvent)(nil), "org.leialearns.grpc.example.GreetedEvent")
+	proto.RegisterType((*StartedRecordingEvent)(nil), "org.leialearns.grpc.example.StartedRecordingEvent")
+	proto.RegisterType((*StoppedRecordingEvent)(nil), "org.leialearns.grpc.example.StoppedRecordingEvent")
 }
 
 func init() {
@@ -232,25 +376,28 @@ func init() {
 }
 
 var fileDescriptor_15a1dc8d40dadaa6 = []byte{
-	// 274 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0x5d, 0x4b, 0xc3, 0x30,
-	0x14, 0x86, 0x17, 0x61, 0xce, 0x1d, 0xbf, 0x20, 0x8a, 0x8c, 0x79, 0x33, 0x82, 0xc2, 0x40, 0x49,
-	0xc7, 0xfc, 0x01, 0x43, 0x65, 0x88, 0x57, 0x82, 0xde, 0xed, 0x42, 0x88, 0xed, 0x31, 0x94, 0x35,
-	0x1f, 0x9c, 0x84, 0xa9, 0x97, 0xfe, 0x3f, 0x7f, 0x94, 0xac, 0xb6, 0x0c, 0x45, 0xca, 0x76, 0xd9,
-	0xe6, 0x79, 0xdf, 0x3c, 0xe7, 0x10, 0xd8, 0xc7, 0x77, 0x65, 0x7c, 0x81, 0xd2, 0x93, 0x8b, 0x8e,
-	0x9f, 0x3a, 0xd2, 0xb2, 0xc0, 0x5c, 0x15, 0xa8, 0xc8, 0x06, 0xa9, 0xc9, 0xa7, 0xb2, 0x42, 0xc4,
-	0x19, 0xec, 0xdc, 0x11, 0x62, 0xcc, 0xad, 0xe6, 0x3d, 0xe8, 0x18, 0x0c, 0x41, 0x69, 0xec, 0xb1,
-	0x01, 0x1b, 0x76, 0x1f, 0xeb, 0x4f, 0x71, 0x01, 0x87, 0xd7, 0xe9, 0xdc, 0xba, 0xb7, 0x02, 0x33,
-	0x8d, 0x06, 0x6d, 0x6c, 0x80, 0x3b, 0xd0, 0x9e, 0x1a, 0x1f, 0x3f, 0xc4, 0x27, 0x83, 0xbd, 0xb2,
-	0xfc, 0xd6, 0x19, 0xa3, 0x6c, 0xc6, 0x47, 0x70, 0xa4, 0xb4, 0x26, 0xd4, 0x2a, 0xe2, 0x7d, 0x86,
-	0x36, 0xe6, 0xaf, 0x39, 0x52, 0x95, 0xff, 0xef, 0x88, 0x4f, 0x56, 0xb7, 0x6c, 0x0d, 0xd8, 0x70,
-	0x77, 0x7c, 0x2e, 0x1b, 0xa6, 0x91, 0xf5, 0x28, 0x2b, 0x99, 0x87, 0x4a, 0x01, 0xb3, 0xe9, 0x62,
-	0xa9, 0x3d, 0xf9, 0xad, 0xbd, 0x71, 0xe1, 0xf8, 0x8b, 0xc1, 0xc1, 0x4f, 0x23, 0x3d, 0x21, 0x2d,
-	0xf2, 0x14, 0xf9, 0x33, 0xb4, 0xcb, 0x3f, 0x7c, 0xbd, 0xae, 0xfe, 0x65, 0x23, 0xf6, 0x67, 0xd1,
-	0xa2, 0xc5, 0x67, 0xd0, 0xad, 0xb3, 0x81, 0x8b, 0xc6, 0x70, 0xb9, 0xf8, 0xfe, 0x7a, 0x1e, 0xa2,
-	0x35, 0x62, 0x37, 0x27, 0xb3, 0xe3, 0x40, 0x69, 0xe2, 0xe7, 0x3a, 0x59, 0x42, 0x49, 0x05, 0xbd,
-	0x6c, 0x97, 0x6f, 0xe7, 0xea, 0x3b, 0x00, 0x00, 0xff, 0xff, 0xab, 0xa2, 0x6e, 0x9b, 0x4c, 0x02,
-	0x00, 0x00,
+	// 333 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0x5f, 0x4b, 0x3a, 0x41,
+	0x14, 0x75, 0xe5, 0xa7, 0xfe, 0xbc, 0x66, 0xc1, 0xf4, 0x4f, 0xec, 0x45, 0x86, 0x02, 0xa1, 0x58,
+	0xc5, 0x3e, 0x80, 0x58, 0x48, 0xf4, 0x54, 0xe8, 0x9b, 0x0f, 0xc1, 0xb4, 0x7b, 0x1b, 0x16, 0x77,
+	0x67, 0x86, 0xbb, 0x83, 0xd5, 0x63, 0x5f, 0xb9, 0x4f, 0x10, 0xee, 0x1f, 0x24, 0x89, 0x65, 0x93,
+	0x1e, 0x77, 0xcf, 0xb9, 0xe7, 0x9e, 0x73, 0xb8, 0x03, 0x6d, 0x7c, 0x13, 0x91, 0x09, 0xd1, 0x35,
+	0xa4, 0xad, 0x66, 0x67, 0x9a, 0xa4, 0x1b, 0x62, 0x20, 0x42, 0x14, 0xa4, 0x62, 0x57, 0x92, 0xf1,
+	0xdc, 0x8c, 0xc2, 0xcf, 0xe1, 0xff, 0x1d, 0x21, 0xda, 0x40, 0x49, 0xd6, 0x81, 0x46, 0x84, 0x71,
+	0x2c, 0x24, 0x76, 0x9c, 0x9e, 0xd3, 0x6f, 0xce, 0xf2, 0x4f, 0x7e, 0x09, 0x07, 0x13, 0x6f, 0xa9,
+	0xf4, 0x6b, 0x88, 0xbe, 0xc4, 0x08, 0x95, 0x2d, 0x20, 0x37, 0xa0, 0x36, 0x8d, 0x8c, 0x7d, 0xe7,
+	0x1f, 0x0e, 0xec, 0x25, 0xe2, 0xb7, 0x3a, 0x8a, 0x84, 0xf2, 0xd9, 0x10, 0x0e, 0x85, 0x94, 0x84,
+	0x52, 0x58, 0xbc, 0xf7, 0x51, 0xd9, 0xe0, 0x25, 0x40, 0xca, 0xe6, 0x7f, 0x82, 0xd8, 0x78, 0xb3,
+	0xa5, 0xda, 0x73, 0xfa, 0xad, 0xd1, 0x85, 0x5b, 0x90, 0xc6, 0xcd, 0xa3, 0x6c, 0xcc, 0x4c, 0xa0,
+	0x3d, 0x43, 0x4f, 0x93, 0xbf, 0xb3, 0x07, 0x3e, 0x86, 0xd6, 0xdc, 0x6a, 0xb3, 0xbb, 0xc0, 0x43,
+	0x56, 0x03, 0xfa, 0xd3, 0xd5, 0xba, 0xba, 0xf1, 0xf7, 0xea, 0x7e, 0x1f, 0xea, 0x14, 0x8e, 0xe7,
+	0x56, 0x90, 0x45, 0x3f, 0xcd, 0x16, 0x28, 0x99, 0x28, 0xa7, 0x80, 0x36, 0x66, 0x1b, 0x18, 0x7d,
+	0x56, 0x61, 0x3f, 0xf5, 0x40, 0x73, 0xa4, 0x55, 0xe0, 0x21, 0x7b, 0x82, 0x5a, 0xf2, 0x87, 0x95,
+	0xdb, 0xde, 0xbd, 0x2a, 0xa4, 0x6d, 0x9d, 0x07, 0xaf, 0xb0, 0x05, 0x34, 0xf3, 0xd9, 0x98, 0xf1,
+	0xc2, 0xe1, 0xe4, 0x5c, 0xba, 0xe5, 0x7c, 0xf0, 0xca, 0xd0, 0x61, 0x33, 0xa8, 0xa7, 0x01, 0x4b,
+	0x09, 0x97, 0xe0, 0xf0, 0x0a, 0x7b, 0x84, 0x7f, 0xeb, 0xee, 0xfe, 0x4e, 0xf1, 0xe6, 0x64, 0x71,
+	0x14, 0x93, 0x37, 0x30, 0x4b, 0x39, 0x58, 0xe3, 0x83, 0x0c, 0x7f, 0xae, 0x27, 0xef, 0xf2, 0xfa,
+	0x2b, 0x00, 0x00, 0xff, 0xff, 0x79, 0x95, 0x86, 0x14, 0xa8, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -265,9 +412,10 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type GreeterServiceClient interface {
-	// Greets AxonServer.
 	Greet(ctx context.Context, in *Greeting, opts ...grpc.CallOption) (*Acknowledgement, error)
 	Greetings(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GreeterService_GreetingsClient, error)
+	Record(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type greeterServiceClient struct {
@@ -319,11 +467,30 @@ func (x *greeterServiceGreetingsClient) Recv() (*Greeting, error) {
 	return m, nil
 }
 
+func (c *greeterServiceClient) Record(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/org.leialearns.grpc.example.GreeterService/Record", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterServiceClient) Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/org.leialearns.grpc.example.GreeterService/Stop", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServiceServer is the server API for GreeterService service.
 type GreeterServiceServer interface {
-	// Greets AxonServer.
 	Greet(context.Context, *Greeting) (*Acknowledgement, error)
 	Greetings(*Empty, GreeterService_GreetingsServer) error
+	Record(context.Context, *Empty) (*Empty, error)
+	Stop(context.Context, *Empty) (*Empty, error)
 }
 
 // UnimplementedGreeterServiceServer can be embedded to have forward compatible implementations.
@@ -335,6 +502,12 @@ func (*UnimplementedGreeterServiceServer) Greet(ctx context.Context, req *Greeti
 }
 func (*UnimplementedGreeterServiceServer) Greetings(req *Empty, srv GreeterService_GreetingsServer) error {
 	return status.Errorf(codes.Unimplemented, "method Greetings not implemented")
+}
+func (*UnimplementedGreeterServiceServer) Record(ctx context.Context, req *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Record not implemented")
+}
+func (*UnimplementedGreeterServiceServer) Stop(ctx context.Context, req *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
 
 func RegisterGreeterServiceServer(s *grpc.Server, srv GreeterServiceServer) {
@@ -380,6 +553,42 @@ func (x *greeterServiceGreetingsServer) Send(m *Greeting) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _GreeterService_Record_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServiceServer).Record(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/org.leialearns.grpc.example.GreeterService/Record",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServiceServer).Record(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GreeterService_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServiceServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/org.leialearns.grpc.example.GreeterService/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServiceServer).Stop(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _GreeterService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "org.leialearns.grpc.example.GreeterService",
 	HandlerType: (*GreeterServiceServer)(nil),
@@ -387,6 +596,14 @@ var _GreeterService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Greet",
 			Handler:    _GreeterService_Greet_Handler,
+		},
+		{
+			MethodName: "Record",
+			Handler:    _GreeterService_Record_Handler,
+		},
+		{
+			MethodName: "Stop",
+			Handler:    _GreeterService_Stop_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

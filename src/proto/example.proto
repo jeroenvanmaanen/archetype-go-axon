@@ -2,17 +2,14 @@ syntax = "proto3";
 package org.leialearns.grpc.example;
 option go_package = "src/pkg/grpc/example";
 
+// API
+
 /* The GreeterService defines the gRPC requests for greeting AxonServer. */
 service GreeterService {
-
-    /* Greets AxonServer. */
-    rpc Greet (Greeting) returns (Acknowledgement) {
-    }
-
-    rpc Greetings (Empty) returns (stream Greeting) {
-    }
-//    rpc Stop (Stopper) returns (Acknowledgement) {
-//    }
+    rpc Greet (Greeting) returns (Acknowledgement) {}
+    rpc Greetings (Empty) returns (stream Greeting) {}
+    rpc Record (Empty) returns (Empty) {}
+    rpc Stop (Empty) returns (Empty) {}
 }
 
 message Greeting {
@@ -25,14 +22,27 @@ message Acknowledgement {
 
 message Empty {}
 
-//message Stopper {
-//}
+//  Commands
 
 message GreetCommand {
     string aggregateIdentifier = 1;
     Greeting message = 2;
 }
 
+message RecordCommand {
+    string aggregateIdentifier = 1;
+}
+
+message StopCommand {
+    string aggregateIdentifier = 1;
+}
+
+// Events
+
 message GreetedEvent {
     Greeting message = 1;
 }
+
+message StartedRecordingEvent {}
+
+message StoppedRecordingEvent {}

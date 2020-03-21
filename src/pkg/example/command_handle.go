@@ -22,10 +22,20 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     stream, e := client.OpenStream(context.Background())
     log.Printf("Command handler: Stream: %v: %v", stream, e)
 
+    subscribe("GreetCommand", stream, clientInfo)
+    subscribe("RecordCommand", stream, clientInfo)
+    subscribe("StopCommand", stream, clientInfo)
+
+    go worker(stream, conn, clientInfo.ClientId)
+
+    return conn;
+}
+
+func subscribe(commandName string, stream axonserver.CommandService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
     id := uuid.New()
     subscription := axonserver.CommandSubscription {
         MessageId: id.String(),
-        Command: "GreetCommand",
+        Command: commandName,
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
     }
@@ -38,14 +48,10 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
         Request: &subscriptionRequest,
     }
 
-    e = stream.Send(&outbound)
+    e := stream.Send(&outbound)
     if e != nil {
         panic(fmt.Sprintf("Command handler: Error sending subscription", e))
     }
-
-    go worker(stream, conn, clientInfo.ClientId)
-
-    return conn;
 }
 
 func worker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
@@ -64,33 +70,84 @@ func worker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.Client
             commandName := command.Name
             if (commandName == "GreetCommand") {
                 log.Printf("Received GreetCommand")
+                handleGreetCommand(command, stream, conn)
+            } else if (commandName == "RecordCommand") {
+                log.Printf("Received RecordCommand")
+                handleRecordCommand(command, stream, conn)
+            } else if (commandName == "StopCommand") {
+                log.Printf("Received StopCommand")
+                handleStopCommand(command, stream, conn)
             } else {
-                continue
+                log.Printf("Received unknown command: %v", commandName)
             }
-
-            deserializedCommand := grpcExample.GreetCommand{}
-            e = proto.Unmarshal(command.Payload.Data, &deserializedCommand)
-            if (e != nil) {
-                log.Printf("Could not unmarshall GreetCommand")
-            }
-
-            event := grpcExample.GreetedEvent {
-                Message: deserializedCommand.Message,
-            }
-            data, err := proto.Marshal(&event)
-            if err != nil {
-                log.Printf("Server: Error while marshalling event")
-                continue
-            }
-            serializedEvent := axonserver.SerializedObject{
-                Type: "GreetedEvent",
-                Data: data,
-            }
-
-            appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-            respond(stream, command.MessageIdentifier)
         }
     }
+}
+
+func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+    deserializedCommand := grpcExample.GreetCommand{}
+    e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
+    if (e != nil) {
+        log.Printf("Could not unmarshall GreetCommand")
+    }
+
+    event := grpcExample.GreetedEvent {
+        Message: deserializedCommand.Message,
+    }
+    data, err := proto.Marshal(&event)
+    if err != nil {
+        log.Printf("Server: Error while marshalling event")
+        return
+    }
+    serializedEvent := axonserver.SerializedObject{
+        Type: "GreetedEvent",
+        Data: data,
+    }
+
+    appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    respond(stream, command.MessageIdentifier)
+}
+
+func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+    deserializedCommand := grpcExample.RecordCommand{}
+    e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
+    if (e != nil) {
+        log.Printf("Could not unmarshall RecordCommand")
+    }
+    event := grpcExample.StartedRecordingEvent {}
+    data, err := proto.Marshal(&event)
+    if err != nil {
+        log.Printf("Server: Error while marshalling event")
+        return
+    }
+    serializedEvent := axonserver.SerializedObject{
+        Type: "StartedRecordingEvent",
+        Data: data,
+    }
+
+    appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    respond(stream, command.MessageIdentifier)
+}
+
+func handleStopCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+    deserializedCommand := grpcExample.StopCommand{}
+    e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
+    if (e != nil) {
+        log.Printf("Could not unmarshall StopCommand")
+    }
+    event := grpcExample.StoppedRecordingEvent {}
+    data, err := proto.Marshal(&event)
+    if err != nil {
+        log.Printf("Server: Error while marshalling event")
+        return
+    }
+    serializedEvent := axonserver.SerializedObject{
+        Type: "StoppedRecordingEvent",
+        Data: data,
+    }
+
+    appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    respond(stream, command.MessageIdentifier)
 }
 
 func respond(stream axonserver.CommandService_OpenStreamClient, requestId string) {

@@ -74,6 +74,42 @@ export namespace GreetCommand {
   }
 }
 
+export class RecordCommand extends jspb.Message {
+  getAggregateidentifier(): string;
+  setAggregateidentifier(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RecordCommand.AsObject;
+  static toObject(includeInstance: boolean, msg: RecordCommand): RecordCommand.AsObject;
+  static serializeBinaryToWriter(message: RecordCommand, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RecordCommand;
+  static deserializeBinaryFromReader(message: RecordCommand, reader: jspb.BinaryReader): RecordCommand;
+}
+
+export namespace RecordCommand {
+  export type AsObject = {
+    aggregateidentifier: string,
+  }
+}
+
+export class StopCommand extends jspb.Message {
+  getAggregateidentifier(): string;
+  setAggregateidentifier(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StopCommand.AsObject;
+  static toObject(includeInstance: boolean, msg: StopCommand): StopCommand.AsObject;
+  static serializeBinaryToWriter(message: StopCommand, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StopCommand;
+  static deserializeBinaryFromReader(message: StopCommand, reader: jspb.BinaryReader): StopCommand;
+}
+
+export namespace StopCommand {
+  export type AsObject = {
+    aggregateidentifier: string,
+  }
+}
+
 export class GreetedEvent extends jspb.Message {
   getMessage(): Greeting | undefined;
   setMessage(value?: Greeting): void;
@@ -91,6 +127,34 @@ export class GreetedEvent extends jspb.Message {
 export namespace GreetedEvent {
   export type AsObject = {
     message?: Greeting.AsObject,
+  }
+}
+
+export class StartedRecordingEvent extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StartedRecordingEvent.AsObject;
+  static toObject(includeInstance: boolean, msg: StartedRecordingEvent): StartedRecordingEvent.AsObject;
+  static serializeBinaryToWriter(message: StartedRecordingEvent, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StartedRecordingEvent;
+  static deserializeBinaryFromReader(message: StartedRecordingEvent, reader: jspb.BinaryReader): StartedRecordingEvent;
+}
+
+export namespace StartedRecordingEvent {
+  export type AsObject = {
+  }
+}
+
+export class StoppedRecordingEvent extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StoppedRecordingEvent.AsObject;
+  static toObject(includeInstance: boolean, msg: StoppedRecordingEvent): StoppedRecordingEvent.AsObject;
+  static serializeBinaryToWriter(message: StoppedRecordingEvent, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StoppedRecordingEvent;
+  static deserializeBinaryFromReader(message: StoppedRecordingEvent, reader: jspb.BinaryReader): StoppedRecordingEvent;
+}
+
+export namespace StoppedRecordingEvent {
+  export type AsObject = {
   }
 }
 

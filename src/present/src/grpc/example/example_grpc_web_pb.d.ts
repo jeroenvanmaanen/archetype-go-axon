@@ -22,6 +22,20 @@ export class GreeterServiceClient {
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
 
+  record(
+    request: Empty,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: Empty) => void
+  ): grpcWeb.ClientReadableStream<Empty>;
+
+  stop(
+    request: Empty,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: Empty) => void
+  ): grpcWeb.ClientReadableStream<Empty>;
+
 }
 
 export class GreeterServicePromiseClient {
@@ -38,6 +52,16 @@ export class GreeterServicePromiseClient {
     request: Empty,
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
+
+  record(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<Empty>;
+
+  stop(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<Empty>;
 
 }
 

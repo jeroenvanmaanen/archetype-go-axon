@@ -73,6 +73,10 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
         }
         log.Printf("Server: Received event: %v", eventMessage)
         if eventMessage.Payload != nil {
+            log.Printf("Server: Payload type: %v", eventMessage.Payload.Type)
+            if (eventMessage.Payload.Type != "GreetedEvent") {
+                continue
+            }
             log.Printf("Server: Payload: %v", eventMessage.Payload)
             event := grpcExample.GreetedEvent{}
             e = proto.Unmarshal(eventMessage.Payload.Data, &event)
@@ -88,6 +92,42 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
     }
 
     return nil
+}
+
+var empty = grpcExample.Empty{}
+
+func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (*grpcExample.Empty, error) {
+    command := grpcExample.RecordCommand {
+        AggregateIdentifier: "single_aggregate",
+    }
+    data, err := proto.Marshal(&command)
+    if err != nil {
+        log.Printf("Server: Error while marshalling command")
+        return nil, errors.New("Marshalling error")
+    }
+    serializedCommand := axonserver.SerializedObject{
+        Type: "RecordCommand",
+        Data: data,
+    }
+    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    return &empty, nil
+}
+
+func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*grpcExample.Empty, error) {
+    command := grpcExample.StopCommand {
+        AggregateIdentifier: "single_aggregate",
+    }
+    data, err := proto.Marshal(&command)
+    if err != nil {
+        log.Printf("Server: Error while marshalling command")
+        return nil, errors.New("Marshalling error")
+    }
+    serializedCommand := axonserver.SerializedObject{
+        Type: "StopCommand",
+        Data: data,
+    }
+    SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    return &empty, nil
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {

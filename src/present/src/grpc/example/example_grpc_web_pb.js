@@ -225,5 +225,165 @@ proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.greeting
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Empty>}
+ */
+const methodDescriptor_GreeterService_Record = new grpc.web.MethodDescriptor(
+  '/org.leialearns.grpc.example.GreeterService/Record',
+  grpc.web.MethodType.UNARY,
+  proto.org.leialearns.grpc.example.Empty,
+  proto.org.leialearns.grpc.example.Empty,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Empty.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Empty>}
+ */
+const methodInfo_GreeterService_Record = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.org.leialearns.grpc.example.Empty,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.org.leialearns.grpc.example.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServiceClient.prototype.record =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Record',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Record,
+      callback);
+};
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.org.leialearns.grpc.example.Empty>}
+ *     A native promise that resolves to the response
+ */
+proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.record =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Record',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Record);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Empty>}
+ */
+const methodDescriptor_GreeterService_Stop = new grpc.web.MethodDescriptor(
+  '/org.leialearns.grpc.example.GreeterService/Stop',
+  grpc.web.MethodType.UNARY,
+  proto.org.leialearns.grpc.example.Empty,
+  proto.org.leialearns.grpc.example.Empty,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Empty.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.Empty>}
+ */
+const methodInfo_GreeterService_Stop = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.org.leialearns.grpc.example.Empty,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.org.leialearns.grpc.example.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServiceClient.prototype.stop =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Stop',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Stop,
+      callback);
+};
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.org.leialearns.grpc.example.Empty>}
+ *     A native promise that resolves to the response
+ */
+proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.stop =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Stop',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Stop);
+};
+
+
 module.exports = proto.org.leialearns.grpc.example;
 
