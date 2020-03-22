@@ -13,7 +13,7 @@ import (
 )
 
 func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
-    conn, clientInfo := WaitForServer(host, port, "Command Handler")
+    conn, clientInfo, _ := WaitForServer(host, port, "Command Handler")
 
     log.Printf("Command handler: Connection: %v", conn)
     client := axonserver.NewCommandServiceClient(conn)
@@ -61,8 +61,8 @@ func worker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.Client
         log.Printf("Command handler: Waiting for command")
         inbound, e := stream.Recv()
         if (e != nil) {
-          log.Printf("Command handler: Error on receive, %v", e)
-          continue
+          log.Printf("Command handler: Error on receive: %v", e)
+          break
         }
         log.Printf("Command handler: Inbound: %v", inbound)
         command := inbound.GetCommand()
