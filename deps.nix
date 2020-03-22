@@ -37,6 +37,15 @@
     };
   }
   {
+    goPackagePath = "github.com/elastic/go-elasticsearch";
+    fetch = {
+      type = "git";
+      url = "https://github.com/elastic/go-elasticsearch";
+      rev = "52113c658f03";
+      sha256 = "063g9jfv00bsbvyif80fcs0f5ww1k7ka5biswn61is03kg96ws99";
+    };
+  }
+  {
     goPackagePath = "github.com/envoyproxy/go-control-plane";
     fetch = {
       type = "git";

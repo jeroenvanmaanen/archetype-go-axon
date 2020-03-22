@@ -3,7 +3,9 @@ package example
 import (
     fmt "fmt"
     log "log"
+    time "time"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
     grpc "google.golang.org/grpc"
     uuid "github.com/google/uuid"
 )
@@ -15,6 +17,8 @@ func ProcessEvents(host string, port int) *grpc.ClientConn {
     registerProcessor("example-processor", stream, clientInfo)
 
     go eventProcessorWorker(stream, conn, clientInfo.ClientId)
+
+    go tryElasticSearch()
 
     return conn;
 }
@@ -66,5 +70,34 @@ func eventProcessorReceivePlatformInstruction(stream *axonserver.PlatformService
       return e
     }
     log.Printf("Event processor receive platform instruction: Outbound: %v", outbound)
+    return nil
+}
+
+func tryElasticSearch() {
+    log.Printf("Try Elastic Search")
+    es7 := WaitForElasticSearch();
+
+    info, e := es7.Info()
+    if e == nil {
+        return
+    }
+    log.Printf("Elastic Search: info: %v", info)
+}
+
+func WaitForElasticSearch() *elasticSearch7.Client {
+    cfg := elasticSearch7.Config{
+        Addresses: []string{
+            "http://elastic-search:9200",
+        },
+    }
+    d, _ := time.ParseDuration("3s")
+    for true {
+        es7, e := elasticSearch7.NewClient(cfg)
+        if e == nil {
+            return es7
+        }
+        time.Sleep(d)
+        log.Printf(".(es) %v", e)
+    }
     return nil
 }
