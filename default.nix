@@ -8,5 +8,5 @@ buildGoModule {
   src = nix-gitignore.gitignoreSource [] ./.;
   goPackagePath = "github.com/jeroenvm/archetype-nix-go";
   goDeps = ./deps.nix;
-  modSha256 = "14qlfliab72fm62q4i5cs7z40xzycymafl48bj32zink96vjmyq8";
+  modSha256 = "09jgshs66ipgqcq1y8gyhihnr00895grph1jm7w41r3gybggsawy";
 }

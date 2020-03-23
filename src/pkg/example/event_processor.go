@@ -1,9 +1,12 @@
 package example
 
 import (
+    context "context"
     fmt "fmt"
     log "log"
+    strings "strings"
     time "time"
+    json "encoding/json"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
     grpc "google.golang.org/grpc"
@@ -76,12 +79,37 @@ func eventProcessorReceivePlatformInstruction(stream *axonserver.PlatformService
 func tryElasticSearch() {
     log.Printf("Try Elastic Search")
     es7 := WaitForElasticSearch();
+    log.Printf("Elastic Search client: %v", es7)
 
-    info, e := es7.Info()
-    if e == nil {
+    info, e := es7.Info(es7.Info.WithContext(context.Background()), es7.Info.WithHuman())
+    if e != nil {
+        log.Printf("Error while requesting Elastic Search info: %v", e)
         return
     }
     log.Printf("Elastic Search: info: %v", info)
+
+    // Check response status
+    if info.IsError() {
+        log.Printf("Error: %s", info.String())
+        return
+    }
+
+    if info.Body == nil {
+        log.Printf("Missing body")
+        return
+    }
+
+    defer info.Body.Close()
+    // Deserialize the response into a map.
+    var r map[string]interface{}
+    if err := json.NewDecoder(info.Body).Decode(&r); err != nil {
+        log.Printf("Error parsing the response body: %s", err)
+        return
+    }
+    // Print client and server version numbers.
+    log.Printf("Client: %s", elasticSearch7.Version)
+    log.Printf("Server: %s", r["version"].(map[string]interface{})["number"])
+    log.Println(strings.Repeat("~", 37))
 }
 
 func WaitForElasticSearch() *elasticSearch7.Client {
@@ -90,7 +118,10 @@ func WaitForElasticSearch() *elasticSearch7.Client {
             "http://elastic-search:9200",
         },
     }
-    d, _ := time.ParseDuration("3s")
+    d, _ := time.ParseDuration("10s")
+    time.Sleep(d)
+    d, _ = time.ParseDuration("3s")
+    log.Printf(".(es)")
     for true {
         es7, e := elasticSearch7.NewClient(cfg)
         if e == nil {
