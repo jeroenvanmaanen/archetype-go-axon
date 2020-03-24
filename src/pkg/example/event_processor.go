@@ -3,7 +3,6 @@ package example
 import (
     context "context"
     errors "errors"
-    fmt "fmt"
     log "log"
     strings "strings"
     time "time"
@@ -23,16 +22,20 @@ func ProcessEvents(host string, port int) *grpc.ClientConn {
     conn, clientInfo, stream := WaitForServer(host, port, "Event processor")
     log.Printf("Connection and client info: %v: %v: %v", conn, clientInfo, stream)
 
-    registerProcessor("example-processor", stream, clientInfo)
+    processorName := "example-processor"
 
-    go eventProcessorWorker(stream, conn, clientInfo.ClientId)
+    if e := registerProcessor(processorName, stream, clientInfo); e != nil {
+        return conn
+    }
+
+    go eventProcessorWorker(stream, conn, clientInfo, processorName)
 
     go tryElasticSearch()
 
     return conn;
 }
 
-func registerProcessor(processorName string, stream *axonserver.PlatformService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
+func registerProcessor(processorName string, stream *axonserver.PlatformService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) error {
     processorInfo := axonserver.EventProcessorInfo {
         ProcessorName: processorName,
         Mode: "Tracking",
@@ -56,18 +59,52 @@ func registerProcessor(processorName string, stream *axonserver.PlatformService_
 
     e := (*stream).Send(&inbound)
     if e != nil {
-        panic(fmt.Sprintf("Event processor: Error sending subscription", e))
+        log.Printf("Event processor: Error sending registration", e)
+        return e
     }
+
+    e = eventProcessorReceivePlatformInstruction(stream)
+    if e != nil {
+        log.Printf("Event processor: Error while waiting for acknowledgement of registration")
+        return e
+    }
+    return nil
 }
 
-func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
-    for true {
-        // addPermits(1, stream, clientId)
+func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification, processorName string) {
+    eventStoreClient := axonserver.NewEventStoreClient(conn)
+    log.Printf("Event processor worker: Event store client: %v", eventStoreClient)
+    client, e := eventStoreClient.ListEvents(context.Background())
+    if e != nil {
+        log.Printf("Event processor worker: Error while opening ListEvents stream: %v", e)
+        return
+    }
+    log.Printf("Event processor worker: List events client: %v", client)
 
-        e := eventProcessorReceivePlatformInstruction(stream)
+    getEventsRequest := axonserver.GetEventsRequest{
+        NumberOfPermits: 1,
+        ClientId: clientInfo.ClientId,
+        ComponentName: clientInfo.ComponentName,
+        Processor: processorName,
+    }
+    log.Printf("Event processor worker: Get events request: %v", getEventsRequest)
+
+
+    log.Printf("Event processor worker: Ready to process events")
+
+    for true {
+        e = client.Send(&getEventsRequest)
         if e != nil {
-            break
+            log.Printf("Event processor worker: Error while sending get events request: %v", e)
         }
+
+        event, e := client.Recv()
+        if e != nil {
+            log.Printf("Event processor worker: Error while receiving next event: %v", e)
+            return
+        }
+        log.Printf("Event processor worker: Next event: %v", event)
+        getEventsRequest.TrackingToken = event.Token
     }
 }
 
