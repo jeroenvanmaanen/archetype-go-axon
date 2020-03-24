@@ -7,7 +7,7 @@ import (
     strings "strings"
     time "time"
 
-    base64 "encoding/base64"
+    hex "encoding/hex"
     json "encoding/json"
     sha256 "crypto/sha256"
 
@@ -15,6 +15,8 @@ import (
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
     esapi "github.com/elastic/go-elasticsearch/v7/esapi"
     grpc "google.golang.org/grpc"
+    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
+    proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 )
 
@@ -29,8 +31,6 @@ func ProcessEvents(host string, port int) *grpc.ClientConn {
     }
 
     go eventProcessorWorker(stream, conn, clientInfo, processorName)
-
-    go tryElasticSearch()
 
     return conn;
 }
@@ -72,6 +72,9 @@ func registerProcessor(processorName string, stream *axonserver.PlatformService_
 }
 
 func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification, processorName string) {
+    es7 := WaitForElasticSearch();
+    log.Printf("Elastic Search client: %v", es7)
+
     eventStoreClient := axonserver.NewEventStoreClient(conn)
     log.Printf("Event processor worker: Event store client: %v", eventStoreClient)
     client, e := eventStoreClient.ListEvents(context.Background())
@@ -91,7 +94,7 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
 
 
     log.Printf("Event processor worker: Ready to process events")
-
+    greetedEvent := grpcExample.GreetedEvent{}
     for true {
         e = client.Send(&getEventsRequest)
         if e != nil {
@@ -105,6 +108,15 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
         }
         log.Printf("Event processor worker: Next event: %v", event)
         getEventsRequest.TrackingToken = event.Token
+
+        if event.Event == nil || event.Event.Payload == nil || event.Event.Payload.Type != "GreetedEvent" {
+            continue
+        }
+
+        e = proto.Unmarshal(event.Event.Payload.Data, &greetedEvent)
+        log.Printf("Event processor worker: Payload of greeted event: %v", greetedEvent)
+
+        addToIndex(greetedEvent.Message.Message, es7)
     }
 }
 
@@ -117,14 +129,6 @@ func eventProcessorReceivePlatformInstruction(stream *axonserver.PlatformService
     }
     log.Printf("Event processor receive platform instruction: Outbound: %v", outbound)
     return nil
-}
-
-func tryElasticSearch() {
-    log.Printf("Try Elastic Search")
-    es7 := WaitForElasticSearch();
-    log.Printf("Elastic Search client: %v", es7)
-
-    addToIndex("Sleep mode activated.", es7)
 }
 
 func WaitForElasticSearch() *elasticSearch7.Client {
@@ -183,7 +187,7 @@ func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {
 
 func addToIndex(message string, es7 *elasticSearch7.Client) {
     checksum := sha256.Sum256([]byte(message))
-    id := base64.StdEncoding.EncodeToString(checksum[:])
+    id := hex.EncodeToString(checksum[:])
     log.Printf("Add to index: Document ID: %v", id)
 
     // Build the request body.
