@@ -78,9 +78,14 @@ services:
       published: '9300'
     environment:
       - "discovery.type=single-node"
+    volumes:
+      - type: volume
+        source: elastic-search-data
+        target: /usr/share/elasticsearch/data
 
 volumes:
   axon-data:
+  elastic-search-data:
   jeroenvm-nix-store:
     external: true
 

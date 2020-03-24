@@ -7,9 +7,14 @@ import (
     log "log"
     strings "strings"
     time "time"
+
+    base64 "encoding/base64"
     json "encoding/json"
+    sha256 "crypto/sha256"
+
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
+    esapi "github.com/elastic/go-elasticsearch/v7/esapi"
     grpc "google.golang.org/grpc"
     uuid "github.com/google/uuid"
 )
@@ -81,6 +86,8 @@ func tryElasticSearch() {
     log.Printf("Try Elastic Search")
     es7 := WaitForElasticSearch();
     log.Printf("Elastic Search client: %v", es7)
+
+    addToIndex("Sleep mode activated.", es7)
 }
 
 func WaitForElasticSearch() *elasticSearch7.Client {
@@ -135,4 +142,44 @@ func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {
     log.Printf("Server: %s", r["version"].(map[string]interface{})["number"])
     log.Println(strings.Repeat("~", 37))
     return nil
+}
+
+func addToIndex(message string, es7 *elasticSearch7.Client) {
+    checksum := sha256.Sum256([]byte(message))
+    id := base64.StdEncoding.EncodeToString(checksum[:])
+    log.Printf("Add to index: Document ID: %v", id)
+
+    // Build the request body.
+    var b strings.Builder
+    b.WriteString(`{"message" : "`)
+    b.WriteString(message)
+    b.WriteString(`"}`)
+
+    // Set up the request object.
+    req := esapi.IndexRequest{
+        Index:      "greetings",
+        DocumentID: id,
+        Body:       strings.NewReader(b.String()),
+        Refresh:    "true",
+    }
+
+    // Perform the request with the client.
+    res, err := req.Do(context.Background(), es7)
+    if err != nil {
+        log.Fatalf("Error getting response: %s", err)
+    }
+    defer res.Body.Close()
+
+    if res.IsError() {
+        log.Printf("[%s] Error indexing document ID=%d", res.Status(), id)
+    } else {
+        // Deserialize the response into a map.
+        var r map[string]interface{}
+        if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+            log.Printf("Error parsing the response body: %s", err)
+        } else {
+            // Print the response status and indexed document version.
+            log.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
+        }
+    }
 }
