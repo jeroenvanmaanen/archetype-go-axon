@@ -4,6 +4,7 @@ import (
     context "context"
     errors "errors"
     log "log"
+    strconv "strconv"
     strings "strings"
     time "time"
 
@@ -95,10 +96,27 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
 
     log.Printf("Event processor worker: Ready to process events")
     greetedEvent := grpcExample.GreetedEvent{}
+    defer func() {
+        log.Printf("Event processor worker stopped")
+    }()
+    first := true
     for true {
+        if first {
+            first = false
+        } else {
+            var b strings.Builder
+            b.WriteString(`{"token" : "`)
+            b.WriteString(strconv.FormatInt(getEventsRequest.TrackingToken, 16))
+            b.WriteString(`"}`)
+            if e = addToIndex("tracking-token", processorName, b.String(), es7); e != nil {
+                log.Printf("Event processor worker: Error while storing tracking token: %v", e)
+                return
+            }
+        }
         e = client.Send(&getEventsRequest)
         if e != nil {
             log.Printf("Event processor worker: Error while sending get events request: %v", e)
+            return
         }
 
         event, e := client.Recv()
@@ -113,10 +131,16 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
             continue
         }
 
-        e = proto.Unmarshal(event.Event.Payload.Data, &greetedEvent)
+        if e = proto.Unmarshal(event.Event.Payload.Data, &greetedEvent); e != nil {
+            log.Printf("Event processor worker: Unmarshalling of GreetedEvent failed: %v", e)
+            return
+        }
         log.Printf("Event processor worker: Payload of greeted event: %v", greetedEvent)
 
-        addToIndex(greetedEvent.Message.Message, es7)
+        if e = addMessageToIndex(greetedEvent.Message.Message, es7); e != nil {
+            log.Printf("Event processor worker: error while indexing message: %v", e)
+            return
+        }
     }
 }
 
@@ -185,10 +209,9 @@ func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {
     return nil
 }
 
-func addToIndex(message string, es7 *elasticSearch7.Client) {
+func addMessageToIndex(message string, es7 *elasticSearch7.Client) error {
     checksum := sha256.Sum256([]byte(message))
     id := hex.EncodeToString(checksum[:])
-    log.Printf("Add to index: Document ID: %v", id)
 
     // Build the request body.
     var b strings.Builder
@@ -196,31 +219,41 @@ func addToIndex(message string, es7 *elasticSearch7.Client) {
     b.WriteString(message)
     b.WriteString(`"}`)
 
+    return addToIndex("greetings", id, b.String(), es7)
+}
+
+func addToIndex(indexName string, id string, body string, es7 *elasticSearch7.Client) error {
+    log.Printf("Add to index: %s: Document ID: %v", indexName, id)
+
     // Set up the request object.
     req := esapi.IndexRequest{
         Index:      "greetings",
         DocumentID: id,
-        Body:       strings.NewReader(b.String()),
+        Body:       strings.NewReader(body),
         Refresh:    "true",
     }
 
     // Perform the request with the client.
     res, err := req.Do(context.Background(), es7)
     if err != nil {
-        log.Fatalf("Error getting response: %s", err)
+        log.Printf("Elastic Search: Error getting response: %s", err)
+        return err
     }
     defer res.Body.Close()
 
     if res.IsError() {
-        log.Printf("[%s] Error indexing document ID=%d", res.Status(), id)
-    } else {
-        // Deserialize the response into a map.
-        var r map[string]interface{}
-        if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-            log.Printf("Error parsing the response body: %s", err)
-        } else {
-            // Print the response status and indexed document version.
-            log.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
-        }
+        log.Printf("Elastic Search: [%s] Error indexing document ID=%d", res.Status(), id)
+        return errors.New("Error indexing document")
     }
+
+    // Deserialize the response into a map.
+    var r map[string]interface{}
+    if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+        log.Printf("Elastic Search: Error parsing the response body: %s", err)
+        return errors.New("Error parsing response body")
+    }
+
+    // Print the response status and indexed document version.
+    log.Printf("Elastic Search: [%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
+    return nil
 }
