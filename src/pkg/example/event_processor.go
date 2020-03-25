@@ -9,6 +9,7 @@ import (
     time "time"
 
     hex "encoding/hex"
+    ioutil "io/ioutil"
     json "encoding/json"
     sha256 "crypto/sha256"
 
@@ -76,7 +77,7 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
     es7 := WaitForElasticSearch();
     log.Printf("Elastic Search client: %v", es7)
 
-    readToken(processorName, es7)
+    token, _ := readToken(processorName, es7)
 
     eventStoreClient := axonserver.NewEventStoreClient(conn)
     log.Printf("Event processor worker: Event store client: %v", eventStoreClient)
@@ -92,6 +93,9 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
         Processor: processorName,
+    }
+    if token != nil {
+        getEventsRequest.TrackingToken = *token + 1
     }
     log.Printf("Event processor worker: Get events request: %v", getEventsRequest)
 
@@ -260,12 +264,34 @@ func addToIndex(indexName string, id string, body string, es7 *elasticSearch7.Cl
     return nil
 }
 
-func readToken(processorName string, es7 *elasticSearch7.Client) error {
+func readToken(processorName string, es7 *elasticSearch7.Client) (*int64, error) {
     response, e := es7.Get("tracking-token", processorName)
     if e != nil {
         log.Printf("Elastic search: Error while reading token: %v", e)
-        return e
+        return nil, e
     }
     log.Printf("Elastic search: token document: %v", response)
-    return nil
+
+    responseJson, e := ioutil.ReadAll(response.Body)
+    if e != nil {
+        log.Printf("Elastic search: Error while reading response body: %v", e)
+        return nil, e
+    }
+
+    jsonMap := make(map[string](interface{}))
+    e = json.Unmarshal(responseJson, &jsonMap)
+    if e != nil {
+        log.Printf("Elastic search: Error while unmarshalling JSON, %v", e)
+        return nil, e
+    }
+
+    hexToken := jsonMap["_source"].(map[string](interface{}))["token"].(string)
+    token, e := strconv.ParseInt(hexToken, 16, 64)
+    if e != nil {
+        log.Printf("Elastic search: Error while parsing hex token, %v", e)
+        return nil, e
+    }
+    log.Printf("Elastic search: token: %v", token)
+
+    return &token, nil
 }
