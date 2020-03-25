@@ -12,7 +12,8 @@ The first phase is to communicate with Axon Server properly:
 5. ☑ Retrieve the events for an aggregate and build a projection
    * ☑ Validate commands against the projection
 6. ☑ Register a tracking event processor and handle events
-7. ☑ Store records in a query model (Elastic Search?)
+7. ☑ Store records in a query model: Elastic Search
+   * ☐ Store tracking token in Elastic Search
 8. ☐ Register a query handler and handle queries
    * ☐ Show query results in UI
 
