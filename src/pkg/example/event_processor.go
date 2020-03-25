@@ -76,6 +76,8 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
     es7 := WaitForElasticSearch();
     log.Printf("Elastic Search client: %v", es7)
 
+    readToken(processorName, es7)
+
     eventStoreClient := axonserver.NewEventStoreClient(conn)
     log.Printf("Event processor worker: Event store client: %v", eventStoreClient)
     client, e := eventStoreClient.ListEvents(context.Background())
@@ -227,7 +229,7 @@ func addToIndex(indexName string, id string, body string, es7 *elasticSearch7.Cl
 
     // Set up the request object.
     req := esapi.IndexRequest{
-        Index:      "greetings",
+        Index:      indexName,
         DocumentID: id,
         Body:       strings.NewReader(body),
         Refresh:    "true",
@@ -255,5 +257,15 @@ func addToIndex(indexName string, id string, body string, es7 *elasticSearch7.Cl
 
     // Print the response status and indexed document version.
     log.Printf("Elastic Search: [%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
+    return nil
+}
+
+func readToken(processorName string, es7 *elasticSearch7.Client) error {
+    response, e := es7.Get("tracking-token", processorName)
+    if e != nil {
+        log.Printf("Elastic search: Error while reading token: %v", e)
+        return e
+    }
+    log.Printf("Elastic search: token document: %v", response)
     return nil
 }
