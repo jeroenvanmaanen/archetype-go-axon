@@ -3,7 +3,8 @@ import * as grpcWeb from 'grpc-web';
 import {
   Acknowledgement,
   Empty,
-  Greeting} from './example_pb';
+  Greeting,
+  SearchQuery} from './example_pb';
 
 export class GreeterServiceClient {
   constructor (hostname: string,
@@ -36,6 +37,11 @@ export class GreeterServiceClient {
                response: Empty) => void
   ): grpcWeb.ClientReadableStream<Empty>;
 
+  search(
+    request: SearchQuery,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<Greeting>;
+
 }
 
 export class GreeterServicePromiseClient {
@@ -62,6 +68,11 @@ export class GreeterServicePromiseClient {
     request: Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<Empty>;
+
+  search(
+    request: SearchQuery,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<Greeting>;
 
 }
 

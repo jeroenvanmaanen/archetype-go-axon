@@ -7,11 +7,13 @@ import (
     io "io"
     net "net"
     log "log"
+
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     reflection "google.golang.org/grpc/reflection"
+    uuid "github.com/google/uuid"
 )
 
 type GreeterServer struct {
@@ -137,6 +139,69 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*g
         return nil, err
     }
     return &empty, nil
+}
+
+func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer grpcExample.GreeterService_SearchServer) error {
+    greeting := grpcExample.Greeting {
+        Message: "Hello, World!",
+    }
+    log.Printf("Server: Search streamed reply: %v", greeting)
+    greetingsServer.Send(&greeting)
+    log.Printf("Server: Search streamed reply sent")
+
+    queryData, e := proto.Marshal(query)
+    if e != nil {
+        log.Printf("Server: Error while marshalling query object: %v", e)
+        return e
+    }
+
+    serializedQuery := axonserver.SerializedObject{
+        Type: "SearchQuery",
+        Data: queryData,
+    }
+
+    eventStoreClient := axonserver.NewQueryServiceClient(s.conn)
+    id := uuid.New()
+    queryRequest := axonserver.QueryRequest {
+        MessageIdentifier: id.String(),
+        Query: "SearchQuery",
+        Payload: &serializedQuery,
+    }
+    log.Printf("Server: Query request: %v", queryRequest)
+    client, e := eventStoreClient.Query(context.Background(), &queryRequest)
+    if e != nil {
+        log.Printf("Server: Error while submitting query: %v", e)
+        return nil
+    }
+    for {
+        queryResponse, e := client.Recv()
+        if e == io.EOF {
+            log.Printf("Server: End of stream")
+            break
+        } else if e != nil {
+            log.Printf("Server: Error while receiving next event: %v", e)
+            break
+        }
+        log.Printf("Server: Received query response: %v", queryResponse)
+        if queryResponse.Payload != nil {
+            log.Printf("Server: Payload type: %v", queryResponse.Payload.Type)
+            if (queryResponse.Payload.Type != "Greeting") {
+                continue
+            }
+            log.Printf("Server: Payload: %v", queryResponse.Payload)
+            greeting := grpcExample.Greeting{}
+            e = proto.Unmarshal(queryResponse.Payload.Data, &greeting)
+            if e != nil {
+                log.Printf("Server: Error while unmarshalling Greeting")
+                continue
+            }
+            log.Printf("Server: Greeting: %v", greeting)
+            greetingsServer.Send(&greeting)
+            log.Printf("Server: Search streamed reply sent")
+        }
+    }
+
+    return nil
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {

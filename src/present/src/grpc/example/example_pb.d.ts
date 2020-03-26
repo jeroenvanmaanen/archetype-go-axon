@@ -158,3 +158,21 @@ export namespace StoppedRecordingEvent {
   }
 }
 
+export class SearchQuery extends jspb.Message {
+  getQuery(): string;
+  setQuery(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SearchQuery.AsObject;
+  static toObject(includeInstance: boolean, msg: SearchQuery): SearchQuery.AsObject;
+  static serializeBinaryToWriter(message: SearchQuery, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SearchQuery;
+  static deserializeBinaryFromReader(message: SearchQuery, reader: jspb.BinaryReader): SearchQuery;
+}
+
+export namespace SearchQuery {
+  export type AsObject = {
+    query: string,
+  }
+}
+
