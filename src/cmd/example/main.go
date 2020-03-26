@@ -40,6 +40,10 @@ func main() {
     eventProcessorConn := example.ProcessEvents(host, port)
     defer eventProcessorConn.Close()
 
+    // Handle queries
+    queryHandlerConn := example.HandleQueries(host, port)
+    defer queryHandlerConn.Close()
+
     // Listen to incoming gRPC requests
     example.Serve(conn, clientInfo)
 }

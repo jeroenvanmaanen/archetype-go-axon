@@ -22,16 +22,16 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     stream, e := client.OpenStream(context.Background())
     log.Printf("Command handler: Stream: %v: %v", stream, e)
 
-    subscribe("GreetCommand", stream, clientInfo)
-    subscribe("RecordCommand", stream, clientInfo)
-    subscribe("StopCommand", stream, clientInfo)
+    subscribeCommand("GreetCommand", stream, clientInfo)
+    subscribeCommand("RecordCommand", stream, clientInfo)
+    subscribeCommand("StopCommand", stream, clientInfo)
 
-    go worker(stream, conn, clientInfo.ClientId)
+    go commandWorker(stream, conn, clientInfo.ClientId)
 
     return conn;
 }
 
-func subscribe(commandName string, stream axonserver.CommandService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
+func subscribeCommand(commandName string, stream axonserver.CommandService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
     id := uuid.New()
     subscription := axonserver.CommandSubscription {
         MessageId: id.String(),
@@ -54,9 +54,9 @@ func subscribe(commandName string, stream axonserver.CommandService_OpenStreamCl
     }
 }
 
-func worker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
+func commandWorker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
     for true {
-        addPermits(1, stream, clientId)
+        commandAddPermits(1, stream, clientId)
 
         log.Printf("Command handler: Waiting for command")
         inbound, e := stream.Recv()
@@ -111,7 +111,7 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
     }
 
     appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    respond(stream, command.MessageIdentifier)
+    commandRespond(stream, command.MessageIdentifier)
 }
 
 func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
@@ -132,7 +132,7 @@ func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandS
     }
 
     appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    respond(stream, command.MessageIdentifier)
+    commandRespond(stream, command.MessageIdentifier)
 }
 
 func handleStopCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
@@ -153,10 +153,10 @@ func handleStopCommand(command *axonserver.Command, stream axonserver.CommandSer
     }
 
     appendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    respond(stream, command.MessageIdentifier)
+    commandRespond(stream, command.MessageIdentifier)
 }
 
-func respond(stream axonserver.CommandService_OpenStreamClient, requestId string) {
+func commandRespond(stream axonserver.CommandService_OpenStreamClient, requestId string) {
     id := uuid.New()
     commandResponse := axonserver.CommandResponse {
         MessageIdentifier: id.String(),
@@ -206,7 +206,7 @@ func reportError(stream axonserver.CommandService_OpenStreamClient, requestId st
     }
 }
 
-func addPermits(amount int64, stream axonserver.CommandService_OpenStreamClient, clientId string) {
+func commandAddPermits(amount int64, stream axonserver.CommandService_OpenStreamClient, clientId string) {
     flowControl := axonserver.FlowControl {
         ClientId: clientId,
         Permits: amount,
