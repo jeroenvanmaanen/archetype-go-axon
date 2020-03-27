@@ -179,6 +179,10 @@ func readToken(processorName string, es7 *elasticSearch7.Client) (*int64, error)
     }
     log.Printf("Elastic search: token document: %v", response)
 
+    if response.StatusCode == 404 {
+        return nil, nil
+    }
+
     responseJson, e := ioutil.ReadAll(response.Body)
     if e != nil {
         log.Printf("Elastic search: Error while reading response body: %v", e)
