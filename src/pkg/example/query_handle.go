@@ -108,10 +108,13 @@ func handleSearchQuery(axonQuery *axonserver.QueryRequest, stream axonserver.Que
         log.Printf("Query handler: hit: %v", hit)
         source := hit.(map[string](interface{}))["_source"]
         log.Printf("Query handler: source: %v", source)
-        message := source.(map[string](interface{}))["message"].(string)
-        log.Printf("Query handler: message: %v", message)
+        message := source.(map[string](interface{}))["message"]
+        if message == nil {
+            continue
+        }
+        log.Printf("Query handler: message: %v", message.(string))
 
-        reply.Message = message
+        reply.Message = message.(string)
         queryRespond(&reply, stream, axonQuery.MessageIdentifier)
     }
 

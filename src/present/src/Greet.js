@@ -6,6 +6,7 @@ class Greet extends Component {
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleQuery = this.handleQuery.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRecord = this.handleRecord.bind(this);
         this.handleStop = this.handleStop.bind(this);
@@ -19,7 +20,10 @@ class Greet extends Component {
                 <p><input type='submit' id='record' value=' Record ' onClick={this.handleRecord}/>
                    <input type='submit' id='stop' value=' Stop ' onClick={this.handleStop}/>
                 </p>
-                <p><input type='text' id='message' /> <input type='submit' id='submit-greeting' value=' Go! ' onClick={this.handleSubmit}/></p>
+                <p><input type='text' id='message' />
+                   <input type='submit' id='submit-greeting' value=' Go! ' onClick={this.handleSubmit} class='trailing'/>
+                   <input type='submit' id='submit-query' value=' Submit Lucene query ' onClick={this.handleQuery} class='trailing'/>
+                </p>
                 <p><input type='submit' id='refresh-greetings' value=' Refresh! ' onClick={this.handleRefresh}/></p>
                 <div id='greetings'><div><i>greetings appear here</i></div></div>
             </div>
@@ -42,6 +46,42 @@ class Greet extends Component {
           console.log('Submit: stream status: code:', status.code);
           console.log('Submit: stream status: details:', status.details);
           console.log('Submit: stream status: metadata:', status.metadata);
+        });
+    }
+
+    handleQuery(event) {
+        const query = document.getElementById('message').value;
+        console.log('Query: query:', query);
+
+        const client = new example.GreeterServiceClient('http://localhost:3000');
+        console.log('Query: client:', client);
+
+        const container = document.getElementById('greetings');
+        container.innerHTML = '';
+
+        const searchQueryRequest = new example.SearchQuery();
+        console.log('Query: new request:', searchQueryRequest);
+        searchQueryRequest.setQuery(query);
+        console.log('Query: request:', searchQueryRequest);
+        const response = client.search(searchQueryRequest);
+
+        console.log('Query: response:', response);
+        response.on('data', function(r) {
+            console.log('Query: greetings document:', r);
+            const message = r.getMessage();
+            console.log('Query: greetings document: message', message);
+            const text = document.createTextNode(message);
+            const div = document.createElement('div');
+            div.appendChild(text);
+            container.appendChild(div)
+        })
+        response.on('status', function(status) {
+          console.log('Query: stream status: code:', status.code);
+          console.log('Query: stream status: details:', status.details);
+          console.log('Query: stream status: metadata:', status.metadata);
+        });
+        response.on('end', function(end) {
+          // stream end signal
         });
     }
 
