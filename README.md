@@ -1,8 +1,30 @@
 # Archetype of a Go project that uses Axon for Event Sourcing and CQRS
 
-This project is still **Work In Progress**. It was cloned from [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
+## Introduction
 
-The first phase is to communicate with Axon Server properly:
+My aim is to create a project that can be used as a template for future
+projects with the following characteristics:
+* Command / Query Responsibility Segregation (CQRS)
+* Event Sourcing
+* Strong typing
+* High Performance
+* High Availability
+* Scalability
+
+On top of that, I would love to be able to start a project as a monolithic
+application and have it evolve into a collection of micro-services that is
+integrated into a service mesh architecture.
+
+The components that I want to combine are:
+* The Go language (for high-performance, type safety and gRPC integration with Axon Server)
+* Docker (to minimise the impact on/from the host system)
+* Nix (to manage dependencies)
+* Axon Server (for event storage, message routing, and scalability)
+* Envoy (for service mesh architecture and high availability)
+
+## Status
+
+The first phase is already done. The current project communicates with Axon Server properly:
 1. ☑ Set up a session
    *  ☑ Enable React app to call a RPC endpoint on the example-command-api service through grpc-web
 2. ☑ Issue commands
@@ -25,32 +47,13 @@ After that:
 * Add claim-based security
 * Extract reusable code into a proper library that can be included as a dependency
 * Add context management with proper canceling of operations
-
-## Introduction
-
-My aim is to create a project that
-can be used as a template for future projects with the following
-characteristics:
-* Command / Query Responsibility Segregation (CQRS)
-* Event Sourcing
-* Strong typing
-* High Performance
-* High Availability
-* Scalability
-
-On top of that, I would love to be able to start a project as a monolithic
-application and have it evolve into a collection of micro-services that is
-integrated into a service mesh architecture.
-
-The components that I want to combine are:
-* The Go language (for high-performance, type safety and gRPC integration with Axon Server)
-* Docker (to minimise the impact on/from the host system)
-* Nix (to manage dependencies)
-* Axon Server (for event storage, message routing, and scalability)
-* Envoy (for service mesh architecture and high availability)
+* Support distributable segmented tracking event processors
+* Fix bug with disappearing connections when Go applications talk to
+  AxonServer via Envoy
 
 ## Setup
 
+This project started as a clone of [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
 I mostly followed [Golang Demo](https://github.com/MatrixAI/Golang-Demo)
 by _Roger Qiu_. Any flaws are of course my own.
 
