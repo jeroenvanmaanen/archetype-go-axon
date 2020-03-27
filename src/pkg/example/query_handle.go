@@ -4,7 +4,9 @@ import (
     context "context"
     fmt "fmt"
     log "log"
+
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
     grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
@@ -52,6 +54,9 @@ func querySubscribe(queryName string, stream axonserver.QueryService_OpenStreamC
 }
 
 func queryWorker(stream axonserver.QueryService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
+    es7 := WaitForElasticSearch();
+    log.Printf("Query handler: Elastic Search client: %v", es7)
+
     for true {
         queryAddPermits(1, stream, clientId)
 
@@ -66,37 +71,58 @@ func queryWorker(stream axonserver.QueryService_OpenStreamClient, conn *grpc.Cli
         if (query != nil) {
             queryName := query.Query
             if (queryName == "SearchQuery") {
-                log.Printf("Received SearchQuery")
-                handleSearchQuery(query, stream, conn)
+                log.Printf("Query handler: Received SearchQuery")
+                handleSearchQuery(query, stream, es7)
             } else {
-                log.Printf("Received unknown query: %v", queryName)
+                log.Printf("Query handler: Received unknown query: %v", queryName)
             }
         }
     }
 }
 
-func handleSearchQuery(query *axonserver.QueryRequest, stream axonserver.QueryService_OpenStreamClient, conn *grpc.ClientConn) {
-    deserializedQuery := grpcExample.SearchQuery{}
-    e := proto.Unmarshal(query.Payload.Data, &deserializedQuery)
+func handleSearchQuery(axonQuery *axonserver.QueryRequest, stream axonserver.QueryService_OpenStreamClient, es7 *elasticSearch7.Client) {
+    defer queryComplete(stream, axonQuery.MessageIdentifier)
+    query := grpcExample.SearchQuery{}
+    e := proto.Unmarshal(axonQuery.Payload.Data, &query)
     if (e != nil) {
-        log.Printf("Could not unmarshall SearchQuery")
+        log.Printf("Query handler: Could not unmarshall SearchQuery")
     }
 
-    response := grpcExample.Greeting{
-        Message: query.Query,
+    reply := grpcExample.Greeting{
+        Message: "Query: '" + query.Query + "'",
     }
-    queryRespond(&response, stream, query.MessageIdentifier)
+    queryRespond(&reply, stream, axonQuery.MessageIdentifier)
 
-    response.Message = "Over and out."
-    queryRespond(&response, stream, query.MessageIdentifier)
+    response, e := es7.Search(es7.Search.WithQuery(query.Query))
+    if e != nil {
+        return
+    }
+    result, e := unwrapElasticSearchResponse(response)
+    log.Printf("Query handler: result: %v", result)
+    hitsWrapper := result["hits"].(map[string](interface{}))
+    log.Printf("Query handler: hits: %v", hitsWrapper)
+    hits := hitsWrapper["hits"].([]interface{})
+    log.Printf("Query handler: hits: %v", hits)
 
-    queryComplete(stream, query.MessageIdentifier)
+    for _, hit := range hits {
+        log.Printf("Query handler: hit: %v", hit)
+        source := hit.(map[string](interface{}))["_source"]
+        log.Printf("Query handler: source: %v", source)
+        message := source.(map[string](interface{}))["message"].(string)
+        log.Printf("Query handler: message: %v", message)
+
+        reply.Message = message
+        queryRespond(&reply, stream, axonQuery.MessageIdentifier)
+    }
+
+    reply.Message = "Over and out."
+    queryRespond(&reply, stream, axonQuery.MessageIdentifier)
 }
 
 func queryRespond(response *grpcExample.Greeting, stream axonserver.QueryService_OpenStreamClient, requestId string) {
     responseData, e := proto.Marshal(response)
     if e != nil {
-        log.Printf("Server: Error while marshalling query response: %v", e)
+        log.Printf("Query handler: Error while marshalling query response: %v", e)
         return
     }
 
