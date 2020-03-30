@@ -69,6 +69,12 @@ rather than optimized production mode. This makes fiddling with the UI much more
 
 Then point your browser at
 ```
+http://localhost:3000
+```
+to interact with the web front-end built in React.
+
+It is possible to talk to the gRPC API directly using swagger-rgpc:
+```
 http://localhost:8123
 ```
 Specify:
