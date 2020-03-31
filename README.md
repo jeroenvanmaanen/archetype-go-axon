@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This aims to BE a project that can be used as a template for future
+This aims to be a project that can be used as a template for future
 projects with the following characteristics:
 * Command / Query Responsibility Segregation (CQRS)
 * Event Sourcing
