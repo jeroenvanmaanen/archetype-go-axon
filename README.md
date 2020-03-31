@@ -53,7 +53,7 @@ compiled commands
 * Provide CMD or PowerShell script to run Docker-in-Docker for Windows users
 
 
-## Setup
+## Quick start
 
 This project started as a clone of [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
 I mostly followed [Golang Demo](https://github.com/MatrixAI/Golang-Demo)
@@ -87,7 +87,7 @@ Click "Register". Then a link appears under services:
 org.leialearns.grpc.example.GreeterService. Click it and try the
 method `/org.leialearns.grpc.example.GreeterService.Greet`.
 
-## Setup step-by-step
+## Step-by-step
 
 Again, the main prerequisite is docker and either an extracted ZIP or a
 clone of this project.
