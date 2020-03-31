@@ -2,7 +2,7 @@
 
 ## Introduction
 
-My aim is to create a project that can be used as a template for future
+This aims to BE a project that can be used as a template for future
 projects with the following characteristics:
 * Command / Query Responsibility Segregation (CQRS)
 * Event Sourcing
@@ -11,11 +11,9 @@ projects with the following characteristics:
 * High Availability
 * Scalability
 
-On top of that, I would love to be able to start a project as a monolithic
-application and have it evolve into a collection of micro-services that is
-integrated into a service mesh architecture.
+On top of that, wouldn't it be fun to be able to start a project as a monolithic application and have it evolve into a collection of micro-services that is integrated into a service mesh architecture.
 
-The components that I want to combine are:
+The components that this project aims to combine are:
 * The Go language (for high-performance, type safety and gRPC integration with Axon Server)
 * Docker (to minimise the impact on/from the host system)
 * Nix (to manage dependencies)
@@ -50,6 +48,10 @@ After that:
 * Support distributable segmented tracking event processors
 * Fix bug with disappearing connections when Go applications talk to
   AxonServer via Envoy
+* Separate Docker image with build tools from Docker image for running the
+compiled commands
+* Provide CMD or PowerShell script to run Docker-in-Docker for Windows users
+
 
 ## Setup
 
@@ -59,8 +61,7 @@ by _Roger Qiu_. Any flaws are of course my own.
 
 To work with this project, you need to install docker.
 
-Then, open a terminal (on windows either use git-bash or expose the  
-docker daemon inside a docker container that has bash) and run:
+Then, open a terminal (on windows either use git-bash or expose the docker daemon inside a docker container that has bash) and run:
 ```
 [host]$ src/bin/clobber-build-and-run.sh --dev
 ```
@@ -118,46 +119,29 @@ After that, build the executables from the Go code:
 
 ## Run
 
-Now it is time to start two docker containers:
+Now it is time to start the docker containers:
 ```
 [host]$ src/docker/docker-compose-up.sh
 ```
+or, for easier front-end development:
+```
+[host]$ src/docker/docker-compose-up.sh --dev
+```
+This starts a number of docker containers:
+* present: either Nginx (optimized) or Node Express (development) that serves the presentation layer
+* command-api: executables compiled from Go with the business logic
+* axon-server: event store and message routing
+* elastic-search: persistence of query models
+* proxy: Envoy proxy to manage network traffic for the server components, both between each other and with the public internet
+* grpc-swagger: Swagger UI for gRPC API
 
 This is a good time to open a browser window for the [AxonDashboard](http://localhost:8024)
 and keep it in view when running the example.
 
-In another terminal window, open a bash prompt in the container that can run the example and run it:
-```
-[host2]$ docker exec -ti -w "$(pwd)" example_example_1 bash
-[container]# result/bin/example
-```
-During the built-in sleep of 10 seconds, a box labeled GoClient should pop up
-in the AxonDashboard. Id disappears again when the example application stops.
+A few boxes labeled GoClient should pop up
+in the AxonDashboard. Not that these boxes correspond to logical components (API, Command Handler, Event Processor, Query Handler) not server processes or containers.
 
 Building executables also works inside the docker container:
 ```
 [container]# src/bin/nix-build.sh
-```
-
-## To do
-
-Separate Docker image with build tools from Docker image for running the
-compiled commands.
-
-Add steps to generate te Go and JS stubs from the protocol buffer specifications to the Nix build.
-
-I generated Go stubs for axon-server as follows:
-```
-[host]$ cd WORKING_AREA/archetype-go-axon
-[host]$ mkdir -p data
-[host]$ cd data
-[host]$ git clone 'https://github.com/AxonIQ/axon-server-api.git'
-[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/build-protoc bash
-[container]# ../src/bin/generate-proto-go-package.sh
-```
-
-Likewise I generated JS stubs for the example service:
-```
-[host]$ docker run --rm -ti -v "${HOME}:${HOME}" -w "$(pwd)" jeroenvm/build-protoc bash
-[container]# bash WORKING_AREA/archetype-go-axon/src/bin/generate-proto-js-package.sh
 ```
