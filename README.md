@@ -73,7 +73,7 @@ http://localhost:3000
 ```
 to interact with the web front-end built in React.
 
-It is possible to talk to the gRPC API directly using swagger-rgpc:
+It is possible to talk to the gRPC API directly using swagger-grpc:
 ```
 http://localhost:8123
 ```
