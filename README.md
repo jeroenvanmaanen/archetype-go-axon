@@ -43,7 +43,7 @@ After that:
 * Store snapshots
 * Use TLS
 * Add claim-based security
-* Extract reusable code into a proper library that can be included as a dependency
+* Extract reusable code into a proper library that can be included as a dependency (evolve into a proper framework on par with AxonFramework for Java)
 * Add context management with proper canceling of operations
 * Support distributable segmented tracking event processors
 * Fix bug with disappearing connections when Go applications talk to
