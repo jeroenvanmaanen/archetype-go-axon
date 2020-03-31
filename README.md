@@ -117,7 +117,7 @@ After that, build the executables from the Go code:
 [host]$ src/bin/nix-build.sh
 ```
 
-## Run
+### Run
 
 Now it is time to start the docker containers:
 ```
