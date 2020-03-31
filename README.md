@@ -11,7 +11,7 @@ projects with the following characteristics:
 * High Availability
 * Scalability
 
-On top of that, wouldn't it be fun to be able to start a project as a monolithic application and have it evolve into a collection of micro-services that is integrated into a service mesh architecture.
+On top of that, wouldn't it be fun to be able to start a project as a monolithic application and have it evolve into a collection of micro-services that is integrated into a service mesh architecture?
 
 The components that this project aims to combine are:
 * The Go language (for high-performance, type safety and gRPC integration with Axon Server)
@@ -139,7 +139,7 @@ This is a good time to open a browser window for the [AxonDashboard](http://loca
 and keep it in view when running the example.
 
 A few boxes labeled GoClient should pop up
-in the AxonDashboard. Not that these boxes correspond to logical components (API, Command Handler, Event Processor, Query Handler) not server processes or containers.
+in the AxonDashboard. Note that these boxes correspond to logical components (API, Command Handler, Event Processor, Query Handler) not server processes or containers.
 
 Building executables also works inside the docker container:
 ```
