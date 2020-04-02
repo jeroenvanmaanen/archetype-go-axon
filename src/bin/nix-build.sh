@@ -14,7 +14,7 @@ function run-with-protoc() {
       "$@"
     )
   else
-    docker run --rm -v "${PROJECT}:${PROJECT}" -w "${BIN}" jeroenvm/build-protoc
+    docker run --rm -v "${PROJECT}:${PROJECT}" -w "${BIN}" jeroenvm/build-protoc "$@"
   fi
 }
 
