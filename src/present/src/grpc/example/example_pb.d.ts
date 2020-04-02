@@ -50,6 +50,42 @@ export namespace Empty {
   }
 }
 
+export class Credentials extends jspb.Message {
+  getApikey(): string;
+  setApikey(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Credentials.AsObject;
+  static toObject(includeInstance: boolean, msg: Credentials): Credentials.AsObject;
+  static serializeBinaryToWriter(message: Credentials, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Credentials;
+  static deserializeBinaryFromReader(message: Credentials, reader: jspb.BinaryReader): Credentials;
+}
+
+export namespace Credentials {
+  export type AsObject = {
+    apikey: string,
+  }
+}
+
+export class AccessToken extends jspb.Message {
+  getJwt(): string;
+  setJwt(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AccessToken.AsObject;
+  static toObject(includeInstance: boolean, msg: AccessToken): AccessToken.AsObject;
+  static serializeBinaryToWriter(message: AccessToken, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AccessToken;
+  static deserializeBinaryFromReader(message: AccessToken, reader: jspb.BinaryReader): AccessToken;
+}
+
+export namespace AccessToken {
+  export type AsObject = {
+    jwt: string,
+  }
+}
+
 export class GreetCommand extends jspb.Message {
   getAggregateidentifier(): string;
   setAggregateidentifier(value: string): void;

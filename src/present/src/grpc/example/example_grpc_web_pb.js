@@ -460,5 +460,85 @@ proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.search =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.org.leialearns.grpc.example.Credentials,
+ *   !proto.org.leialearns.grpc.example.AccessToken>}
+ */
+const methodDescriptor_GreeterService_Authorize = new grpc.web.MethodDescriptor(
+  '/org.leialearns.grpc.example.GreeterService/Authorize',
+  grpc.web.MethodType.UNARY,
+  proto.org.leialearns.grpc.example.Credentials,
+  proto.org.leialearns.grpc.example.AccessToken,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Credentials} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.AccessToken.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.org.leialearns.grpc.example.Credentials,
+ *   !proto.org.leialearns.grpc.example.AccessToken>}
+ */
+const methodInfo_GreeterService_Authorize = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.org.leialearns.grpc.example.AccessToken,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Credentials} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.AccessToken.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Credentials} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.org.leialearns.grpc.example.AccessToken)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.AccessToken>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServiceClient.prototype.authorize =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Authorize',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Authorize,
+      callback);
+};
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Credentials} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.org.leialearns.grpc.example.AccessToken>}
+ *     A native promise that resolves to the response
+ */
+proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.authorize =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/Authorize',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_Authorize);
+};
+
+
 module.exports = proto.org.leialearns.grpc.example;
 

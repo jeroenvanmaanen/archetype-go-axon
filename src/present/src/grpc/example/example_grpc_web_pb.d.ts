@@ -1,7 +1,9 @@
 import * as grpcWeb from 'grpc-web';
 
 import {
+  AccessToken,
   Acknowledgement,
+  Credentials,
   Empty,
   Greeting,
   SearchQuery} from './example_pb';
@@ -42,6 +44,13 @@ export class GreeterServiceClient {
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
 
+  authorize(
+    request: Credentials,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: AccessToken) => void
+  ): grpcWeb.ClientReadableStream<AccessToken>;
+
 }
 
 export class GreeterServicePromiseClient {
@@ -73,6 +82,11 @@ export class GreeterServicePromiseClient {
     request: SearchQuery,
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
+
+  authorize(
+    request: Credentials,
+    metadata?: grpcWeb.Metadata
+  ): Promise<AccessToken>;
 
 }
 

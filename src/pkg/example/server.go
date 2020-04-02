@@ -204,6 +204,13 @@ func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer g
     return nil
 }
 
+func (s *GreeterServer) Authorize(ctx context.Context, in *grpcExample.Credentials) (*grpcExample.AccessToken, error) {
+    accessToken := grpcExample.AccessToken{
+        Jwt: "to.be.done",
+    }
+    return &accessToken, nil
+}
+
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))

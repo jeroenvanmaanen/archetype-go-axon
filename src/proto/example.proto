@@ -11,6 +11,7 @@ service GreeterService {
     rpc Record (Empty) returns (Empty) {}
     rpc Stop (Empty) returns (Empty) {}
     rpc Search (SearchQuery) returns (stream Greeting) {}
+    rpc Authorize (Credentials) returns (AccessToken) {}
 }
 
 message Greeting {
@@ -22,6 +23,14 @@ message Acknowledgement {
 }
 
 message Empty {}
+
+message Credentials {
+    string apiKey = 1;
+}
+
+message AccessToken {
+    string jwt = 1;
+}
 
 //  Commands
 
