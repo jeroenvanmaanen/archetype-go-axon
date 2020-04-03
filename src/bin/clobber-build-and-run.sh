@@ -34,7 +34,7 @@ fi
 : ${ENSEMBLE_NAME=example}
 "${BIN}/create-local-settings.sh"
 
-source "${PROJECT}/src/docker/etc/settings-local.sh"
+source "${PROJECT}/src/etc/settings-local.sh"
 
 function waitForServerReady() {
     local URL="$1"

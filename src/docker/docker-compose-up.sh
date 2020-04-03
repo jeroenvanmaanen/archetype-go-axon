@@ -20,7 +20,7 @@ DOCKER_REPOSITORY='jeroenvm'
 
 : ${ENSEMBLE_NAME=example}
 : ${EXTRA_VOLUMES:=}
-source "${COMPOSE}/etc/settings-local.sh"
+source "${SRC}/etc/settings-local.sh"
 
 VOLUMES=''
 if [[ -n "${EXTRA_VOLUMES}" ]]
