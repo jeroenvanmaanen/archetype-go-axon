@@ -1,6 +1,8 @@
 #!/bin/bash
 
 BIN="$(cd "$(dirname "$0")" ; pwd)"
+SRC="$(dirname "${BIN}")"
+PROJECT="$(dirname "${SRC}")"
 
 source "${BIN}/verbose.sh"
 
@@ -27,7 +29,7 @@ option go_package = \"src/pkg/grpc/axonserver${SUFFIX}\";" \
 
 if [ -z "${FRAGMENT}" ]
 then
-  protoc --go_out=plugins=grpc:/Users/jeroen/src/archetype-nix-go -I. *.proto
+  protoc --go_out="plugins=grpc:${PROJECT}" -I. *.proto
 else
-  protoc --go_out=/Users/jeroen/src/archetype-nix-go -I. "${FRAGMENT}.proto" "common.proto"
+  protoc --go_out="${PROJECT}" -I. "${FRAGMENT}.proto" "common.proto"
 fi

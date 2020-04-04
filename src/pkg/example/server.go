@@ -13,9 +13,9 @@ import (
     reflection "google.golang.org/grpc/reflection"
     uuid "github.com/google/uuid"
 
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
-    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
-    trusted "github.com/jeroenvm/archetype-nix-go/src/pkg/trusted"
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 type GreeterServer struct {

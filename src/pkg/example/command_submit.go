@@ -4,7 +4,7 @@ import (
     context "context"
     errors "errors"
     log "log"
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
     grpc "google.golang.org/grpc"
     uuid "github.com/google/uuid"
 )

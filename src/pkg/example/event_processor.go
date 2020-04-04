@@ -11,12 +11,13 @@ import (
     json "encoding/json"
     sha256 "crypto/sha256"
 
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
     grpc "google.golang.org/grpc"
-    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
+
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func ProcessEvents(host string, port int) *grpc.ClientConn {

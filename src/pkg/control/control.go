@@ -2,7 +2,7 @@ package control
 
 import (
     "log"
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
 )
 
 func Listen(streamClient *axonserver.PlatformService_OpenStreamClient) {

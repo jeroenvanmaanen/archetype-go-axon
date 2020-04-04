@@ -1,4 +1,4 @@
-module github.com/jeroenvm/archetype-nix-go
+module github.com/jeroenvm/archetype-go-axon
 
 go 1.13
 

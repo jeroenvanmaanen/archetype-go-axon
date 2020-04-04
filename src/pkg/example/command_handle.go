@@ -5,11 +5,13 @@ import (
     fmt "fmt"
     log "log"
     time "time"
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
-    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
+
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
+
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func HandleCommands(host string, port int) (conn *grpc.ClientConn) {

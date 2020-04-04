@@ -3,9 +3,9 @@ package main
 import (
     fmt "fmt"
     log "log"
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
-    example "github.com/jeroenvm/archetype-nix-go/src/pkg/example"
-    trusted "github.com/jeroenvm/archetype-nix-go/src/pkg/trusted"
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
+    trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
     uuid "github.com/google/uuid"
 )
 

@@ -5,7 +5,7 @@ import (
     fmt "fmt"
     log "log"
     time "time"
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
     grpc "google.golang.org/grpc"
     grpcKeepAlive "google.golang.org/grpc/keepalive"
     uuid "github.com/google/uuid"

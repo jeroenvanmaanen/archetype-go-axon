@@ -22,7 +22,7 @@ services:
       source: axon-data
       target: /opt/axonserver/data
   example-command-api:
-    image: jeroenvm/archetype-nix-go
+    image: jeroenvm/archetype-go-axon
     working_dir: ${PROJECT}
     command:
       - "target/bin/example"

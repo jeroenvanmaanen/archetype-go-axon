@@ -5,12 +5,13 @@ import (
     fmt "fmt"
     log "log"
 
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
-    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
+
+    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
