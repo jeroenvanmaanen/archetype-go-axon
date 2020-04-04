@@ -463,6 +463,81 @@ proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.search =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.PublicKey>}
+ */
+const methodDescriptor_GreeterService_ListTrustedKeys = new grpc.web.MethodDescriptor(
+  '/org.leialearns.grpc.example.GreeterService/ListTrustedKeys',
+  grpc.web.MethodType.SERVER_STREAMING,
+  proto.org.leialearns.grpc.example.Empty,
+  proto.org.leialearns.grpc.example.PublicKey,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.PublicKey.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.org.leialearns.grpc.example.Empty,
+ *   !proto.org.leialearns.grpc.example.PublicKey>}
+ */
+const methodInfo_GreeterService_ListTrustedKeys = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.org.leialearns.grpc.example.PublicKey,
+  /**
+   * @param {!proto.org.leialearns.grpc.example.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.org.leialearns.grpc.example.PublicKey.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.PublicKey>}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServiceClient.prototype.listTrustedKeys =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/ListTrustedKeys',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_ListTrustedKeys);
+};
+
+
+/**
+ * @param {!proto.org.leialearns.grpc.example.Empty} request The request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.org.leialearns.grpc.example.PublicKey>}
+ *     The XHR Node Readable Stream
+ */
+proto.org.leialearns.grpc.example.GreeterServicePromiseClient.prototype.listTrustedKeys =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/org.leialearns.grpc.example.GreeterService/ListTrustedKeys',
+      request,
+      metadata || {},
+      methodDescriptor_GreeterService_ListTrustedKeys);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.org.leialearns.grpc.example.Credentials,
  *   !proto.org.leialearns.grpc.example.AccessToken>}
  */

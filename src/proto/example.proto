@@ -11,6 +11,9 @@ service GreeterService {
     rpc Record (Empty) returns (Empty) {}
     rpc Stop (Empty) returns (Empty) {}
     rpc Search (SearchQuery) returns (stream Greeting) {}
+    rpc ListTrustedKeys (Empty) returns (stream PublicKey) {}
+//  rpc ChangeTrustedKeys (stream TrustedKeyRequest) returns (stream TrustedKeyResponse) {}
+//  rpc SetPrivateKey(PrivateKey) returns (Empty) {}
     rpc Authorize (Credentials) returns (AccessToken) {}
 }
 
@@ -23,14 +26,6 @@ message Acknowledgement {
 }
 
 message Empty {}
-
-message Credentials {
-    string apiKey = 1;
-}
-
-message AccessToken {
-    string jwt = 1;
-}
 
 //  Commands
 
@@ -61,4 +56,24 @@ message StoppedRecordingEvent {}
 
 message SearchQuery {
     string query = 1;
+}
+
+// Access management
+
+message PublicKey {
+    string publicKey = 1;
+    string name = 2;
+}
+
+message PrivateKey {
+    string privateKey = 1;
+    string name = 2;
+}
+
+message Credentials {
+    string apiKey = 1;
+}
+
+message AccessToken {
+    string jwt = 1;
 }

@@ -50,42 +50,6 @@ export namespace Empty {
   }
 }
 
-export class Credentials extends jspb.Message {
-  getApikey(): string;
-  setApikey(value: string): void;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Credentials.AsObject;
-  static toObject(includeInstance: boolean, msg: Credentials): Credentials.AsObject;
-  static serializeBinaryToWriter(message: Credentials, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Credentials;
-  static deserializeBinaryFromReader(message: Credentials, reader: jspb.BinaryReader): Credentials;
-}
-
-export namespace Credentials {
-  export type AsObject = {
-    apikey: string,
-  }
-}
-
-export class AccessToken extends jspb.Message {
-  getJwt(): string;
-  setJwt(value: string): void;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): AccessToken.AsObject;
-  static toObject(includeInstance: boolean, msg: AccessToken): AccessToken.AsObject;
-  static serializeBinaryToWriter(message: AccessToken, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): AccessToken;
-  static deserializeBinaryFromReader(message: AccessToken, reader: jspb.BinaryReader): AccessToken;
-}
-
-export namespace AccessToken {
-  export type AsObject = {
-    jwt: string,
-  }
-}
-
 export class GreetCommand extends jspb.Message {
   getAggregateidentifier(): string;
   setAggregateidentifier(value: string): void;
@@ -209,6 +173,86 @@ export class SearchQuery extends jspb.Message {
 export namespace SearchQuery {
   export type AsObject = {
     query: string,
+  }
+}
+
+export class PublicKey extends jspb.Message {
+  getPublickey(): string;
+  setPublickey(value: string): void;
+
+  getName(): string;
+  setName(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PublicKey.AsObject;
+  static toObject(includeInstance: boolean, msg: PublicKey): PublicKey.AsObject;
+  static serializeBinaryToWriter(message: PublicKey, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PublicKey;
+  static deserializeBinaryFromReader(message: PublicKey, reader: jspb.BinaryReader): PublicKey;
+}
+
+export namespace PublicKey {
+  export type AsObject = {
+    publickey: string,
+    name: string,
+  }
+}
+
+export class PrivateKey extends jspb.Message {
+  getPrivatekey(): string;
+  setPrivatekey(value: string): void;
+
+  getName(): string;
+  setName(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrivateKey.AsObject;
+  static toObject(includeInstance: boolean, msg: PrivateKey): PrivateKey.AsObject;
+  static serializeBinaryToWriter(message: PrivateKey, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrivateKey;
+  static deserializeBinaryFromReader(message: PrivateKey, reader: jspb.BinaryReader): PrivateKey;
+}
+
+export namespace PrivateKey {
+  export type AsObject = {
+    privatekey: string,
+    name: string,
+  }
+}
+
+export class Credentials extends jspb.Message {
+  getApikey(): string;
+  setApikey(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Credentials.AsObject;
+  static toObject(includeInstance: boolean, msg: Credentials): Credentials.AsObject;
+  static serializeBinaryToWriter(message: Credentials, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Credentials;
+  static deserializeBinaryFromReader(message: Credentials, reader: jspb.BinaryReader): Credentials;
+}
+
+export namespace Credentials {
+  export type AsObject = {
+    apikey: string,
+  }
+}
+
+export class AccessToken extends jspb.Message {
+  getJwt(): string;
+  setJwt(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AccessToken.AsObject;
+  static toObject(includeInstance: boolean, msg: AccessToken): AccessToken.AsObject;
+  static serializeBinaryToWriter(message: AccessToken, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AccessToken;
+  static deserializeBinaryFromReader(message: AccessToken, reader: jspb.BinaryReader): AccessToken;
+}
+
+export namespace AccessToken {
+  export type AsObject = {
+    jwt: string,
   }
 }
 

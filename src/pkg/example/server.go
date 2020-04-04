@@ -8,12 +8,14 @@ import (
     net "net"
     log "log"
 
-    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
-    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     reflection "google.golang.org/grpc/reflection"
     uuid "github.com/google/uuid"
+
+    axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
+    grpcExample "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/example"
+    trusted "github.com/jeroenvm/archetype-nix-go/src/pkg/trusted"
 )
 
 type GreeterServer struct {
@@ -209,6 +211,18 @@ func (s *GreeterServer) Authorize(ctx context.Context, in *grpcExample.Credentia
         Jwt: "to.be.done",
     }
     return &accessToken, nil
+}
+
+func (s *GreeterServer) ListTrustedKeys(req *grpcExample.Empty, streamServer grpcExample.GreeterService_ListTrustedKeysServer) error {
+    trustedKey := grpcExample.PublicKey {}
+    for name, key := range trusted.TrustedKeys {
+        trustedKey.Name = name
+        trustedKey.PublicKey = key
+        log.Printf("Server: Trusted keys streamed reply: %v", trustedKey)
+        streamServer.Send(&trustedKey)
+        log.Printf("Server: Trusted keys streamed reply sent")
+    }
+    return nil
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {

@@ -6,6 +6,7 @@ import {
   Credentials,
   Empty,
   Greeting,
+  PublicKey,
   SearchQuery} from './example_pb';
 
 export class GreeterServiceClient {
@@ -43,6 +44,11 @@ export class GreeterServiceClient {
     request: SearchQuery,
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
+
+  listTrustedKeys(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<PublicKey>;
 
   authorize(
     request: Credentials,
@@ -82,6 +88,11 @@ export class GreeterServicePromiseClient {
     request: SearchQuery,
     metadata?: grpcWeb.Metadata
   ): grpcWeb.ClientReadableStream<Greeting>;
+
+  listTrustedKeys(
+    request: Empty,
+    metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<PublicKey>;
 
   authorize(
     request: Credentials,

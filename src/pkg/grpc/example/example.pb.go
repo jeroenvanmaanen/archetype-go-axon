@@ -133,84 +133,6 @@ func (m *Empty) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Empty proto.InternalMessageInfo
 
-type Credentials struct {
-	ApiKey               string   `protobuf:"bytes,1,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Credentials) Reset()         { *m = Credentials{} }
-func (m *Credentials) String() string { return proto.CompactTextString(m) }
-func (*Credentials) ProtoMessage()    {}
-func (*Credentials) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{3}
-}
-
-func (m *Credentials) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Credentials.Unmarshal(m, b)
-}
-func (m *Credentials) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Credentials.Marshal(b, m, deterministic)
-}
-func (m *Credentials) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Credentials.Merge(m, src)
-}
-func (m *Credentials) XXX_Size() int {
-	return xxx_messageInfo_Credentials.Size(m)
-}
-func (m *Credentials) XXX_DiscardUnknown() {
-	xxx_messageInfo_Credentials.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Credentials proto.InternalMessageInfo
-
-func (m *Credentials) GetApiKey() string {
-	if m != nil {
-		return m.ApiKey
-	}
-	return ""
-}
-
-type AccessToken struct {
-	Jwt                  string   `protobuf:"bytes,1,opt,name=jwt,proto3" json:"jwt,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *AccessToken) Reset()         { *m = AccessToken{} }
-func (m *AccessToken) String() string { return proto.CompactTextString(m) }
-func (*AccessToken) ProtoMessage()    {}
-func (*AccessToken) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{4}
-}
-
-func (m *AccessToken) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AccessToken.Unmarshal(m, b)
-}
-func (m *AccessToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AccessToken.Marshal(b, m, deterministic)
-}
-func (m *AccessToken) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AccessToken.Merge(m, src)
-}
-func (m *AccessToken) XXX_Size() int {
-	return xxx_messageInfo_AccessToken.Size(m)
-}
-func (m *AccessToken) XXX_DiscardUnknown() {
-	xxx_messageInfo_AccessToken.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AccessToken proto.InternalMessageInfo
-
-func (m *AccessToken) GetJwt() string {
-	if m != nil {
-		return m.Jwt
-	}
-	return ""
-}
-
 type GreetCommand struct {
 	AggregateIdentifier  string    `protobuf:"bytes,1,opt,name=aggregateIdentifier,proto3" json:"aggregateIdentifier,omitempty"`
 	Message              *Greeting `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
@@ -223,7 +145,7 @@ func (m *GreetCommand) Reset()         { *m = GreetCommand{} }
 func (m *GreetCommand) String() string { return proto.CompactTextString(m) }
 func (*GreetCommand) ProtoMessage()    {}
 func (*GreetCommand) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{5}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{3}
 }
 
 func (m *GreetCommand) XXX_Unmarshal(b []byte) error {
@@ -269,7 +191,7 @@ func (m *RecordCommand) Reset()         { *m = RecordCommand{} }
 func (m *RecordCommand) String() string { return proto.CompactTextString(m) }
 func (*RecordCommand) ProtoMessage()    {}
 func (*RecordCommand) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{6}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{4}
 }
 
 func (m *RecordCommand) XXX_Unmarshal(b []byte) error {
@@ -308,7 +230,7 @@ func (m *StopCommand) Reset()         { *m = StopCommand{} }
 func (m *StopCommand) String() string { return proto.CompactTextString(m) }
 func (*StopCommand) ProtoMessage()    {}
 func (*StopCommand) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{7}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{5}
 }
 
 func (m *StopCommand) XXX_Unmarshal(b []byte) error {
@@ -347,7 +269,7 @@ func (m *GreetedEvent) Reset()         { *m = GreetedEvent{} }
 func (m *GreetedEvent) String() string { return proto.CompactTextString(m) }
 func (*GreetedEvent) ProtoMessage()    {}
 func (*GreetedEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{8}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{6}
 }
 
 func (m *GreetedEvent) XXX_Unmarshal(b []byte) error {
@@ -385,7 +307,7 @@ func (m *StartedRecordingEvent) Reset()         { *m = StartedRecordingEvent{} }
 func (m *StartedRecordingEvent) String() string { return proto.CompactTextString(m) }
 func (*StartedRecordingEvent) ProtoMessage()    {}
 func (*StartedRecordingEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{9}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{7}
 }
 
 func (m *StartedRecordingEvent) XXX_Unmarshal(b []byte) error {
@@ -416,7 +338,7 @@ func (m *StoppedRecordingEvent) Reset()         { *m = StoppedRecordingEvent{} }
 func (m *StoppedRecordingEvent) String() string { return proto.CompactTextString(m) }
 func (*StoppedRecordingEvent) ProtoMessage()    {}
 func (*StoppedRecordingEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{10}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{8}
 }
 
 func (m *StoppedRecordingEvent) XXX_Unmarshal(b []byte) error {
@@ -448,7 +370,7 @@ func (m *SearchQuery) Reset()         { *m = SearchQuery{} }
 func (m *SearchQuery) String() string { return proto.CompactTextString(m) }
 func (*SearchQuery) ProtoMessage()    {}
 func (*SearchQuery) Descriptor() ([]byte, []int) {
-	return fileDescriptor_15a1dc8d40dadaa6, []int{11}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{9}
 }
 
 func (m *SearchQuery) XXX_Unmarshal(b []byte) error {
@@ -476,12 +398,182 @@ func (m *SearchQuery) GetQuery() string {
 	return ""
 }
 
+type PublicKey struct {
+	PublicKey            string   `protobuf:"bytes,1,opt,name=publicKey,proto3" json:"publicKey,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PublicKey) Reset()         { *m = PublicKey{} }
+func (m *PublicKey) String() string { return proto.CompactTextString(m) }
+func (*PublicKey) ProtoMessage()    {}
+func (*PublicKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{10}
+}
+
+func (m *PublicKey) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PublicKey.Unmarshal(m, b)
+}
+func (m *PublicKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PublicKey.Marshal(b, m, deterministic)
+}
+func (m *PublicKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PublicKey.Merge(m, src)
+}
+func (m *PublicKey) XXX_Size() int {
+	return xxx_messageInfo_PublicKey.Size(m)
+}
+func (m *PublicKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_PublicKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PublicKey proto.InternalMessageInfo
+
+func (m *PublicKey) GetPublicKey() string {
+	if m != nil {
+		return m.PublicKey
+	}
+	return ""
+}
+
+func (m *PublicKey) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type PrivateKey struct {
+	PrivateKey           string   `protobuf:"bytes,1,opt,name=privateKey,proto3" json:"privateKey,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PrivateKey) Reset()         { *m = PrivateKey{} }
+func (m *PrivateKey) String() string { return proto.CompactTextString(m) }
+func (*PrivateKey) ProtoMessage()    {}
+func (*PrivateKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{11}
+}
+
+func (m *PrivateKey) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PrivateKey.Unmarshal(m, b)
+}
+func (m *PrivateKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PrivateKey.Marshal(b, m, deterministic)
+}
+func (m *PrivateKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PrivateKey.Merge(m, src)
+}
+func (m *PrivateKey) XXX_Size() int {
+	return xxx_messageInfo_PrivateKey.Size(m)
+}
+func (m *PrivateKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_PrivateKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PrivateKey proto.InternalMessageInfo
+
+func (m *PrivateKey) GetPrivateKey() string {
+	if m != nil {
+		return m.PrivateKey
+	}
+	return ""
+}
+
+func (m *PrivateKey) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type Credentials struct {
+	ApiKey               string   `protobuf:"bytes,1,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Credentials) Reset()         { *m = Credentials{} }
+func (m *Credentials) String() string { return proto.CompactTextString(m) }
+func (*Credentials) ProtoMessage()    {}
+func (*Credentials) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{12}
+}
+
+func (m *Credentials) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Credentials.Unmarshal(m, b)
+}
+func (m *Credentials) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Credentials.Marshal(b, m, deterministic)
+}
+func (m *Credentials) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Credentials.Merge(m, src)
+}
+func (m *Credentials) XXX_Size() int {
+	return xxx_messageInfo_Credentials.Size(m)
+}
+func (m *Credentials) XXX_DiscardUnknown() {
+	xxx_messageInfo_Credentials.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Credentials proto.InternalMessageInfo
+
+func (m *Credentials) GetApiKey() string {
+	if m != nil {
+		return m.ApiKey
+	}
+	return ""
+}
+
+type AccessToken struct {
+	Jwt                  string   `protobuf:"bytes,1,opt,name=jwt,proto3" json:"jwt,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AccessToken) Reset()         { *m = AccessToken{} }
+func (m *AccessToken) String() string { return proto.CompactTextString(m) }
+func (*AccessToken) ProtoMessage()    {}
+func (*AccessToken) Descriptor() ([]byte, []int) {
+	return fileDescriptor_15a1dc8d40dadaa6, []int{13}
+}
+
+func (m *AccessToken) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccessToken.Unmarshal(m, b)
+}
+func (m *AccessToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccessToken.Marshal(b, m, deterministic)
+}
+func (m *AccessToken) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccessToken.Merge(m, src)
+}
+func (m *AccessToken) XXX_Size() int {
+	return xxx_messageInfo_AccessToken.Size(m)
+}
+func (m *AccessToken) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccessToken.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccessToken proto.InternalMessageInfo
+
+func (m *AccessToken) GetJwt() string {
+	if m != nil {
+		return m.Jwt
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Greeting)(nil), "org.leialearns.grpc.example.Greeting")
 	proto.RegisterType((*Acknowledgement)(nil), "org.leialearns.grpc.example.Acknowledgement")
 	proto.RegisterType((*Empty)(nil), "org.leialearns.grpc.example.Empty")
-	proto.RegisterType((*Credentials)(nil), "org.leialearns.grpc.example.Credentials")
-	proto.RegisterType((*AccessToken)(nil), "org.leialearns.grpc.example.AccessToken")
 	proto.RegisterType((*GreetCommand)(nil), "org.leialearns.grpc.example.GreetCommand")
 	proto.RegisterType((*RecordCommand)(nil), "org.leialearns.grpc.example.RecordCommand")
 	proto.RegisterType((*StopCommand)(nil), "org.leialearns.grpc.example.StopCommand")
@@ -489,6 +581,10 @@ func init() {
 	proto.RegisterType((*StartedRecordingEvent)(nil), "org.leialearns.grpc.example.StartedRecordingEvent")
 	proto.RegisterType((*StoppedRecordingEvent)(nil), "org.leialearns.grpc.example.StoppedRecordingEvent")
 	proto.RegisterType((*SearchQuery)(nil), "org.leialearns.grpc.example.SearchQuery")
+	proto.RegisterType((*PublicKey)(nil), "org.leialearns.grpc.example.PublicKey")
+	proto.RegisterType((*PrivateKey)(nil), "org.leialearns.grpc.example.PrivateKey")
+	proto.RegisterType((*Credentials)(nil), "org.leialearns.grpc.example.Credentials")
+	proto.RegisterType((*AccessToken)(nil), "org.leialearns.grpc.example.AccessToken")
 }
 
 func init() {
@@ -496,35 +592,39 @@ func init() {
 }
 
 var fileDescriptor_15a1dc8d40dadaa6 = []byte{
-	// 439 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0x5d, 0x6f, 0xd3, 0x30,
-	0x14, 0x6d, 0x60, 0xed, 0xe8, 0x0d, 0x03, 0x64, 0xc6, 0x98, 0xca, 0x03, 0x93, 0x61, 0x52, 0x25,
-	0x50, 0x3a, 0x8d, 0x1f, 0x50, 0x95, 0x69, 0x42, 0x88, 0x07, 0xa0, 0xe5, 0x69, 0x12, 0x48, 0x26,
-	0xb9, 0x78, 0xa6, 0x89, 0x6d, 0xae, 0xbd, 0x8d, 0xf2, 0xc6, 0x7f, 0xe2, 0x07, 0xa2, 0x24, 0x2e,
-	0x1b, 0x1f, 0xca, 0xb2, 0x8a, 0x37, 0xdf, 0xde, 0x73, 0x4f, 0xcf, 0x3d, 0xc7, 0x0e, 0x6c, 0xe0,
-	0x57, 0x51, 0xd8, 0x1c, 0x13, 0x4b, 0xc6, 0x1b, 0xf6, 0xc0, 0x90, 0x4c, 0x72, 0x54, 0x22, 0x47,
-	0x41, 0xda, 0x25, 0x92, 0x6c, 0x9a, 0x04, 0x08, 0x7f, 0x0c, 0x37, 0x5e, 0x10, 0xa2, 0x57, 0x5a,
-	0xb2, 0x6d, 0x58, 0x2f, 0xd0, 0x39, 0x21, 0x71, 0x3b, 0xda, 0x89, 0x86, 0xfd, 0xe9, 0xb2, 0xe4,
-	0x4f, 0xe0, 0xf6, 0x24, 0x9d, 0x6b, 0x73, 0x96, 0x63, 0x26, 0xb1, 0x40, 0xed, 0x1b, 0xc0, 0xeb,
-	0xd0, 0x3d, 0x2c, 0xac, 0x5f, 0xf0, 0x5d, 0x88, 0x0f, 0x08, 0x33, 0xd4, 0x5e, 0x89, 0xdc, 0xb1,
-	0x2d, 0xe8, 0x09, 0xab, 0x5e, 0xe1, 0x22, 0x0c, 0x84, 0x8a, 0x3f, 0x84, 0x78, 0x92, 0xa6, 0xe8,
-	0xdc, 0x3b, 0x33, 0x47, 0xcd, 0xee, 0xc0, 0xf5, 0xcf, 0x67, 0x3e, 0x60, 0xca, 0x23, 0xff, 0x1e,
-	0xc1, 0xcd, 0x4a, 0xe4, 0x81, 0x29, 0x0a, 0xa1, 0x33, 0xb6, 0x07, 0x77, 0x85, 0x94, 0x84, 0x52,
-	0x78, 0x7c, 0x59, 0xf1, 0x7f, 0x52, 0x48, 0x61, 0xe4, 0x5f, 0x2d, 0x36, 0x3e, 0x57, 0x7b, 0x6d,
-	0x27, 0x1a, 0xc6, 0xfb, 0xbb, 0x49, 0x83, 0x2b, 0xc9, 0xd2, 0x92, 0xf3, 0xa5, 0x26, 0xb0, 0x31,
-	0xc5, 0xd4, 0x50, 0xb6, 0xb2, 0x06, 0x3e, 0x86, 0x78, 0xe6, 0x8d, 0x5d, 0x9d, 0xe0, 0x75, 0xb0,
-	0x01, 0xb3, 0xc3, 0xd3, 0x32, 0x82, 0xf1, 0xef, 0x11, 0x5c, 0x7d, 0xa9, 0xfb, 0x70, 0x6f, 0xe6,
-	0x05, 0x79, 0xcc, 0xea, 0xdd, 0x94, 0x96, 0x15, 0x73, 0xdd, 0x30, 0xd6, 0xfe, 0xd5, 0x78, 0x04,
-	0xf1, 0x0c, 0x05, 0xa5, 0xc7, 0x6f, 0x4f, 0x90, 0x16, 0x6c, 0x13, 0xba, 0x5f, 0xca, 0x43, 0x50,
-	0x5d, 0x17, 0xfb, 0x3f, 0xd6, 0xe0, 0x56, 0x2d, 0x94, 0x66, 0x48, 0xa7, 0x2a, 0x45, 0xf6, 0x01,
-	0xba, 0xd5, 0x2f, 0xac, 0x9d, 0xc4, 0xc1, 0xd3, 0x46, 0xd8, 0x1f, 0x77, 0x91, 0x77, 0xd8, 0x11,
-	0xf4, 0x97, 0xb3, 0x8e, 0xf1, 0xc6, 0xe1, 0xea, 0x6e, 0x0e, 0xda, 0xe9, 0xe0, 0x9d, 0xbd, 0x88,
-	0x4d, 0xa1, 0x57, 0xbb, 0xd0, 0x8a, 0xb8, 0x05, 0x86, 0x77, 0xd8, 0x1b, 0x58, 0x2b, 0x0d, 0xfe,
-	0x8f, 0x8c, 0xef, 0xa1, 0x57, 0x27, 0xc3, 0x86, 0x8d, 0xf8, 0x0b, 0xf1, 0x5d, 0xc5, 0x04, 0x01,
-	0xfd, 0xc9, 0x89, 0x3f, 0x36, 0xa4, 0xbe, 0xe1, 0x25, 0xff, 0x70, 0xe1, 0xcd, 0x0f, 0x86, 0x97,
-	0xe4, 0xf8, 0xeb, 0xd9, 0xf3, 0xce, 0xf3, 0xad, 0xa3, 0x4d, 0x47, 0xe9, 0xc8, 0xce, 0xe5, 0xa8,
-	0x44, 0x8d, 0x02, 0xea, 0x63, 0xaf, 0xfa, 0x8c, 0x3d, 0xfb, 0x19, 0x00, 0x00, 0xff, 0xff, 0x8f,
-	0x9c, 0xfb, 0xe4, 0xd7, 0x04, 0x00, 0x00,
+	// 508 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xdf, 0x6f, 0xd3, 0x30,
+	0x10, 0x6e, 0x61, 0xed, 0xc8, 0x85, 0x31, 0x64, 0xc6, 0x98, 0x0a, 0x82, 0xc9, 0x30, 0x54, 0x09,
+	0x94, 0x4e, 0xe3, 0x19, 0x95, 0x32, 0x4d, 0x08, 0x0d, 0x89, 0xd2, 0xee, 0x69, 0x12, 0x48, 0x5e,
+	0x72, 0x78, 0xa6, 0x49, 0x6c, 0x6c, 0xb7, 0xa3, 0xbc, 0xf1, 0x57, 0xf0, 0xef, 0xa2, 0x24, 0xee,
+	0x0f, 0x60, 0xca, 0xb2, 0x69, 0x6f, 0xbe, 0xbb, 0xef, 0xbe, 0xdc, 0x7d, 0xfe, 0x1c, 0x58, 0xc3,
+	0x1f, 0x2c, 0x51, 0x31, 0x06, 0x4a, 0x4b, 0x2b, 0xc9, 0x43, 0xa9, 0x79, 0x10, 0xa3, 0x60, 0x31,
+	0x32, 0x9d, 0x9a, 0x80, 0x6b, 0x15, 0x06, 0x0e, 0x42, 0x9f, 0xc1, 0xad, 0x77, 0x1a, 0xd1, 0x8a,
+	0x94, 0x93, 0x2d, 0x58, 0x4d, 0xd0, 0x18, 0xc6, 0x71, 0xab, 0xbe, 0x5d, 0x6f, 0x7b, 0x83, 0x59,
+	0x48, 0x5f, 0xc0, 0x7a, 0x2f, 0x1c, 0xa5, 0xf2, 0x2c, 0xc6, 0x88, 0x63, 0x82, 0xa9, 0x2d, 0x01,
+	0xaf, 0x42, 0xe3, 0x20, 0x51, 0x76, 0x4a, 0x7f, 0xd5, 0xe1, 0x76, 0x4e, 0xbe, 0x2f, 0x93, 0x84,
+	0xa5, 0x11, 0xd9, 0x85, 0x7b, 0x8c, 0x73, 0x8d, 0x9c, 0x59, 0x7c, 0x1f, 0x61, 0x6a, 0xc5, 0x57,
+	0x81, 0xda, 0xf5, 0x9f, 0x57, 0x22, 0xdd, 0xc5, 0x57, 0x6e, 0x6c, 0xd7, 0xdb, 0xfe, 0xde, 0x4e,
+	0x50, 0xb2, 0x4d, 0x30, 0x5b, 0x65, 0x31, 0x4c, 0x0f, 0xd6, 0x06, 0x18, 0x4a, 0x1d, 0x5d, 0x79,
+	0x06, 0xda, 0x05, 0x7f, 0x68, 0xa5, 0xba, 0x3a, 0xc1, 0x47, 0x27, 0x03, 0x46, 0x07, 0x93, 0x4c,
+	0xba, 0xee, 0xdf, 0xd2, 0x5d, 0x7e, 0xa9, 0x07, 0x70, 0x7f, 0x68, 0x99, 0xb6, 0x18, 0x15, 0xbb,
+	0x89, 0x94, 0xe7, 0xcc, 0x45, 0x41, 0x2a, 0xf5, 0x5f, 0xe1, 0x29, 0xf8, 0x43, 0x64, 0x3a, 0x3c,
+	0xfd, 0x34, 0x46, 0x3d, 0x25, 0x1b, 0xd0, 0xf8, 0x9e, 0x1d, 0xdc, 0xd4, 0x45, 0x40, 0x5f, 0x83,
+	0xd7, 0x1f, 0x9f, 0xc4, 0x22, 0x3c, 0xc4, 0x29, 0x79, 0x04, 0x9e, 0x9a, 0x05, 0x0e, 0xb6, 0x48,
+	0x10, 0x02, 0x2b, 0x29, 0x4b, 0x8a, 0x4b, 0xf1, 0x06, 0xf9, 0x99, 0xbe, 0x01, 0xe8, 0x6b, 0x31,
+	0x61, 0x16, 0x33, 0xc4, 0x63, 0x00, 0x35, 0x8f, 0x1c, 0xc1, 0x52, 0xe6, 0x5c, 0x86, 0x1d, 0xf0,
+	0xf7, 0x35, 0xe6, 0xc2, 0xb1, 0xd8, 0x90, 0x4d, 0x68, 0x32, 0x25, 0x16, 0xed, 0x2e, 0xa2, 0x4f,
+	0xc0, 0xef, 0x85, 0x21, 0x1a, 0x73, 0x24, 0x47, 0x98, 0x92, 0xbb, 0x70, 0xf3, 0xdb, 0x99, 0x75,
+	0x98, 0xec, 0xb8, 0xf7, 0xbb, 0x01, 0x77, 0x0a, 0xc5, 0xf5, 0x10, 0xf5, 0x44, 0x84, 0x48, 0xbe,
+	0x40, 0x23, 0xcf, 0x90, 0x6a, 0x5a, 0xb7, 0x5e, 0x96, 0xc2, 0xfe, 0x79, 0x0c, 0xb4, 0x46, 0x8e,
+	0xc1, 0x9b, 0xf5, 0x1a, 0x42, 0x4b, 0x9b, 0xf3, 0xc7, 0xd1, 0xaa, 0x36, 0x07, 0xad, 0xed, 0xd6,
+	0xc9, 0x00, 0x9a, 0xc5, 0x75, 0x56, 0x22, 0xae, 0x80, 0xa1, 0x35, 0xd2, 0x87, 0x95, 0xcc, 0x29,
+	0xd7, 0xc8, 0xf8, 0x19, 0x9a, 0x85, 0xc5, 0x48, 0xbb, 0x14, 0xbf, 0xe4, 0xc3, 0xcb, 0x88, 0xc0,
+	0x60, 0xfd, 0x83, 0x30, 0xf6, 0x48, 0x8f, 0x8d, 0xc5, 0xe8, 0x10, 0xa7, 0xd5, 0x64, 0x7e, 0x5e,
+	0x8a, 0x99, 0xdb, 0xdd, 0x7d, 0xc2, 0xeb, 0x8d, 0xed, 0xa9, 0xd4, 0xe2, 0x27, 0x5e, 0xb0, 0xc4,
+	0x92, 0x4d, 0x5b, 0xed, 0x0b, 0xac, 0x32, 0x77, 0x2a, 0xad, 0xbd, 0xdd, 0x3c, 0xde, 0x30, 0x3a,
+	0xec, 0xa8, 0x11, 0xef, 0x64, 0xa8, 0x8e, 0x43, 0x9d, 0x34, 0xf3, 0x5f, 0xf5, 0xab, 0x3f, 0x01,
+	0x00, 0x00, 0xff, 0xff, 0x0b, 0x5a, 0x24, 0xea, 0xbb, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -544,6 +644,9 @@ type GreeterServiceClient interface {
 	Record(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (GreeterService_SearchClient, error)
+	ListTrustedKeys(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GreeterService_ListTrustedKeysClient, error)
+	//  rpc ChangeTrustedKeys (stream TrustedKeyRequest) returns (stream TrustedKeyResponse) {}
+	//  rpc SetPrivateKey(PrivateKey) returns (Empty) {}
 	Authorize(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*AccessToken, error)
 }
 
@@ -646,6 +749,38 @@ func (x *greeterServiceSearchClient) Recv() (*Greeting, error) {
 	return m, nil
 }
 
+func (c *greeterServiceClient) ListTrustedKeys(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GreeterService_ListTrustedKeysClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_GreeterService_serviceDesc.Streams[2], "/org.leialearns.grpc.example.GreeterService/ListTrustedKeys", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &greeterServiceListTrustedKeysClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type GreeterService_ListTrustedKeysClient interface {
+	Recv() (*PublicKey, error)
+	grpc.ClientStream
+}
+
+type greeterServiceListTrustedKeysClient struct {
+	grpc.ClientStream
+}
+
+func (x *greeterServiceListTrustedKeysClient) Recv() (*PublicKey, error) {
+	m := new(PublicKey)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *greeterServiceClient) Authorize(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*AccessToken, error) {
 	out := new(AccessToken)
 	err := c.cc.Invoke(ctx, "/org.leialearns.grpc.example.GreeterService/Authorize", in, out, opts...)
@@ -662,6 +797,9 @@ type GreeterServiceServer interface {
 	Record(context.Context, *Empty) (*Empty, error)
 	Stop(context.Context, *Empty) (*Empty, error)
 	Search(*SearchQuery, GreeterService_SearchServer) error
+	ListTrustedKeys(*Empty, GreeterService_ListTrustedKeysServer) error
+	//  rpc ChangeTrustedKeys (stream TrustedKeyRequest) returns (stream TrustedKeyResponse) {}
+	//  rpc SetPrivateKey(PrivateKey) returns (Empty) {}
 	Authorize(context.Context, *Credentials) (*AccessToken, error)
 }
 
@@ -683,6 +821,9 @@ func (*UnimplementedGreeterServiceServer) Stop(ctx context.Context, req *Empty) 
 }
 func (*UnimplementedGreeterServiceServer) Search(req *SearchQuery, srv GreeterService_SearchServer) error {
 	return status.Errorf(codes.Unimplemented, "method Search not implemented")
+}
+func (*UnimplementedGreeterServiceServer) ListTrustedKeys(req *Empty, srv GreeterService_ListTrustedKeysServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListTrustedKeys not implemented")
 }
 func (*UnimplementedGreeterServiceServer) Authorize(ctx context.Context, req *Credentials) (*AccessToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
@@ -788,6 +929,27 @@ func (x *greeterServiceSearchServer) Send(m *Greeting) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _GreeterService_ListTrustedKeys_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GreeterServiceServer).ListTrustedKeys(m, &greeterServiceListTrustedKeysServer{stream})
+}
+
+type GreeterService_ListTrustedKeysServer interface {
+	Send(*PublicKey) error
+	grpc.ServerStream
+}
+
+type greeterServiceListTrustedKeysServer struct {
+	grpc.ServerStream
+}
+
+func (x *greeterServiceListTrustedKeysServer) Send(m *PublicKey) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _GreeterService_Authorize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Credentials)
 	if err := dec(in); err != nil {
@@ -836,6 +998,11 @@ var _GreeterService_serviceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Search",
 			Handler:       _GreeterService_Search_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListTrustedKeys",
+			Handler:       _GreeterService_ListTrustedKeys_Handler,
 			ServerStreams: true,
 		},
 	},
