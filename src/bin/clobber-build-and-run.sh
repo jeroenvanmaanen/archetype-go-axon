@@ -75,6 +75,9 @@ function waitForDockerComposeReady() {
 (
     cd "${PROJECT}"
 
+    src/bin/generate-root-key-pair.sh
+    src/bin/generate-module-for-trusted-keys.sh
+
     if "${DO_BUILD}"
     then
         # Build docker image with nix and golang

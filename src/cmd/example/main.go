@@ -5,10 +5,19 @@ import (
     log "log"
     axonserver "github.com/jeroenvm/archetype-nix-go/src/pkg/grpc/axonserver"
     example "github.com/jeroenvm/archetype-nix-go/src/pkg/example"
+    trusted "github.com/jeroenvm/archetype-nix-go/src/pkg/trusted"
     uuid "github.com/google/uuid"
 )
 
 func main() {
+    log.Printf("\n\n\n")
+    log.Printf("Start Go Client")
+
+    trusted.Init()
+    for k, v := range trusted.TrustedKeys {
+        log.Printf("Trusted key: %v: %v", k, v)
+    }
+
     host := "axon-server" // "example-proxy" or "axon-server"
     port := 8124
     conn, clientInfo, streamClient := example.WaitForServer(host, port, "API")
