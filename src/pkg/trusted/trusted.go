@@ -79,6 +79,6 @@ func SetPrivateKey(name string, pemString string) error {
 
     privateKey = *givenPrivateKey
     privateKeyName = name
-    log.Printf("Trusted: Set private key: private key: %v: %v", name, privateKey)
+    log.Printf("Trusted: Set private key: private key: %v", name)
     return nil
 }
