@@ -25,6 +25,7 @@ func WaitForElasticSearch() *elasticSearch7.Client {
         es7, e := elasticSearch7.NewClient(cfg)
         if e == nil {
             if e = getElasticSearchInfo(es7); e == nil {
+                waitForStatusReady(es7)
                 return es7
             }
         }
@@ -32,6 +33,29 @@ func WaitForElasticSearch() *elasticSearch7.Client {
         log.Printf(".(es) %v", e)
     }
     return nil
+}
+
+func waitForStatusReady(es7 *elasticSearch7.Client) {
+    var status string
+    d, _ := time.ParseDuration("3s")
+    for true {
+        status = "???"
+        statsRequest := esapi.ClusterStatsRequest{}
+        statsResponse, e := statsRequest.Do(context.Background(), es7)
+        if e == nil {
+            stats, e := unwrapElasticSearchResponse(statsResponse)
+            if e == nil {
+                status = stats["status"].(string)
+                if status != "red" {
+                    log.Printf("Elastic Search: status: %v", status)
+                    return
+                }
+            }
+        }
+
+        time.Sleep(d)
+        log.Printf(".(es %v)", status)
+    }
 }
 
 func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {

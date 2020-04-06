@@ -13,7 +13,7 @@ service GreeterService {
     rpc Search (SearchQuery) returns (stream Greeting) {}
     rpc ListTrustedKeys (Empty) returns (stream PublicKey) {}
 //  rpc ChangeTrustedKeys (stream TrustedKeyRequest) returns (stream TrustedKeyResponse) {}
-//  rpc SetPrivateKey(PrivateKey) returns (Empty) {}
+    rpc SetPrivateKey(PrivateKey) returns (Empty) {}
     rpc Authorize (Credentials) returns (AccessToken) {}
 }
 

@@ -225,6 +225,13 @@ func (s *GreeterServer) ListTrustedKeys(req *grpcExample.Empty, streamServer grp
     return nil
 }
 
+func (s *GreeterServer) SetPrivateKey(ctx context.Context, request *grpcExample.PrivateKey) (*grpcExample.Empty, error) {
+    trusted.SetPrivateKey(request.Name, request.PrivateKey)
+
+    empty := grpcExample.Empty{}
+    return &empty, nil
+}
+
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
