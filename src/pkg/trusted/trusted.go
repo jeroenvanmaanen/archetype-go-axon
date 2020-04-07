@@ -23,7 +23,7 @@ func SetPrivateKey(name string, pemString string) error {
     encodedPublicKey := TrustedKeys[name]
     log.Printf("Trusted: Set private key: public key: %v: %v", name, encodedPublicKey)
 
-    publicKey, _, _, _, e := ssh.ParseAuthorizedKey([]byte("ssh-rsa " + encodedPublicKey))
+    publicKey, e := getTrustedKey(name)
     if e != nil {
         log.Printf("Trusted: Set private key: Unable to parse public key: %v", e)
         return errors.New("Invalid public key")
@@ -81,4 +81,45 @@ func SetPrivateKey(name string, pemString string) error {
     privateKeyName = name
     log.Printf("Trusted: Set private key: private key: %v", name)
     return nil
+}
+
+func AddTrustedKey(name string, publicKey string, nonce []byte, signatureName string, signature *ssh.Signature) error {
+    _, e := parsePublicKey(publicKey)
+    if e != nil {
+        log.Printf("Trusted: Add trusted key: Unable to parse new trusted key: %v", e)
+        return errors.New("Invalid trusted key")
+    }
+
+    signatureKey, e := getTrustedKey(signatureName)
+    if e != nil {
+        log.Printf("Trusted: Add trusted key: Unable to parse signature key: %v", e)
+        return errors.New("Invalid trusted key")
+    }
+
+    e = signatureKey.Verify(nonce, signature)
+    if e != nil {
+        log.Printf("Trusted: Add trusted key: Unable to verify signature of nonce: %v", e)
+        return errors.New("Invalid trusted key")
+    }
+
+    TrustedKeys[name] = publicKey
+    return nil
+}
+
+func getTrustedKey(name string) (ssh.PublicKey, error) {
+    var e error
+
+    encodedPublicKey := TrustedKeys[name]
+    log.Printf("Trusted: Get public key: %v: %v", name, encodedPublicKey)
+    publicKey, e := parsePublicKey(encodedPublicKey)
+    return publicKey, e
+}
+
+func parsePublicKey(encodedPublicKey string) (ssh.PublicKey, error) {
+    publicKey, _, _, _, e := ssh.ParseAuthorizedKey([]byte("ssh-rsa " + encodedPublicKey))
+    if e != nil {
+        log.Printf("Trusted: Unable to parse public key: %v", e)
+        return nil, e
+    }
+    return publicKey, nil
 }
