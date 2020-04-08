@@ -11,8 +11,11 @@ import (
     x509 "crypto/x509"
 
     ssh "golang.org/x/crypto/ssh"
+
+    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
+var KeyManagers map[string]string
 var TrustedKeys map[string]string
 var privateKey rsa.PrivateKey
 var privateKeyName string
@@ -83,34 +86,58 @@ func SetPrivateKey(name string, pemString string) error {
     return nil
 }
 
-func AddTrustedKey(name string, publicKey string, nonce []byte, signatureName string, signature *ssh.Signature) error {
+func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
+    name := request.PublicKey.Name
+    publicKey := request.PublicKey.PublicKey
+    signatureName := request.SignatureName
+    protoSignature := request.Signature
+    isKeyManager := request.IsKeyManager
+
     _, e := parsePublicKey(publicKey)
     if e != nil {
         log.Printf("Trusted: Add trusted key: Unable to parse new trusted key: %v", e)
         return errors.New("Invalid trusted key")
     }
 
-    signatureKey, e := getTrustedKey(signatureName)
+    signatureKey, e := getKeyManagerKey(signatureName)
     if e != nil {
         log.Printf("Trusted: Add trusted key: Unable to parse signature key: %v", e)
         return errors.New("Invalid trusted key")
     }
 
-    e = signatureKey.Verify(nonce, signature)
+    signature := ssh.Signature{
+        Format: protoSignature.Format,
+        Blob: protoSignature.Blob,
+        Rest: protoSignature.Rest,
+    }
+
+    e = signatureKey.Verify(nonce, &signature)
     if e != nil {
         log.Printf("Trusted: Add trusted key: Unable to verify signature of nonce: %v", e)
         return errors.New("Invalid trusted key")
     }
 
     TrustedKeys[name] = publicKey
+    if isKeyManager {
+        KeyManagers[name] = publicKey
+    }
     return nil
+}
+
+func getKeyManagerKey(name string) (ssh.PublicKey, error) {
+    var e error
+
+    encodedPublicKey := KeyManagers[name]
+    log.Printf("Trusted: Get key manager key: %v: %v", name, encodedPublicKey)
+    publicKey, e := parsePublicKey(encodedPublicKey)
+    return publicKey, e
 }
 
 func getTrustedKey(name string) (ssh.PublicKey, error) {
     var e error
 
     encodedPublicKey := TrustedKeys[name]
-    log.Printf("Trusted: Get public key: %v: %v", name, encodedPublicKey)
+    log.Printf("Trusted: Get trusted key: %v: %v", name, encodedPublicKey)
     publicKey, e := parsePublicKey(encodedPublicKey)
     return publicKey, e
 }

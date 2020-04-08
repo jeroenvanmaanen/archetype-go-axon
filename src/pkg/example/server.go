@@ -8,6 +8,9 @@ import (
     net "net"
     log "log"
 
+    hex "encoding/hex"
+    rand "crypto/rand"
+
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     reflection "google.golang.org/grpc/reflection"
@@ -230,6 +233,54 @@ func (s *GreeterServer) SetPrivateKey(ctx context.Context, request *grpcExample.
 
     empty := grpcExample.Empty{}
     return &empty, nil
+}
+
+func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_ChangeTrustedKeysServer) error {
+    var status = grpcExample.Status{}
+    response := grpcExample.TrustedKeyResponse{}
+    nonce := make([]byte, 64)
+    nonce = nil
+    first := true
+    for true {
+        request, e := stream.Recv();
+        if e != nil {
+            log.Printf("Server: Change trusted keys: error receiving request: %v", e)
+            return e
+        }
+
+        status.Code = 500
+        status.Message = "Internal Server Error"
+
+        if first {
+            status.Code = 200
+            status.Message = "OK"
+        } else {
+            if request.SignatureName == "" {
+                return nil
+            }
+            e = trusted.AddTrustedKey(request, nonce)
+            if e == nil {
+                status.Code = 200
+                status.Message = "OK"
+            } else {
+                status.Code = 400
+                status.Message = e.Error()
+            }
+        }
+
+        rand.Reader.Read(nonce)
+        hexNonce := hex.EncodeToString(nonce)
+        log.Printf("Next nonce: %v", hexNonce)
+
+        response.Status = &status
+        response.Nonce = nonce
+        e = stream.Send(&response)
+        if e != nil {
+            log.Printf("Server: Change trusted keys: error sending response: %v", e)
+            return e
+        }
+    }
+    return errors.New("Server: Change trusted keys: unexpected end of stream")
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
