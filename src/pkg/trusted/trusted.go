@@ -32,31 +32,9 @@ func SetPrivateKey(name string, pemString string) error {
         return errors.New("Invalid public key")
     }
 
-    privatePem, _ := pem.Decode([]byte(pemString))
-    if privatePem.Type != "RSA PRIVATE KEY" {
-        log.Printf("RSA private key is of the wrong type: %v", privatePem.Type)
-    }
-
-    privatePemBytes := privatePem.Bytes
-    if privatePemBytes == nil {
-        log.Printf("Trusted: Set private key: empty PEM")
-        return errors.New("Empty PEM")
-    }
-
-    var parsedKey interface{}
-    if parsedKey, e = x509.ParsePKCS1PrivateKey(privatePemBytes); e != nil {
-        if parsedKey, e = x509.ParsePKCS8PrivateKey(privatePemBytes); e != nil { // note this returns type `interface{}`
-            log.Printf("Trusted: Set private key: Unable to parse RSA private key: %v", e)
-            return errors.New("Invalid private key")
-        }
-    }
-
-    var givenPrivateKey *rsa.PrivateKey
-    var ok bool
-    givenPrivateKey, ok = parsedKey.(*rsa.PrivateKey)
-    if !ok {
-        log.Printf("Type assertion for RSA private key failed")
-        return errors.New("Invalid private key")
+    givenPrivateKey, e := ParsePrivateKey(pemString)
+    if e != nil {
+        return e
     }
 
     signer, e := ssh.NewSignerFromKey(givenPrivateKey)
@@ -121,6 +99,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
     if isKeyManager {
         KeyManagers[name] = publicKey
     }
+    log.Printf("Added public key: %v: %v", name, publicKey)
     return nil
 }
 
@@ -149,4 +128,33 @@ func parsePublicKey(encodedPublicKey string) (ssh.PublicKey, error) {
         return nil, e
     }
     return publicKey, nil
+}
+
+func ParsePrivateKey(pemString string) (givenPrivateKey *rsa.PrivateKey, e error) {
+    privatePem, _ := pem.Decode([]byte(pemString))
+    if privatePem.Type != "RSA PRIVATE KEY" {
+        log.Printf("RSA private key is of the wrong type: %v", privatePem.Type)
+        return nil, errors.New("Wrong PEM type")
+    }
+
+    privatePemBytes := privatePem.Bytes
+    if privatePemBytes == nil {
+        log.Printf("Trusted: Set private key: empty PEM")
+        return nil, errors.New("Empty PEM")
+    }
+
+    var parsedKey interface{}
+    if parsedKey, e = x509.ParsePKCS1PrivateKey(privatePemBytes); e != nil {
+        if parsedKey, e = x509.ParsePKCS8PrivateKey(privatePemBytes); e != nil { // note this returns type `interface{}`
+            log.Printf("Trusted: Set private key: Unable to parse RSA private key: %v", e)
+            return nil, errors.New("Invalid private key")
+        }
+    }
+
+    givenPrivateKey, ok := parsedKey.(*rsa.PrivateKey)
+    if !ok {
+        log.Printf("Type assertion for RSA private key failed")
+        return nil, errors.New("Invalid private key")
+    }
+    return
 }

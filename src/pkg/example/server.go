@@ -239,7 +239,6 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
     var status = grpcExample.Status{}
     response := grpcExample.TrustedKeyResponse{}
     nonce := make([]byte, 64)
-    nonce = nil
     first := true
     for true {
         request, e := stream.Recv();
@@ -252,6 +251,7 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
         status.Message = "Internal Server Error"
 
         if first {
+            first = false
             status.Code = 200
             status.Message = "OK"
         } else {
