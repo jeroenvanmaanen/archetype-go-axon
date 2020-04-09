@@ -132,7 +132,7 @@ func parsePublicKey(encodedPublicKey string) (ssh.PublicKey, error) {
 
 func ParsePrivateKey(pemString string) (givenPrivateKey *rsa.PrivateKey, e error) {
     privatePem, _ := pem.Decode([]byte(pemString))
-    if privatePem.Type != "RSA PRIVATE KEY" {
+    if privatePem.Type != "PRIVATE KEY" && privatePem.Type != "RSA PRIVATE KEY" {
         log.Printf("RSA private key is of the wrong type: %v", privatePem.Type)
         return nil, errors.New("Wrong PEM type")
     }

@@ -58,6 +58,7 @@ func main() {
     var pem string
     var managerPrivateKey *rsa.PrivateKey
     var signer ssh.Signer
+    var nonce []byte
     for true {
         if strings.HasPrefix(line, ">>> Manager: ") {
             name = getName(line)
@@ -90,7 +91,7 @@ func main() {
                     PublicKey: parts[1],
                 }
                 log.Printf("Public key: %v", publicKey)
-                nonce := response.Nonce
+                nonce = response.Nonce
                 signature, e := signer.Sign(rand.Reader, nonce)
                 if e != nil {
                     log.Printf("Unable to sign nonce: %v", e)
@@ -115,16 +116,47 @@ func main() {
                 response, e := stream.Recv()
                 if e != nil {
                     log.Printf("Error when receiving response for ChangeTrustedKeys: %v", e)
-                    panic("Could not receive first response]")
+                    panic("Could not receive first response")
                 }
                 log.Printf("Response: %v", response)
+                nonce = response.Nonce
             }
         } else if strings.HasPrefix(line, ">>> Identity Provider: ") {
             name = getName(line)
             pem, line = readPem(reader)
             log.Printf("Identity Provider name: %v: %d", name, len(pem))
+            grpcPrivateKey := grpcExample.PrivateKey{
+                Name: name,
+                PrivateKey: pem,
+            }
+            _, e = client.SetPrivateKey(context.Background(), &grpcPrivateKey)
+            if e != nil {
+                log.Printf("Error when setting private key for identity provider: %v", e)
+                panic("Could not set private key")
+            }
         } else if strings.HasPrefix(line, ">>> End") {
             log.Printf("End")
+            request.PublicKey = nil
+            request.Nonce = nonce
+            request.SignatureName = ""
+            request.Signature = nil
+            request.IsKeyManager = false
+            e = stream.Send(&request)
+            if e != nil {
+                log.Printf("Error when sending final request: %v", e)
+                panic("Could not send final request")
+            }
+            e = stream.CloseSend()
+            if e != nil {
+                log.Printf("Error when receiving closing send directions: %v", e)
+                panic("Could not close send direction")
+            }
+            response, e = stream.Recv()
+            if e != nil {
+                log.Printf("Error when receiving final response: %v", e)
+                panic("Could not receive final response")
+            }
+            log.Printf("Final response: %v: %v: %v", response.Status.Code, response.Status.Message, response.Nonce)
             break
         } else {
             panic("Expected: >>> { Manager: <name> | Trusted | Identity Provider: <name> | End }: got: [" + line + "]")

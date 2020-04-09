@@ -256,6 +256,11 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
             status.Message = "OK"
         } else {
             if request.SignatureName == "" {
+                status.Code = 200
+                status.Message = "End of stream"
+                response.Status = &status
+                response.Nonce = nil
+                _ = stream.Send(&response)
                 return nil
             }
             e = trusted.AddTrustedKey(request, nonce)
