@@ -288,6 +288,21 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
     return errors.New("Server: Change trusted keys: unexpected end of stream")
 }
 
+func (s *GreeterServer) ChangeCredentials(stream grpcExample.GreeterService_ChangeCredentialsServer) error {
+    for true {
+        credentials, e := stream.Recv()
+        if e != nil {
+            log.Printf("Error while receiving credentials: %v", e)
+            return e
+        }
+        if credentials.Signature == nil {
+            break
+        }
+    }
+    empty = grpcExample.Empty{}
+    return stream.SendAndClose(&empty)
+}
+
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
