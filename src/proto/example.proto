@@ -14,6 +14,7 @@ service GreeterService {
     rpc ListTrustedKeys (Empty) returns (stream PublicKey) {}
     rpc ChangeTrustedKeys (stream TrustedKeyRequest) returns (stream TrustedKeyResponse) {}
     rpc SetPrivateKey(PrivateKey) returns (Empty) {}
+//  rpc SetCredentials(stream Credentials) returns (Empty) {}
     rpc Authorize (Credentials) returns (AccessToken) {}
 }
 
@@ -70,10 +71,6 @@ message PrivateKey {
     string name = 2;
 }
 
-message Credentials {
-    string apiKey = 1;
-}
-
 message AccessToken {
     string jwt = 1;
 }
@@ -81,7 +78,6 @@ message AccessToken {
 message TrustedKeyRequest {
     PublicKey publicKey = 1;
     bytes nonce = 2;
-    string signatureName = 3;
     Signature signature = 4;
     bool isKeyManager = 5;
 }
@@ -95,9 +91,16 @@ message Signature {
     string format = 1;
     bytes blob = 2;
     bytes rest = 3;
+    string signatureName = 4;
 }
 
 message Status {
     int32 code = 1;
     string message = 2;
+}
+
+message Credentials {
+    string identifier = 1;
+    string secret = 2;
+    Signature signature = 3;
 }

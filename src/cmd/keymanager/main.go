@@ -96,7 +96,6 @@ func main() {
             log.Printf("End")
             request.PublicKey = nil
             request.Nonce = nonce
-            request.SignatureName = ""
             request.Signature = nil
             request.IsKeyManager = false
             e = stream.Send(&request)
@@ -178,14 +177,15 @@ func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, 
             panic("Could not sign nonce")
         }
         log.Printf("Signature: %v", signature)
-        grpcSignature := grpcExample.Signature{}
-        grpcSignature.Format = signature.Format
-        grpcSignature.Blob = signature.Blob
-        grpcSignature.Rest = signature.Rest
+        grpcSignature := grpcExample.Signature{
+            Format: signature.Format,
+            Blob: signature.Blob,
+            Rest: signature.Rest,
+            SignatureName: signatureName,
+        }
         request := grpcExample.TrustedKeyRequest{
             PublicKey: &publicKey,
             Nonce: nonce,
-            SignatureName: signatureName,
             Signature: &grpcSignature,
             IsKeyManager: isKeyManager,
         }

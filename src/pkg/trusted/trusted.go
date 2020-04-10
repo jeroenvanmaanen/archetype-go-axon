@@ -67,8 +67,8 @@ func SetPrivateKey(name string, pemString string) error {
 func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
     name := request.PublicKey.Name
     publicKey := request.PublicKey.PublicKey
-    signatureName := request.SignatureName
     protoSignature := request.Signature
+    signatureName := protoSignature.SignatureName
     isKeyManager := request.IsKeyManager
 
     _, e := parsePublicKey(publicKey)
