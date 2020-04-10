@@ -51,6 +51,7 @@ func main() {
         panic("Could not receive first response]")
     }
     log.Printf("First response: %v", response)
+    nonce := response.Nonce
 
     reader := bufio.NewReader(os.Stdin)
     line := readLine(reader)
@@ -58,12 +59,12 @@ func main() {
     var pem string
     var managerPrivateKey *rsa.PrivateKey
     var signer ssh.Signer
-    var nonce []byte
+    var signatureName string
     for true {
         if strings.HasPrefix(line, ">>> Manager: ") {
-            name = getName(line)
+            signatureName = getName(line)
             pem, line = readPem(reader)
-            log.Printf("Manager name: %v: %d", name, len(pem))
+            log.Printf("Manager name: %v: %d", signatureName, len(pem))
             managerPrivateKey, e = trusted.ParsePrivateKey(pem)
             if e != nil {
                 log.Printf("Error when parsing manager private key: %v", e)
@@ -74,53 +75,10 @@ func main() {
                 log.Printf("Unable to create signer from private key: %v", e)
                 panic("Could not create signer")
             }
+        } else if strings.HasPrefix(line, ">>> Management") {
+            line, nonce = addPublicKeys(true, reader, &signer, signatureName, nonce, stream)
         } else if strings.HasPrefix(line, ">>> Trusted") {
-            for true {
-                line = readLine(reader)
-                if strings.HasPrefix(line, ">>> ") {
-                    break;
-                }
-                parts := strings.Split(strings.Trim(line, "\n"), " ")
-                if len(parts) < 3 {
-                    log.Printf("Not enough parts: %v", line)
-                    continue
-                }
-                log.Printf("Trusted public key: %v: %v", parts[2], parts[1])
-                publicKey := grpcExample.PublicKey{
-                    Name: parts[2],
-                    PublicKey: parts[1],
-                }
-                log.Printf("Public key: %v", publicKey)
-                nonce = response.Nonce
-                signature, e := signer.Sign(rand.Reader, nonce)
-                if e != nil {
-                    log.Printf("Unable to sign nonce: %v", e)
-                    panic("Could not sign nonce")
-                }
-                log.Printf("Signature: %v", signature)
-                grpcSignature := grpcExample.Signature{}
-                grpcSignature.Format = signature.Format
-                grpcSignature.Blob = signature.Blob
-                grpcSignature.Rest = signature.Rest
-                request.PublicKey = &publicKey
-                request.Nonce = nonce
-                request.SignatureName = name
-                request.Signature = &grpcSignature
-                request.IsKeyManager = false
-                e = stream.Send(&request)
-                if e != nil {
-                    log.Printf("Error when sending add key request for ChangeTrustedKeys: %v", e)
-                    panic("Could not send first request")
-                }
-
-                response, e := stream.Recv()
-                if e != nil {
-                    log.Printf("Error when receiving response for ChangeTrustedKeys: %v", e)
-                    panic("Could not receive first response")
-                }
-                log.Printf("Response: %v", response)
-                nonce = response.Nonce
-            }
+            line, nonce = addPublicKeys(false, reader, &signer, signatureName, nonce, stream)
         } else if strings.HasPrefix(line, ">>> Identity Provider: ") {
             name = getName(line)
             pem, line = readPem(reader)
@@ -159,7 +117,7 @@ func main() {
             log.Printf("Final response: %v: %v: %v", response.Status.Code, response.Status.Message, response.Nonce)
             break
         } else {
-            panic("Expected: >>> { Manager: <name> | Trusted | Identity Provider: <name> | End }: got: [" + line + "]")
+            panic("Expected: >>> { Manager: <name> | Management | Trusted | Identity Provider: <name> | End }: got: [" + line + "]")
         }
     }
 }
@@ -194,4 +152,56 @@ func readPem(reader *bufio.Reader) (pem string, nextLine string) {
     }
     pem = builder.String()
     return
+}
+
+func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, signatureName string, startNonce []byte, stream grpcExample.GreeterService_ChangeTrustedKeysClient) (line string, nonce []byte) {
+    nonce = startNonce
+    for true {
+        line = readLine(reader)
+        if strings.HasPrefix(line, ">>> ") {
+            return
+        }
+        parts := strings.Split(strings.Trim(line, "\n"), " ")
+        if len(parts) < 3 {
+            log.Printf("Not enough parts: %v", line)
+            continue
+        }
+        log.Printf("Trusted public key: %v: %v", parts[2], parts[1])
+        publicKey := grpcExample.PublicKey{
+            Name: parts[2],
+            PublicKey: parts[1],
+        }
+        log.Printf("Public key: %v", publicKey)
+        signature, e := (*signer).Sign(rand.Reader, nonce)
+        if e != nil {
+            log.Printf("Unable to sign nonce: %v", e)
+            panic("Could not sign nonce")
+        }
+        log.Printf("Signature: %v", signature)
+        grpcSignature := grpcExample.Signature{}
+        grpcSignature.Format = signature.Format
+        grpcSignature.Blob = signature.Blob
+        grpcSignature.Rest = signature.Rest
+        request := grpcExample.TrustedKeyRequest{
+            PublicKey: &publicKey,
+            Nonce: nonce,
+            SignatureName: signatureName,
+            Signature: &grpcSignature,
+            IsKeyManager: isKeyManager,
+        }
+        e = stream.Send(&request)
+        if e != nil {
+            log.Printf("Error when sending add key request for ChangeTrustedKeys: %v", e)
+            panic("Could not send first request")
+        }
+
+        response, e := stream.Recv()
+        if e != nil {
+            log.Printf("Error when receiving response for ChangeTrustedKeys: %v", e)
+            panic("Could not receive first response")
+        }
+        log.Printf("Response: %v", response)
+        nonce = response.Nonce
+    }
+    return "", nonce
 }
