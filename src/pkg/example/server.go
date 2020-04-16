@@ -16,6 +16,7 @@ import (
     reflection "google.golang.org/grpc/reflection"
     uuid "github.com/google/uuid"
 
+    authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -298,6 +299,7 @@ func (s *GreeterServer) ChangeCredentials(stream grpcExample.GreeterService_Chan
         if credentials.Signature == nil {
             break
         }
+        authentication.SetCredentials(credentials)
     }
     empty = grpcExample.Empty{}
     return stream.SendAndClose(&empty)

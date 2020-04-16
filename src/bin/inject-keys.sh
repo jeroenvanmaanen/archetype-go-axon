@@ -19,8 +19,6 @@ fi
   ROOT_KEY_NAME="$(cat "${ROOT_PRIVATE_KEY}.pub" | cut -d ' ' -f 3)"
   SIGN_KEY_NAME="$(cat "${SIGN_PRIVATE_KEY}.pub" | cut -d ' ' -f 3)"
 
-  source "${BIN}/verbose.sh"
-  source "${SRC}/etc/settings-local.sh"
   (
     echo ">>> Manager: ${ROOT_KEY_NAME}"
     cat "${ROOT_PRIVATE_KEY}"
@@ -29,8 +27,19 @@ fi
       echo '>>> Trusted:'
       cat "${SIGN_PRIVATE_KEY}.pub"
     fi
+
     echo ">>> Identity Provider: ${SIGN_KEY_NAME}"
     cat "${SIGN_PRIVATE_KEY}"
+
+    echo ">>> Secrets"
+    cat "${SRC}/etc/secrets-local.yaml" \
+      | docker run -i karlkfi/yq -r '.users | to_entries[] | .key + " " + .value.secret' \
+      | while read USER_ID PASSWORD_ENCRYPTED
+        do
+          log ">>> ${USER_ID}: ${PASSWORD_ENCRYPTED}"
+          echo "${USER_ID}=${PASSWORD_ENCRYPTED}"
+        done
+
     echo '>>> End'
   ) | docker exec -i example_example-command-api_1 target/bin/keymanager
 )

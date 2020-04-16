@@ -3,6 +3,7 @@ package main
 import (
     fmt "fmt"
     log "log"
+    authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
     example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -14,6 +15,7 @@ func main() {
     log.Printf("Start Go Client")
 
     trusted.Init()
+    authentication.Init()
     for k, v := range trusted.TrustedKeys {
         log.Printf("Trusted key: %v: %v", k, v)
     }

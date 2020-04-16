@@ -92,6 +92,8 @@ func main() {
                 log.Printf("Error when setting private key for identity provider: %v", e)
                 panic("Could not set private key")
             }
+        } else if strings.HasPrefix(line, ">>> Secrets") {
+            line = addSecrets(client, reader, signatureName, &signer)
         } else if strings.HasPrefix(line, ">>> End") {
             log.Printf("End")
             request.PublicKey = nil
@@ -204,4 +206,56 @@ func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, 
         nonce = response.Nonce
     }
     return "", nonce
+}
+
+func addSecrets(client grpcExample.GreeterServiceClient, reader *bufio.Reader, signatureName string, signer *ssh.Signer) (line string) {
+    log.Printf("Add secrets: client: %v", client)
+    stream, e := client.ChangeCredentials(context.Background())
+    if e != nil {
+        log.Printf("Add secrets: Error when opening stream: %v", e)
+    }
+    log.Printf("Add secrets: stream: %v", stream)
+    defer stream.CloseAndRecv()
+
+    for true {
+        line = readLine(reader)
+        if strings.HasPrefix(line, ">>>") {
+            break
+        }
+        log.Printf("Add secret: %v", line)
+        parts := strings.SplitN(line, "=", 2)
+        log.Printf("Number of parts: %v", len(parts))
+
+        signature, e := (*signer).Sign(rand.Reader, []byte(line))
+        if e != nil {
+            log.Printf("Add secrets: Unable to sign nonce: %v", e)
+            panic("Could not sign nonce")
+        }
+        log.Printf("Add secrets: Signature: %v", signature)
+        grpcSignature := grpcExample.Signature{
+            Format: signature.Format,
+            Blob: signature.Blob,
+            Rest: signature.Rest,
+            SignatureName: signatureName,
+        }
+
+        credentials := grpcExample.Credentials{
+            Identifier: parts[0],
+            Secret: parts[1],
+            Signature: &grpcSignature,
+        }
+        log.Printf("Add secret: Credentials: %v", credentials)
+        e = stream.Send(&credentials)
+        if e != nil {
+            log.Printf("Add secrets: Unable to send credentials: %v", e)
+            panic("Could not send credentials")
+        }
+    }
+    emptyCredentials := grpcExample.Credentials{
+        Identifier: "",
+        Secret: "",
+        Signature: nil,
+    }
+    stream.Send(&emptyCredentials)
+    return
 }

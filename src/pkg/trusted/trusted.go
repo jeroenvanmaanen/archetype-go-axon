@@ -77,7 +77,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
         return errors.New("Invalid trusted key")
     }
 
-    signatureKey, e := getKeyManagerKey(signatureName)
+    signatureKey, e := GetKeyManagerKey(signatureName)
     if e != nil {
         log.Printf("Trusted: Add trusted key: Unable to parse signature key: %v", e)
         return errors.New("Invalid trusted key")
@@ -103,7 +103,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
     return nil
 }
 
-func getKeyManagerKey(name string) (ssh.PublicKey, error) {
+func GetKeyManagerKey(name string) (ssh.PublicKey, error) {
     var e error
 
     encodedPublicKey := KeyManagers[name]
