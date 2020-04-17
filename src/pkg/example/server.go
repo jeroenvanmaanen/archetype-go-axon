@@ -5,13 +5,15 @@ import (
     errors "errors"
     fmt "fmt"
     io "io"
-    net "net"
     log "log"
+    net "net"
+    time "time"
 
     hex "encoding/hex"
     rand "crypto/rand"
 
     grpc "google.golang.org/grpc"
+    jwt "github.com/pascaldekloe/jwt"
     proto "github.com/golang/protobuf/proto"
     reflection "google.golang.org/grpc/reflection"
     uuid "github.com/google/uuid"
@@ -210,9 +212,19 @@ func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer g
     return nil
 }
 
-func (s *GreeterServer) Authorize(ctx context.Context, in *grpcExample.Credentials) (*grpcExample.AccessToken, error) {
+func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpcExample.Credentials) (*grpcExample.AccessToken, error) {
     accessToken := grpcExample.AccessToken{
-        Jwt: "to.be.done",
+        Jwt: "",
+    }
+    if authentication.Authenticate(credentials.Identifier, credentials.Secret) {
+        var claims jwt.Claims
+        claims.Subject = credentials.Identifier
+        claims.Issued = jwt.NewNumericTime(time.Now().Round(time.Second))
+        token, e := trusted.CreateJWT(claims)
+        if e != nil {
+            return nil, e
+        }
+        accessToken.Jwt = token
     }
     return &accessToken, nil
 }

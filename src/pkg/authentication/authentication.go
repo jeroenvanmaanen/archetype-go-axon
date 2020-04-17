@@ -18,7 +18,7 @@ import (
 var acceptedCredentials map[string]string
 
 func Init() {
-    acceptedCredentials = map[string]string{}
+    acceptedCredentials = make(map[string]string)
 }
 
 func SetCredentials(credentials *grpcExample.Credentials) error {
@@ -40,27 +40,33 @@ func SetCredentials(credentials *grpcExample.Credentials) error {
 
 func Authenticate(username string, password string) bool {
     hashedPassword := acceptedCredentials[username]
+    log.Printf("Authenticate: %v: hashedPassword: '%v'", username, hashedPassword)
     parts := strings.Split(hashedPassword, ":")
     if len(parts) != 3 {
+        log.Printf("Authenticate: %v: number of parts: %v", username, len(parts))
         return false
     }
 
     if parts[0] != "sha256" {
+        log.Printf("Authenticate: %v: hash type: %v", username, parts[0])
         return false
     }
 
     salt, e := base64.RawStdEncoding.DecodeString(parts[1])
     if e != nil {
+        log.Printf("Authenticate: %v: could not base64 decode salt: %v", username, parts[1])
         return false
     }
 
     storedHash, e := base64.RawStdEncoding.DecodeString(parts[2])
     if e != nil {
+        log.Printf("Authenticate: %v: could not base64 decode store hash: %v", username, parts[2])
         return false
     }
 
     blob := append(salt, ([]byte(password))...)
     givenHash := sha256.Sum256(blob)
+    log.Printf("Authenticate: %v: given hash: %v", username, givenHash)
 
     return bytes.Compare(givenHash[:], storedHash) == 0
 }

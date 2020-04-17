@@ -10,6 +10,7 @@ import (
     rsa "crypto/rsa"
     x509 "crypto/x509"
 
+    jwt "github.com/pascaldekloe/jwt"
     ssh "golang.org/x/crypto/ssh"
 
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
@@ -156,5 +157,11 @@ func ParsePrivateKey(pemString string) (givenPrivateKey *rsa.PrivateKey, e error
         log.Printf("Type assertion for RSA private key failed")
         return nil, errors.New("Invalid private key")
     }
+    return
+}
+
+func CreateJWT(claims jwt.Claims) (token string, e error) {
+    tokenBuffer, e := claims.RSASign("RS256", &privateKey)
+    token = string(tokenBuffer)
     return
 }
