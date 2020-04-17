@@ -9,6 +9,7 @@ import (
     rand "crypto/rand"
     sha256 "crypto/sha256"
 
+    jwt "github.com/pascaldekloe/jwt"
     ssh "golang.org/x/crypto/ssh"
 
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
@@ -83,4 +84,13 @@ func Encode(password string) string {
     builder.WriteString(":")
     builder.WriteString(base64.RawStdEncoding.EncodeToString(hash[:]))
     return builder.String()
+}
+
+func Verify(accessToken *grpcExample.AccessToken) bool {
+    publicKey, e := trusted.GetRsaPublicKey()
+    if e != nil {
+        return false
+    }
+    _, e = jwt.RSACheck([]byte(accessToken.Jwt), publicKey)
+    return e == nil
 }

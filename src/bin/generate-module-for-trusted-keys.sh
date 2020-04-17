@@ -13,8 +13,8 @@ mkdir -p "$(dirname "${MODULE}")"
 echo 'package trusted
 
 func Init() {
-    TrustedKeys = map[string]string{}
-    KeyManagers = map[string]string{}' > "${MODULE}"
+    trustedKeys = map[string]string{}
+    keyManagers = map[string]string{}' > "${MODULE}"
 (
   cd "${PROJECT}" || exit 1
   N=0
@@ -36,8 +36,8 @@ func Init() {
       N=$((${N} + 1))
       NAME="key-${N}"
     fi
-    echo "    TrustedKeys[\"${NAME}\"] = \"${KEY}\""
-    echo "    KeyManagers[\"${NAME}\"] = TrustedKeys[\"${NAME}\"]"
+    echo "    trustedKeys[\"${NAME}\"] = \"${KEY}\""
+    echo "    keyManagers[\"${NAME}\"] = trustedKeys[\"${NAME}\"]"
   done >> "${MODULE}"
 )
 echo '}' >> "${MODULE}"

@@ -16,6 +16,7 @@ service GreeterService {
     rpc SetPrivateKey(PrivateKey) returns (Empty) {}
     rpc ChangeCredentials(stream Credentials) returns (Empty) {}
     rpc Authorize (Credentials) returns (AccessToken) {}
+    rpc Time (AccessToken) returns (Greeting) {}
 }
 
 message Greeting {

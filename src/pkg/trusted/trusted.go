@@ -4,6 +4,7 @@ import (
     errors "errors"
     log "log"
 
+    bigmath "math/big"
     hex "encoding/hex"
     pem "encoding/pem"
     rand "crypto/rand"
@@ -16,15 +17,15 @@ import (
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
-var KeyManagers map[string]string
-var TrustedKeys map[string]string
+var keyManagers map[string]string
+var trustedKeys map[string]string
 var privateKey rsa.PrivateKey
 var privateKeyName string
 
 func SetPrivateKey(name string, pemString string) error {
     var e error
 
-    encodedPublicKey := TrustedKeys[name]
+    encodedPublicKey := trustedKeys[name]
     log.Printf("Trusted: Set private key: public key: %v: %v", name, encodedPublicKey)
 
     publicKey, e := getTrustedKey(name)
@@ -96,9 +97,9 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
         return errors.New("Invalid trusted key")
     }
 
-    TrustedKeys[name] = publicKey
+    trustedKeys[name] = publicKey
     if isKeyManager {
-        KeyManagers[name] = publicKey
+        keyManagers[name] = publicKey
     }
     log.Printf("Added public key: %v: %v", name, publicKey)
     return nil
@@ -107,7 +108,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
 func GetKeyManagerKey(name string) (ssh.PublicKey, error) {
     var e error
 
-    encodedPublicKey := KeyManagers[name]
+    encodedPublicKey := keyManagers[name]
     log.Printf("Trusted: Get key manager key: %v: %v", name, encodedPublicKey)
     publicKey, e := parsePublicKey(encodedPublicKey)
     return publicKey, e
@@ -116,7 +117,7 @@ func GetKeyManagerKey(name string) (ssh.PublicKey, error) {
 func getTrustedKey(name string) (ssh.PublicKey, error) {
     var e error
 
-    encodedPublicKey := TrustedKeys[name]
+    encodedPublicKey := trustedKeys[name]
     log.Printf("Trusted: Get trusted key: %v: %v", name, encodedPublicKey)
     publicKey, e := parsePublicKey(encodedPublicKey)
     return publicKey, e
@@ -164,4 +165,54 @@ func CreateJWT(claims jwt.Claims) (token string, e error) {
     tokenBuffer, e := claims.RSASign("RS256", &privateKey)
     token = string(tokenBuffer)
     return
+}
+
+func GetRsaPublicKey() (*rsa.PublicKey, error) {
+    publicKey, e := parsePublicKey(trustedKeys[privateKeyName])
+    buffer := publicKey.Marshal()
+    w := getInt(buffer)
+    keyType := string(buffer[4:w+4])
+    if keyType != "ssh-rsa" {
+        return nil, errors.New("Not an ssh-rsa key: " + keyType)
+    }
+    buffer = buffer[w+4:]
+
+    w = getInt(buffer)
+    exponent := int(getBigInt(buffer[4:w+4]).Int64())
+    buffer = buffer[w+4:]
+
+    w = getInt(buffer)
+    modulus := getBigInt(buffer[4:w+4])
+
+    rsaPublicKey := rsa.PublicKey{
+        N: modulus,
+        E: exponent,
+    }
+
+    return &rsaPublicKey, e
+}
+
+func getInt(buffer []byte) (result uint32) {
+    result = 0
+    for i := 0; i < 4; i++ {
+        result = result * 256 + uint32(buffer[i])
+    }
+    return
+}
+
+func getBigInt(buffer []byte) (*bigmath.Int) {
+    result := bigmath.NewInt(0)
+    for _, v := range buffer {
+        result.Mul(result, bigmath.NewInt(256))
+        result.Add(result, bigmath.NewInt(int64(uint32(v))))
+    }
+    return result
+}
+
+func GetTrustedKeys() (map[string]string) {
+    var result = make(map[string]string)
+    for name, key := range trustedKeys {
+        result[name] = key
+    }
+    return result
 }

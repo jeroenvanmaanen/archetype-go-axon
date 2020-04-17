@@ -16,7 +16,7 @@ func main() {
 
     trusted.Init()
     authentication.Init()
-    for k, v := range trusted.TrustedKeys {
+    for k, v := range trusted.GetTrustedKeys() {
         log.Printf("Trusted key: %v: %v", k, v)
     }
 

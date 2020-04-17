@@ -231,7 +231,7 @@ func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpcExample.
 
 func (s *GreeterServer) ListTrustedKeys(req *grpcExample.Empty, streamServer grpcExample.GreeterService_ListTrustedKeysServer) error {
     trustedKey := grpcExample.PublicKey {}
-    for name, key := range trusted.TrustedKeys {
+    for name, key := range trusted.GetTrustedKeys() {
         trustedKey.Name = name
         trustedKey.PublicKey = key
         log.Printf("Server: Trusted keys streamed reply: %v", trustedKey)
@@ -315,6 +315,16 @@ func (s *GreeterServer) ChangeCredentials(stream grpcExample.GreeterService_Chan
     }
     empty = grpcExample.Empty{}
     return stream.SendAndClose(&empty)
+}
+
+func (s *GreeterServer) Time(ctx context.Context, accessToken *grpcExample.AccessToken) (*grpcExample.Greeting, error) {
+    if !authentication.Verify(accessToken) {
+        return nil, errors.New("Authentication failed: JWT: " + accessToken.Jwt)
+    }
+    greeting := grpcExample.Greeting{
+        Message: "Hi!",
+    }
+    return &greeting, nil
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
