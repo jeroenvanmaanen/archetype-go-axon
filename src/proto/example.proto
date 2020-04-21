@@ -44,6 +44,18 @@ message StopCommand {
     string aggregateIdentifier = 1;
 }
 
+message RegisterTrustedKeyCommand {
+    PublicKey publicKey = 1;
+}
+
+message RegisterKeyManagerCommand {
+    PublicKey publicKey = 1;
+}
+
+message RegisterCredentialsCommand {
+    Credentials credentials = 1;
+}
+
 // Events
 
 message GreetedEvent {
@@ -53,6 +65,30 @@ message GreetedEvent {
 message StartedRecordingEvent {}
 
 message StoppedRecordingEvent {}
+
+message TrustedKeyAddedEvent{
+    PublicKey publicKey = 1;
+}
+
+message TrustedKeyRemovedEvent{
+    string name = 1;
+}
+
+message KeyManagerAddedEvent{
+    PublicKey publicKey = 1;
+}
+
+message KeyManagerRemovedEvent{
+    string name = 1;
+}
+
+message CredentialsAddedEvent{
+    Credentials credentials = 1;
+}
+
+message CredentialsRemovedEvent{
+    string identifier = 1;
+}
 
 // Queries
 

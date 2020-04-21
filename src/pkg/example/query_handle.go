@@ -86,7 +86,7 @@ func handleSearchQuery(axonQuery *axonserver.QueryRequest, stream axonserver.Que
     query := grpcExample.SearchQuery{}
     e := proto.Unmarshal(axonQuery.Payload.Data, &query)
     if (e != nil) {
-        log.Printf("Query handler: Could not unmarshall SearchQuery")
+        log.Printf("Query handler: Could not unmarshal SearchQuery")
     }
 
     reply := grpcExample.Greeting{
