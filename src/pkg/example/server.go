@@ -39,18 +39,8 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
         AggregateIdentifier: "single_aggregate",
         Message: greeting,
     }
-    data, err := proto.Marshal(&command)
-    if err != nil {
-        log.Printf("Server: Error while marshalling command")
-        return nil, errors.New("Marshalling error")
-    }
-    serializedCommand := axonserver.SerializedObject{
-        Type: "GreetCommand",
-        Data: data,
-    }
-    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
-    if err != nil {
-        return nil, err
+    if e := SendCommand("GreetCommand", &command, s.conn, s.clientInfo); e != nil {
+        return nil, e
     }
     return &ack, nil
 }
@@ -113,16 +103,7 @@ func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (
     command := grpcExample.RecordCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    data, err := proto.Marshal(&command)
-    if err != nil {
-        log.Printf("Server: Error while marshalling command")
-        return nil, errors.New("Marshalling error")
-    }
-    serializedCommand := axonserver.SerializedObject{
-        Type: "RecordCommand",
-        Data: data,
-    }
-    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    err := SendCommand("RecordCommand", &command, s.conn, s.clientInfo)
     if err != nil {
         return nil, err
     }
@@ -133,16 +114,7 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*g
     command := grpcExample.StopCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    data, err := proto.Marshal(&command)
-    if err != nil {
-        log.Printf("Server: Error while marshalling command")
-        return nil, errors.New("Marshalling error")
-    }
-    serializedCommand := axonserver.SerializedObject{
-        Type: "StopCommand",
-        Data: data,
-    }
-    err = SubmitCommand(&serializedCommand, s.conn, s.clientInfo)
+    err := SendCommand("StopCommand", &command, s.conn, s.clientInfo)
     if err != nil {
         return nil, err
     }
