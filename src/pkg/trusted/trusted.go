@@ -105,6 +105,14 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte) error {
     return nil
 }
 
+func UnsafeSetTrustedKey(publicKey *grpcExample.PublicKey) {
+    trustedKeys[publicKey.Name] = publicKey.PublicKey
+}
+
+func UnsafeSetKeyManager(publicKey *grpcExample.PublicKey) {
+    keyManagers[publicKey.Name] = publicKey.PublicKey
+}
+
 func GetKeyManagerKey(name string) (ssh.PublicKey, error) {
     var e error
 

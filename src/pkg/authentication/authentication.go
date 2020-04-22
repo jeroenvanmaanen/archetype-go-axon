@@ -22,6 +22,10 @@ func Init() {
     acceptedCredentials = make(map[string]string)
 }
 
+func UnsafeSetCredentials(credentials *grpcExample.Credentials) {
+    acceptedCredentials[credentials.Identifier] = credentials.Secret
+}
+
 func SetCredentials(credentials *grpcExample.Credentials) error {
     payload := credentials.Identifier + "=" + credentials.Secret
     signatureKey, e := trusted.GetKeyManagerKey(credentials.Signature.SignatureName)
@@ -35,7 +39,7 @@ func SetCredentials(credentials *grpcExample.Credentials) error {
     }
     signatureKey.Verify([]byte(payload), &signature)
     log.Printf("Set credentials: %v: %v", credentials.Identifier, credentials.Secret)
-    acceptedCredentials[credentials.Identifier] = credentials.Secret
+    UnsafeSetCredentials(credentials)
     return nil
 }
 

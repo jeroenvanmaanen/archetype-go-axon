@@ -16,8 +16,10 @@ import (
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
+    authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 func ProcessEvents(host string, port int) *grpc.ClientConn {
@@ -99,7 +101,6 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
 
 
     log.Printf("Event processor worker: Ready to process events")
-    greetedEvent := grpcExample.GreetedEvent{}
     defer func() {
         log.Printf("Event processor worker stopped")
     }()
@@ -123,28 +124,93 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
             return
         }
 
-        event, e := client.Recv()
+        eventMessage, e := client.Recv()
         if e != nil {
             log.Printf("Event processor worker: Error while receiving next event: %v", e)
             return
         }
-        log.Printf("Event processor worker: Next event: %v", event)
-        getEventsRequest.TrackingToken = event.Token
+        log.Printf("Event processor worker: Next event message: %v", eventMessage)
+        getEventsRequest.TrackingToken = eventMessage.Token
 
-        if event.Event == nil || event.Event.Payload == nil || event.Event.Payload.Type != "GreetedEvent" {
+        if eventMessage.Event == nil || eventMessage.Event.Payload == nil {
             continue
         }
 
-        if e = proto.Unmarshal(event.Event.Payload.Data, &greetedEvent); e != nil {
-            log.Printf("Event processor worker: Unmarshalling of GreetedEvent failed: %v", e)
-            return
-        }
-        log.Printf("Event processor worker: Payload of greeted event: %v", greetedEvent)
+        payloadType := eventMessage.Event.Payload.Type
+        if payloadType == "GreetedEvent" {
+            greetedEvent := grpcExample.GreetedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &greetedEvent); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of GreetedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of greeted event: %v", greetedEvent)
 
-        if e = addMessageToIndex(greetedEvent.Message.Message, es7); e != nil {
-            log.Printf("Event processor worker: error while indexing message: %v", e)
-            return
+            if e = addMessageToIndex(greetedEvent.Message.Message, es7); e != nil {
+                log.Printf("Event processor worker: error while indexing message: %v", e)
+                return
+            }
+        } else if payloadType == "TrustedKeyAddedEvent" {
+            event := grpcExample.TrustedKeyAddedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of TrustedKeyAddedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of TrustedKeyAddedEvent event: %v", event)
+            trusted.UnsafeSetTrustedKey(event.PublicKey)
+        } else if payloadType == "TrustedKeyRemovedEvent" {
+            event := grpcExample.TrustedKeyRemovedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of TrustedKeyRemovedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of TrustedKeyRemovedEvent event: %v", event)
+            trusted.UnsafeSetTrustedKey(getEmptyPublicKey(event.Name))
+        } else if payloadType == "KeyManagerAddedEvent" {
+            event := grpcExample.KeyManagerAddedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of KeyManagerAddedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of KeyManagerAddedEvent event: %v", event)
+            trusted.UnsafeSetKeyManager(event.PublicKey)
+        } else if payloadType == "KeyManagerRemovedEvent" {
+            event := grpcExample.KeyManagerRemovedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of KeyManagerRemovedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of KeyManagerRemovedEvent event: %v", event)
+            trusted.UnsafeSetKeyManager(getEmptyPublicKey(event.Name))
+        } else if payloadType == "CredentialsAddedEvent" {
+            event := grpcExample.CredentialsAddedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of CredentialsAddedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of CredentialsAddedEvent event: %v", event)
+            authentication.UnsafeSetCredentials(event.Credentials)
+        } else if payloadType == "CredentialsRemovedEvent" {
+            event := grpcExample.CredentialsRemovedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Event processor worker: Unmarshalling of CredentialsRemovedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Event processor worker: Payload of CredentialsRemovedEvent event: %v", event)
+            emptyCredentials := grpcExample.Credentials{
+                Identifier: event.Identifier,
+                Secret: "",
+            }
+            authentication.UnsafeSetCredentials(&emptyCredentials)
+        } else {
+            log.Printf("Event processor worker: no processing necessary for payload type: %v", payloadType)
         }
+    }
+}
+
+func getEmptyPublicKey(name string) *grpcExample.PublicKey {
+    return &grpcExample.PublicKey{
+        Name: name,
+        PublicKey: "",
     }
 }
 
