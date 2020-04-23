@@ -20,6 +20,7 @@ import (
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
@@ -39,7 +40,7 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
         AggregateIdentifier: "single_aggregate",
         Message: greeting,
     }
-    if e := SendCommand("GreetCommand", &command, s.conn, s.clientInfo); e != nil {
+    if e := axonutils.SendCommand("GreetCommand", &command, s.conn, s.clientInfo); e != nil {
         return nil, e
     }
     return &ack, nil
@@ -103,7 +104,7 @@ func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (
     command := grpcExample.RecordCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    err := SendCommand("RecordCommand", &command, s.conn, s.clientInfo)
+    err := axonutils.SendCommand("RecordCommand", &command, s.conn, s.clientInfo)
     if err != nil {
         return nil, err
     }
@@ -114,7 +115,7 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*g
     command := grpcExample.StopCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    err := SendCommand("StopCommand", &command, s.conn, s.clientInfo)
+    err := axonutils.SendCommand("StopCommand", &command, s.conn, s.clientInfo)
     if err != nil {
         return nil, err
     }
@@ -248,7 +249,7 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
                 _ = stream.Send(&response)
                 return nil
             }
-            e = trusted.AddTrustedKey(request, nonce)
+            e = trusted.AddTrustedKey(request, nonce, s.conn, s.clientInfo)
             if e == nil {
                 status.Code = 200
                 status.Message = "OK"

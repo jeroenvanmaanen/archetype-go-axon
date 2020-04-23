@@ -1,4 +1,4 @@
-package example
+package axonutils
 
 import (
     context "context"

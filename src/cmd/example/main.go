@@ -3,11 +3,15 @@ package main
 import (
     fmt "fmt"
     log "log"
+
+    uuid "github.com/google/uuid"
+
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
     example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
-    uuid "github.com/google/uuid"
 )
 
 func main() {
@@ -22,7 +26,7 @@ func main() {
 
     host := "axon-server" // "example-proxy" or "axon-server"
     port := 8124
-    conn, clientInfo, streamClient := example.WaitForServer(host, port, "API")
+    conn, clientInfo, streamClient := axonutils.WaitForServer(host, port, "API")
     defer conn.Close()
     log.Printf("Main connection: %v: %v: %v", conn, clientInfo, streamClient)
 
@@ -50,6 +54,9 @@ func main() {
     // Process Events
     eventProcessorConn := example.ProcessEvents(host, port)
     defer eventProcessorConn.Close()
+
+    configurationEventProcessorConn := configuration.ProcessEvents(host, port)
+    defer configurationEventProcessorConn.Close()
 
     // Handle queries
     queryHandlerConn := example.HandleQueries(host, port)
