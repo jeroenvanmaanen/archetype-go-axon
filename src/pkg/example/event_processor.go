@@ -17,12 +17,12 @@ import (
     uuid "github.com/google/uuid"
 
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func ProcessEvents(host string, port int) *grpc.ClientConn {
-    conn, clientInfo, stream := axonutils.WaitForServer(host, port, "Event processor")
+    conn, clientInfo, stream := axon_utils.WaitForServer(host, port, "Event processor")
     log.Printf("Connection and client info: %v: %v: %v", conn, clientInfo, stream)
 
     processorName := "example-processor"

@@ -9,13 +9,13 @@ import (
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
-    conn, clientInfo, _ := axonutils.WaitForServer(host, port, "Command Handler")
+    conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Command Handler")
 
     log.Printf("Command handler: Connection: %v", conn)
     client := axonserver.NewCommandServiceClient(conn)
@@ -24,12 +24,12 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     stream, e := client.OpenStream(context.Background())
     log.Printf("Command handler: Stream: %v: %v", stream, e)
 
-    axonutils.SubscribeCommand("GreetCommand", stream, clientInfo)
-    axonutils.SubscribeCommand("RecordCommand", stream, clientInfo)
-    axonutils.SubscribeCommand("StopCommand", stream, clientInfo)
-    axonutils.SubscribeCommand("RegisterTrustedKeyCommand", stream, clientInfo)
-    axonutils.SubscribeCommand("RegisterKeyManagerCommand", stream, clientInfo)
-    axonutils.SubscribeCommand("RegisterCredentialsCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("GreetCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("RecordCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("StopCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("RegisterTrustedKeyCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("RegisterKeyManagerCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("RegisterCredentialsCommand", stream, clientInfo)
 
     go commandWorker(stream, conn, clientInfo.ClientId)
 
@@ -38,7 +38,7 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
 
 func commandWorker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
     for true {
-        axonutils.CommandAddPermits(1, stream, clientId)
+        axon_utils.CommandAddPermits(1, stream, clientId)
 
         log.Printf("Command handler: Waiting for command")
         inbound, e := stream.Recv()
@@ -79,7 +79,7 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
 
     projection := RestoreProjection(deserializedCommand.AggregateIdentifier, conn)
     if !projection.Recording {
-        axonutils.ReportError(stream, command.MessageIdentifier, "EX001", "Not recording: " + deserializedCommand.AggregateIdentifier)
+        axon_utils.ReportError(stream, command.MessageIdentifier, "EX001", "Not recording: " + deserializedCommand.AggregateIdentifier)
         return
     }
 
@@ -96,8 +96,8 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
         Data: data,
     }
 
-    axonutils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    axonutils.CommandRespond(stream, command.MessageIdentifier)
+    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
 func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
@@ -117,8 +117,8 @@ func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandS
         Data: data,
     }
 
-    axonutils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    axonutils.CommandRespond(stream, command.MessageIdentifier)
+    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
 func handleStopCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
@@ -138,6 +138,6 @@ func handleStopCommand(command *axonserver.Command, stream axonserver.CommandSer
         Data: data,
     }
 
-    axonutils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
-    axonutils.CommandRespond(stream, command.MessageIdentifier)
+    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, conn)
+    axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }

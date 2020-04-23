@@ -8,7 +8,7 @@ import (
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
     example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -26,7 +26,7 @@ func main() {
 
     host := "axon-server" // "example-proxy" or "axon-server"
     port := 8124
-    conn, clientInfo, streamClient := axonutils.WaitForServer(host, port, "API")
+    conn, clientInfo, streamClient := axon_utils.WaitForServer(host, port, "API")
     defer conn.Close()
     log.Printf("Main connection: %v: %v: %v", conn, clientInfo, streamClient)
 

@@ -16,7 +16,7 @@ import (
     ssh "golang.org/x/crypto/ssh"
 
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -105,7 +105,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *g
         command := grpcExample.RegisterKeyManagerCommand{
             PublicKey: request.PublicKey,
         }
-        e = axonutils.SendCommand("RegisterKeyManagerCommand", &command, conn, clientInfo)
+        e = axon_utils.SendCommand("RegisterKeyManagerCommand", &command, conn, clientInfo)
         if e != nil {
             log.Printf("Trusted: Error when sending RegisterKeyManagerCommand: %v", e)
         }
@@ -113,7 +113,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *g
         command := grpcExample.RegisterTrustedKeyCommand{
             PublicKey: request.PublicKey,
         }
-        e = axonutils.SendCommand("RegisterTrustedKeyCommand", &command, conn, clientInfo)
+        e = axon_utils.SendCommand("RegisterTrustedKeyCommand", &command, conn, clientInfo)
         if e != nil {
             log.Printf("Trusted: Error when sending RegisterTrustedKeyCommand: %v", e)
         }

@@ -1,4 +1,4 @@
-package axonutils
+package axon_utils
 
 import (
     context "context"

@@ -11,12 +11,12 @@ import (
     uuid "github.com/google/uuid"
 
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
-    conn, clientInfo, _ := axonutils.WaitForServer(host, port, "Query Handler")
+    conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Query Handler")
 
     log.Printf("Query handler: Connection: %v", conn)
     client := axonserver.NewQueryServiceClient(conn)

@@ -7,7 +7,7 @@ import (
     proto "github.com/golang/protobuf/proto"
 
     axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
-    axonutils "github.com/jeroenvm/archetype-go-axon/src/pkg/axonutils"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -55,8 +55,8 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axonserver.Command, stream 
         Data: data,
     }
 
-    axonutils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
-    axonutils.CommandRespond(stream, commandMessage.MessageIdentifier)
+    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+    axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }
 
 func HandleRegisterKeyManagerCommand(commandMessage *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
@@ -101,6 +101,6 @@ func HandleRegisterKeyManagerCommand(commandMessage *axonserver.Command, stream 
         Data: data,
     }
 
-    axonutils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
-    axonutils.CommandRespond(stream, commandMessage.MessageIdentifier)
+    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+    axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }
