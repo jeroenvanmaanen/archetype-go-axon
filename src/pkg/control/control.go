@@ -2,10 +2,10 @@ package control
 
 import (
     "log"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-func Listen(streamClient *axonserver.PlatformService_OpenStreamClient) {
+func Listen(streamClient *axon_server.PlatformService_OpenStreamClient) {
     for {
         log.Printf("Listen: Waiting for next message...")
         message, e := (*streamClient).Recv()

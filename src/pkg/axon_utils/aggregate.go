@@ -9,23 +9,23 @@ import (
     grpc "google.golang.org/grpc"
     uuid "github.com/google/uuid"
 
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-func SubscribeCommand(commandName string, stream axonserver.CommandService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
+func SubscribeCommand(commandName string, stream axon_server.CommandService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) {
     id := uuid.New()
-    subscription := axonserver.CommandSubscription {
+    subscription := axon_server.CommandSubscription {
         MessageId: id.String(),
         Command: commandName,
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
     }
     log.Printf("Command handler: Subscription: %v", subscription)
-    subscriptionRequest := axonserver.CommandProviderOutbound_Subscribe {
+    subscriptionRequest := axon_server.CommandProviderOutbound_Subscribe {
         Subscribe: &subscription,
     }
 
-    outbound := axonserver.CommandProviderOutbound {
+    outbound := axon_server.CommandProviderOutbound {
         Request: &subscriptionRequest,
     }
 
@@ -35,10 +35,10 @@ func SubscribeCommand(commandName string, stream axonserver.CommandService_OpenS
     }
 }
 
-func AppendEvent(message *axonserver.SerializedObject, aggregateId string, conn *grpc.ClientConn) {
-    client := axonserver.NewEventStoreClient(conn)
+func AppendEvent(message *axon_server.SerializedObject, aggregateId string, conn *grpc.ClientConn) {
+    client := axon_server.NewEventStoreClient(conn)
 
-    readRequest := axonserver.ReadHighestSequenceNrRequest {
+    readRequest := axon_server.ReadHighestSequenceNrRequest {
         AggregateId: aggregateId,
         FromSequenceNr: 0,
     }
@@ -57,7 +57,7 @@ func AppendEvent(message *axonserver.SerializedObject, aggregateId string, conn 
     timestamp := time.Now().UnixNano() / 1000000
 
     id := uuid.New()
-    event := axonserver.Event {
+    event := axon_server.Event {
         MessageIdentifier: id.String(),
         AggregateIdentifier: aggregateId,
         AggregateSequenceNumber: next,
@@ -89,18 +89,18 @@ func AppendEvent(message *axonserver.SerializedObject, aggregateId string, conn 
     log.Printf("Command handler: Confirmation: %v", confirmation)
 }
 
-func CommandRespond(stream axonserver.CommandService_OpenStreamClient, requestId string) {
+func CommandRespond(stream axon_server.CommandService_OpenStreamClient, requestId string) {
     id := uuid.New()
-    commandResponse := axonserver.CommandResponse {
+    commandResponse := axon_server.CommandResponse {
         MessageIdentifier: id.String(),
         RequestIdentifier: requestId,
     }
     log.Printf("Command handler: Command response: %v", commandResponse)
-    commandResponseRequest := axonserver.CommandProviderOutbound_CommandResponse {
+    commandResponseRequest := axon_server.CommandProviderOutbound_CommandResponse {
         CommandResponse: &commandResponse,
     }
 
-    outbound := axonserver.CommandProviderOutbound {
+    outbound := axon_server.CommandProviderOutbound {
         Request: &commandResponseRequest,
     }
 
@@ -110,26 +110,26 @@ func CommandRespond(stream axonserver.CommandService_OpenStreamClient, requestId
     }
 }
 
-func ReportError(stream axonserver.CommandService_OpenStreamClient, requestId string, errorCode string, errorMessageText string) {
-    errorMessage := axonserver.ErrorMessage{
+func ReportError(stream axon_server.CommandService_OpenStreamClient, requestId string, errorCode string, errorMessageText string) {
+    errorMessage := axon_server.ErrorMessage{
         Message: errorMessageText,
         Location: "",
         Details: nil,
     }
 
     id := uuid.New()
-    commandResponse := axonserver.CommandResponse {
+    commandResponse := axon_server.CommandResponse {
         MessageIdentifier: id.String(),
         RequestIdentifier: requestId,
         ErrorCode: errorCode,
         ErrorMessage: &errorMessage,
     }
     log.Printf("Command handler: Command error: %v", commandResponse)
-    commandResponseRequest := axonserver.CommandProviderOutbound_CommandResponse {
+    commandResponseRequest := axon_server.CommandProviderOutbound_CommandResponse {
         CommandResponse: &commandResponse,
     }
 
-    outbound := axonserver.CommandProviderOutbound {
+    outbound := axon_server.CommandProviderOutbound {
         Request: &commandResponseRequest,
     }
 
@@ -139,17 +139,17 @@ func ReportError(stream axonserver.CommandService_OpenStreamClient, requestId st
     }
 }
 
-func CommandAddPermits(amount int64, stream axonserver.CommandService_OpenStreamClient, clientId string) {
-    flowControl := axonserver.FlowControl {
+func CommandAddPermits(amount int64, stream axon_server.CommandService_OpenStreamClient, clientId string) {
+    flowControl := axon_server.FlowControl {
         ClientId: clientId,
         Permits: amount,
     }
     log.Printf("Command handler: Flow control: %v", flowControl)
-    flowControlRequest := axonserver.CommandProviderOutbound_FlowControl {
+    flowControlRequest := axon_server.CommandProviderOutbound_FlowControl {
         FlowControl: &flowControl,
     }
 
-    outbound := axonserver.CommandProviderOutbound {
+    outbound := axon_server.CommandProviderOutbound {
         Request: &flowControlRequest,
     }
 

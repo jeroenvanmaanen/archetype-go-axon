@@ -9,7 +9,7 @@ import (
     uuid "github.com/google/uuid"
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -30,8 +30,8 @@ func ProcessEvents(host string, port int) *grpc.ClientConn {
     return conn;
 }
 
-func registerProcessor(processorName string, stream *axonserver.PlatformService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) error {
-    processorInfo := axonserver.EventProcessorInfo {
+func registerProcessor(processorName string, stream *axon_server.PlatformService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) error {
+    processorInfo := axon_server.EventProcessorInfo {
         ProcessorName: processorName,
         Mode: "Tracking",
         ActiveThreads: 0,
@@ -41,12 +41,12 @@ func registerProcessor(processorName string, stream *axonserver.PlatformService_
         AvailableThreads: 1,
     }
     log.Printf("Configuration event processor: event processor info: %v", processorInfo)
-    subscriptionRequest := axonserver.PlatformInboundInstruction_EventProcessorInfo {
+    subscriptionRequest := axon_server.PlatformInboundInstruction_EventProcessorInfo {
         EventProcessorInfo: &processorInfo,
     }
 
     id := uuid.New()
-    inbound := axonserver.PlatformInboundInstruction {
+    inbound := axon_server.PlatformInboundInstruction {
         Request: &subscriptionRequest,
         InstructionId: id.String(),
     }
@@ -66,10 +66,10 @@ func registerProcessor(processorName string, stream *axonserver.PlatformService_
     return nil
 }
 
-func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification, processorName string) {
+func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification, processorName string) {
     var token *int64
 
-    eventStoreClient := axonserver.NewEventStoreClient(conn)
+    eventStoreClient := axon_server.NewEventStoreClient(conn)
     log.Printf("Configuration event processor worker: Event store client: %v", eventStoreClient)
     client, e := eventStoreClient.ListEvents(context.Background())
     if e != nil {
@@ -78,7 +78,7 @@ func eventProcessorWorker(stream *axonserver.PlatformService_OpenStreamClient, c
     }
     log.Printf("Configuration event processor worker: List events client: %v", client)
 
-    getEventsRequest := axonserver.GetEventsRequest{
+    getEventsRequest := axon_server.GetEventsRequest{
         NumberOfPermits: 1,
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
@@ -179,7 +179,7 @@ func getEmptyPublicKey(name string) *grpcExample.PublicKey {
     }
 }
 
-func eventProcessorReceivePlatformInstruction(stream *axonserver.PlatformService_OpenStreamClient) error {
+func eventProcessorReceivePlatformInstruction(stream *axon_server.PlatformService_OpenStreamClient) error {
     log.Printf("Configuration event processor receive platform instruction: Waiting for outbound")
     outbound, e := (*stream).Recv()
     if (e != nil) {

@@ -18,7 +18,7 @@ then
   sed -E -i \
     -e 's/^option/old_option/' \
     -e "3i\\
-option go_package = \"src/pkg/grpc/axonserver\";" \
+option go_package = \"src/pkg/grpc/axon_server\";" \
     -e '/^old_option go_package =/d' \
     -e 's/^old_option/option/' \
     *.proto

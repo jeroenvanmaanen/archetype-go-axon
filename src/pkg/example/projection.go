@@ -4,7 +4,7 @@ import (
     context "context"
     io "io"
     log "log"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     grpc "google.golang.org/grpc"
 )
 
@@ -18,8 +18,8 @@ func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Proje
     }
     log.Printf("Projection: %v", projection)
 
-    eventStoreClient := axonserver.NewEventStoreClient(conn)
-    requestEvents := axonserver.GetAggregateEventsRequest {
+    eventStoreClient := axon_server.NewEventStoreClient(conn)
+    requestEvents := axon_server.GetAggregateEventsRequest {
         AggregateId: aggregateIdentifier,
         InitialSequence: 0,
         AllowSnapshots: false,

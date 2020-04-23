@@ -7,7 +7,7 @@ import (
     uuid "github.com/google/uuid"
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
     example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
@@ -34,12 +34,12 @@ func main() {
     // go control.Listen(streamClient)
 
     // Send a heartbeat
-    heartbeat := axonserver.Heartbeat{}
-    heartbeatRequest := axonserver.PlatformInboundInstruction_Heartbeat{
+    heartbeat := axon_server.Heartbeat{}
+    heartbeatRequest := axon_server.PlatformInboundInstruction_Heartbeat{
         Heartbeat: &heartbeat,
     }
     id := uuid.New()
-    instruction := axonserver.PlatformInboundInstruction {
+    instruction := axon_server.PlatformInboundInstruction {
         Request: &heartbeatRequest,
         InstructionId: id.String(),
     }

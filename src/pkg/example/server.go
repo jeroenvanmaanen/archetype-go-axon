@@ -19,7 +19,7 @@ import (
     uuid "github.com/google/uuid"
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -27,7 +27,7 @@ import (
 
 type GreeterServer struct {
     conn *grpc.ClientConn;
-    clientInfo *axonserver.ClientIdentification;
+    clientInfo *axon_server.ClientIdentification;
 }
 
 func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting) (*grpcExample.Acknowledgement, error) {
@@ -54,8 +54,8 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
     greetingsServer.Send(&greeting)
     log.Printf("Server: Greetings streamed reply sent")
 
-    eventStoreClient := axonserver.NewEventStoreClient(s.conn)
-    requestEvents := axonserver.GetAggregateEventsRequest {
+    eventStoreClient := axon_server.NewEventStoreClient(s.conn)
+    requestEvents := axon_server.GetAggregateEventsRequest {
         AggregateId: "single_aggregate",
         InitialSequence: 0,
         AllowSnapshots: false,
@@ -136,14 +136,14 @@ func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer g
         return e
     }
 
-    serializedQuery := axonserver.SerializedObject{
+    serializedQuery := axon_server.SerializedObject{
         Type: "SearchQuery",
         Data: queryData,
     }
 
-    eventStoreClient := axonserver.NewQueryServiceClient(s.conn)
+    eventStoreClient := axon_server.NewQueryServiceClient(s.conn)
     id := uuid.New()
-    queryRequest := axonserver.QueryRequest {
+    queryRequest := axon_server.QueryRequest {
         MessageIdentifier: id.String(),
         Query: "SearchQuery",
         Payload: &serializedQuery,
@@ -300,7 +300,7 @@ func (s *GreeterServer) Time(ctx context.Context, accessToken *grpcExample.Acces
     return &greeting, nil
 }
 
-func Serve(conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) {
+func Serve(conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
     if err != nil {

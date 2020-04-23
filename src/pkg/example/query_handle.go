@@ -10,7 +10,7 @@ import (
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
@@ -19,7 +19,7 @@ func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
     conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Query Handler")
 
     log.Printf("Query handler: Connection: %v", conn)
-    client := axonserver.NewQueryServiceClient(conn)
+    client := axon_server.NewQueryServiceClient(conn)
     log.Printf("Query handler: Client: %v", client)
 
     stream, e := client.OpenStream(context.Background())
@@ -32,20 +32,20 @@ func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
     return conn;
 }
 
-func querySubscribe(queryName string, stream axonserver.QueryService_OpenStreamClient, clientInfo *axonserver.ClientIdentification) {
+func querySubscribe(queryName string, stream axon_server.QueryService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) {
     id := uuid.New()
-    subscription := axonserver.QuerySubscription {
+    subscription := axon_server.QuerySubscription {
         MessageId: id.String(),
         Query: queryName,
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
     }
     log.Printf("Query handler: Subscription: %v", subscription)
-    subscriptionRequest := axonserver.QueryProviderOutbound_Subscribe {
+    subscriptionRequest := axon_server.QueryProviderOutbound_Subscribe {
         Subscribe: &subscription,
     }
 
-    outbound := axonserver.QueryProviderOutbound {
+    outbound := axon_server.QueryProviderOutbound {
         Request: &subscriptionRequest,
     }
 
@@ -55,7 +55,7 @@ func querySubscribe(queryName string, stream axonserver.QueryService_OpenStreamC
     }
 }
 
-func queryWorker(stream axonserver.QueryService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
+func queryWorker(stream axon_server.QueryService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
     es7 := WaitForElasticSearch();
     log.Printf("Query handler: Elastic Search client: %v", es7)
 
@@ -82,7 +82,7 @@ func queryWorker(stream axonserver.QueryService_OpenStreamClient, conn *grpc.Cli
     }
 }
 
-func handleSearchQuery(axonQuery *axonserver.QueryRequest, stream axonserver.QueryService_OpenStreamClient, es7 *elasticSearch7.Client) {
+func handleSearchQuery(axonQuery *axon_server.QueryRequest, stream axon_server.QueryService_OpenStreamClient, es7 *elasticSearch7.Client) {
     defer queryComplete(stream, axonQuery.MessageIdentifier)
     query := grpcExample.SearchQuery{}
     e := proto.Unmarshal(axonQuery.Payload.Data, &query)
@@ -124,30 +124,30 @@ func handleSearchQuery(axonQuery *axonserver.QueryRequest, stream axonserver.Que
     queryRespond(&reply, stream, axonQuery.MessageIdentifier)
 }
 
-func queryRespond(response *grpcExample.Greeting, stream axonserver.QueryService_OpenStreamClient, requestId string) {
+func queryRespond(response *grpcExample.Greeting, stream axon_server.QueryService_OpenStreamClient, requestId string) {
     responseData, e := proto.Marshal(response)
     if e != nil {
         log.Printf("Query handler: Error while marshalling query response: %v", e)
         return
     }
 
-    serializedResponse := axonserver.SerializedObject{
+    serializedResponse := axon_server.SerializedObject{
         Type: "Greeting",
         Data: responseData,
     }
 
     id := uuid.New()
-    queryResponse := axonserver.QueryResponse {
+    queryResponse := axon_server.QueryResponse {
         MessageIdentifier: id.String(),
         RequestIdentifier: requestId,
         Payload: &serializedResponse,
     }
     log.Printf("Query handler: Query response: %v", queryResponse)
-    queryResponseRequest := axonserver.QueryProviderOutbound_QueryResponse {
+    queryResponseRequest := axon_server.QueryProviderOutbound_QueryResponse {
         QueryResponse: &queryResponse,
     }
 
-    outbound := axonserver.QueryProviderOutbound {
+    outbound := axon_server.QueryProviderOutbound {
         Request: &queryResponseRequest,
     }
 
@@ -157,18 +157,18 @@ func queryRespond(response *grpcExample.Greeting, stream axonserver.QueryService
     }
 }
 
-func queryComplete(stream axonserver.QueryService_OpenStreamClient, requestId string) {
+func queryComplete(stream axon_server.QueryService_OpenStreamClient, requestId string) {
     id := uuid.New()
-    queryComplete := axonserver.QueryComplete {
+    queryComplete := axon_server.QueryComplete {
         MessageId: id.String(),
         RequestId: requestId,
     }
     log.Printf("Query handler: Query complete: %v", queryComplete)
-    queryCompleteRequest := axonserver.QueryProviderOutbound_QueryComplete {
+    queryCompleteRequest := axon_server.QueryProviderOutbound_QueryComplete {
         QueryComplete: &queryComplete,
     }
 
-    outbound := axonserver.QueryProviderOutbound {
+    outbound := axon_server.QueryProviderOutbound {
         Request: &queryCompleteRequest,
     }
 
@@ -178,17 +178,17 @@ func queryComplete(stream axonserver.QueryService_OpenStreamClient, requestId st
     }
 }
 
-func queryAddPermits(amount int64, stream axonserver.QueryService_OpenStreamClient, clientId string) {
-    flowControl := axonserver.FlowControl {
+func queryAddPermits(amount int64, stream axon_server.QueryService_OpenStreamClient, clientId string) {
+    flowControl := axon_server.FlowControl {
         ClientId: clientId,
         Permits: amount,
     }
     log.Printf("Query handler: Flow control: %v", flowControl)
-    flowControlRequest := axonserver.QueryProviderOutbound_FlowControl {
+    flowControlRequest := axon_server.QueryProviderOutbound_FlowControl {
         FlowControl: &flowControl,
     }
 
-    outbound := axonserver.QueryProviderOutbound {
+    outbound := axon_server.QueryProviderOutbound {
         Request: &flowControlRequest,
     }
 

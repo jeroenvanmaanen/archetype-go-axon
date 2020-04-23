@@ -9,16 +9,16 @@ import (
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-func SendCommand(commandType string, command proto.Message, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) error {
+func SendCommand(commandType string, command proto.Message, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
     data, err := proto.Marshal(command)
     if err != nil {
         log.Printf("Server: Error while marshalling command: %v", commandType)
         return errors.New("Marshalling error")
     }
-    serializedCommand := axonserver.SerializedObject{
+    serializedCommand := axon_server.SerializedObject{
         Type: commandType,
         Data: data,
     }
@@ -26,13 +26,13 @@ func SendCommand(commandType string, command proto.Message, conn *grpc.ClientCon
     return submitCommand(&serializedCommand, conn, clientInfo)
 }
 
-func submitCommand(message *axonserver.SerializedObject, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) error {
+func submitCommand(message *axon_server.SerializedObject, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
     log.Printf("Submit command: %v: %v", message.Type, conn)
-    client := axonserver.NewCommandServiceClient(conn)
+    client := axon_server.NewCommandServiceClient(conn)
     log.Printf("Submit command: Client: %v", client)
 
     id := uuid.New()
-    command := axonserver.Command {
+    command := axon_server.Command {
         MessageIdentifier: id.String(),
         Name: (*message).Type,
         Payload: message,

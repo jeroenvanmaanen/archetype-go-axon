@@ -8,7 +8,7 @@ import (
     proto "github.com/golang/protobuf/proto"
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -18,7 +18,7 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Command Handler")
 
     log.Printf("Command handler: Connection: %v", conn)
-    client := axonserver.NewCommandServiceClient(conn)
+    client := axon_server.NewCommandServiceClient(conn)
     log.Printf("Command handler: Client: %v", client)
 
     stream, e := client.OpenStream(context.Background())
@@ -36,7 +36,7 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     return conn;
 }
 
-func commandWorker(stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
+func commandWorker(stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
     for true {
         axon_utils.CommandAddPermits(1, stream, clientId)
 
@@ -70,7 +70,7 @@ func commandWorker(stream axonserver.CommandService_OpenStreamClient, conn *grpc
     }
 }
 
-func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func handleGreetCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
     deserializedCommand := grpcExample.GreetCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
@@ -91,7 +91,7 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
         log.Printf("Server: Error while marshalling event")
         return
     }
-    serializedEvent := axonserver.SerializedObject{
+    serializedEvent := axon_server.SerializedObject{
         Type: "GreetedEvent",
         Data: data,
     }
@@ -100,7 +100,7 @@ func handleGreetCommand(command *axonserver.Command, stream axonserver.CommandSe
     axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
-func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func handleRecordCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
     deserializedCommand := grpcExample.RecordCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
@@ -112,7 +112,7 @@ func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandS
         log.Printf("Server: Error while marshalling event")
         return
     }
-    serializedEvent := axonserver.SerializedObject{
+    serializedEvent := axon_server.SerializedObject{
         Type: "StartedRecordingEvent",
         Data: data,
     }
@@ -121,7 +121,7 @@ func handleRecordCommand(command *axonserver.Command, stream axonserver.CommandS
     axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
-func handleStopCommand(command *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func handleStopCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
     deserializedCommand := grpcExample.StopCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
@@ -133,7 +133,7 @@ func handleStopCommand(command *axonserver.Command, stream axonserver.CommandSer
         log.Printf("Server: Error while marshalling event")
         return
     }
-    serializedEvent := axonserver.SerializedObject{
+    serializedEvent := axon_server.SerializedObject{
         Type: "StoppedRecordingEvent",
         Data: data,
     }

@@ -6,14 +6,14 @@ import (
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
-func HandleRegisterTrustedKeyCommand(commandMessage *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
     command := grpcExample.RegisterTrustedKeyCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
@@ -50,7 +50,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axonserver.Command, stream 
         log.Printf("Server: Error while marshalling event: %v", e)
         return
     }
-    serializedEvent := axonserver.SerializedObject{
+    serializedEvent := axon_server.SerializedObject{
         Type: eventType,
         Data: data,
     }
@@ -59,7 +59,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axonserver.Command, stream 
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }
 
-func HandleRegisterKeyManagerCommand(commandMessage *axonserver.Command, stream axonserver.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
     command := grpcExample.RegisterKeyManagerCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
@@ -96,7 +96,7 @@ func HandleRegisterKeyManagerCommand(commandMessage *axonserver.Command, stream 
         log.Printf("Server: Error while marshalling event: %v", e)
         return
     }
-    serializedEvent := axonserver.SerializedObject{
+    serializedEvent := axon_server.SerializedObject{
         Type: eventType,
         Data: data,
     }

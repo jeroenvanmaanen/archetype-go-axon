@@ -5,15 +5,15 @@ import (
     fmt "fmt"
     log "log"
     time "time"
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     grpc "google.golang.org/grpc"
     grpcKeepAlive "google.golang.org/grpc/keepalive"
     uuid "github.com/google/uuid"
 )
 
-func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *axonserver.ClientIdentification, *axonserver.PlatformService_OpenStreamClient) {
+func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *axon_server.ClientIdentification, *axon_server.PlatformService_OpenStreamClient) {
     id := uuid.New()
-    clientInfo := axonserver.ClientIdentification {
+    clientInfo := axon_server.ClientIdentification {
         ClientId: id.String(),
         ComponentName: "GoClient " + qualifier,
         Version: "0.0.1",
@@ -40,7 +40,7 @@ func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *
             continue
         }
         // Get platform server
-        client := axonserver.NewPlatformServiceClient(conn)
+        client := axon_server.NewPlatformServiceClient(conn)
         response, e := client.GetPlatformServer(context.Background(), &clientInfo)
         if e != nil {
             continue
@@ -57,7 +57,7 @@ func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *
     }
 }
 
-func registerClient(clientInfo *axonserver.ClientIdentification, client *axonserver.PlatformServiceClient) (*axonserver.PlatformService_OpenStreamClient, error) {
+func registerClient(clientInfo *axon_server.ClientIdentification, client *axon_server.PlatformServiceClient) (*axon_server.PlatformService_OpenStreamClient, error) {
 
     // Open stream
     streamClient, e := (*client).OpenStream(context.Background())
@@ -66,8 +66,8 @@ func registerClient(clientInfo *axonserver.ClientIdentification, client *axonser
     }
 
     // Send client info
-    var instruction axonserver.PlatformInboundInstruction
-    registrationRequest := axonserver.PlatformInboundInstruction_Register{
+    var instruction axon_server.PlatformInboundInstruction
+    registrationRequest := axon_server.PlatformInboundInstruction_Register{
         Register: clientInfo,
     }
     id := uuid.New()

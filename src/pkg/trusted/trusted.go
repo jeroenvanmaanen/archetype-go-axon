@@ -15,7 +15,7 @@ import (
     jwt "github.com/pascaldekloe/jwt"
     ssh "golang.org/x/crypto/ssh"
 
-    axonserver "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axonserver"
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
@@ -69,7 +69,7 @@ func SetPrivateKey(name string, pemString string) error {
     return nil
 }
 
-func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *grpc.ClientConn, clientInfo *axonserver.ClientIdentification) error {
+func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
     name := request.PublicKey.Name
     publicKey := request.PublicKey.PublicKey
     protoSignature := request.Signature
