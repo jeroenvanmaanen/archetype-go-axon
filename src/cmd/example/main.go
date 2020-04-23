@@ -30,9 +30,6 @@ func main() {
     defer conn.Close()
     log.Printf("Main connection: %v: %v: %v", conn, clientInfo, streamClient)
 
-    // Listen to messages from Axon Server in a separate go routine
-    // go control.Listen(streamClient)
-
     // Send a heartbeat
     heartbeat := axon_server.Heartbeat{}
     heartbeatRequest := axon_server.PlatformInboundInstruction_Heartbeat{
