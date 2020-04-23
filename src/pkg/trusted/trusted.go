@@ -4,6 +4,7 @@ import (
     errors "errors"
     log "log"
 
+    base64 "encoding/base64"
     bigmath "math/big"
     hex "encoding/hex"
     pem "encoding/pem"
@@ -137,6 +138,31 @@ func GetKeyManagerKey(name string) (ssh.PublicKey, error) {
     log.Printf("Trusted: Get key manager key: %v: %v", name, encodedPublicKey)
     publicKey, e := parsePublicKey(encodedPublicKey)
     return publicKey, e
+}
+
+func EncryptString(plainText string) (string, error) {
+    rsaPublicKey, e := GetRsaPublicKey()
+    if e != nil {
+        return "", e
+    }
+    log.Printf("Trusted: Encrypt string: RSA public key: %v", rsaPublicKey)
+    encryptedBytes, e := rsa.EncryptPKCS1v15(rand.Reader, rsaPublicKey, []byte(plainText))
+    if e != nil {
+        return "", e
+    }
+    return base64.RawStdEncoding.EncodeToString(encryptedBytes), nil
+}
+
+func DecryptString(cryptText string) (string, error) {
+    encryptedBytes, e := base64.RawStdEncoding.DecodeString(cryptText)
+    if e != nil {
+        return "", e
+    }
+    decryptedBytes, e := rsa.DecryptPKCS1v15(rand.Reader, &privateKey, []byte(encryptedBytes))
+    if e != nil {
+        return "", e
+    }
+    return string(decryptedBytes), nil
 }
 
 func getTrustedKey(name string) (ssh.PublicKey, error) {
