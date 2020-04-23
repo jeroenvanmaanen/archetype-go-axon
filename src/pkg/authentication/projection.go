@@ -9,7 +9,7 @@ import (
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 type Projection struct {
@@ -48,14 +48,14 @@ func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Proje
             log.Printf("Credentials Projection: Payload type: %v", eventMessage.Payload.Type)
             payloadType := eventMessage.Payload.Type
             if (payloadType == "CredentialsAddedEvent") {
-                event := grpcExample.CredentialsAddedEvent{}
+                event := grpc_example.CredentialsAddedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal CredentialsAddedEvent")
                 }
                 projection.Credentials[event.Credentials.Identifier] = event.Credentials.Secret
             } else if (payloadType == "CredentialsRemovedEvent") {
-                event := grpcExample.CredentialsRemovedEvent{}
+                event := grpc_example.CredentialsRemovedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal CredentialsRemovedEvent")

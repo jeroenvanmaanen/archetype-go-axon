@@ -12,7 +12,7 @@ import (
     jwt "github.com/pascaldekloe/jwt"
     ssh "golang.org/x/crypto/ssh"
 
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -22,11 +22,11 @@ func Init() {
     acceptedCredentials = make(map[string]string)
 }
 
-func UnsafeSetCredentials(credentials *grpcExample.Credentials) {
+func UnsafeSetCredentials(credentials *grpc_example.Credentials) {
     acceptedCredentials[credentials.Identifier] = credentials.Secret
 }
 
-func SetCredentials(credentials *grpcExample.Credentials) error {
+func SetCredentials(credentials *grpc_example.Credentials) error {
     payload := credentials.Identifier + "=" + credentials.Secret
     signatureKey, e := trusted.GetKeyManagerKey(credentials.Signature.SignatureName)
     if e != nil {
@@ -90,7 +90,7 @@ func Encode(password string) string {
     return builder.String()
 }
 
-func Verify(accessToken *grpcExample.AccessToken) bool {
+func Verify(accessToken *grpc_example.AccessToken) bool {
     publicKey, e := trusted.GetRsaPublicKey()
     if e != nil {
         return false

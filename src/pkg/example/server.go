@@ -21,7 +21,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -30,13 +30,13 @@ type GreeterServer struct {
     clientInfo *axon_server.ClientIdentification;
 }
 
-func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting) (*grpcExample.Acknowledgement, error) {
+func (s *GreeterServer) Greet(c context.Context, greeting *grpc_example.Greeting) (*grpc_example.Acknowledgement, error) {
     message := (*greeting).Message
     log.Printf("Server: Received greeting: %v", message)
-    ack := grpcExample.Acknowledgement{
+    ack := grpc_example.Acknowledgement{
         Message: "Good day to you too!",
     }
-    command := grpcExample.GreetCommand {
+    command := grpc_example.GreetCommand {
         AggregateIdentifier: "single_aggregate",
         Message: greeting,
     }
@@ -46,8 +46,8 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpcExample.Greeting)
     return &ack, nil
 }
 
-func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpcExample.GreeterService_GreetingsServer) error {
-    greeting := grpcExample.Greeting {
+func (s *GreeterServer) Greetings(empty *grpc_example.Empty, greetingsServer grpc_example.GreeterService_GreetingsServer) error {
+    greeting := grpc_example.Greeting {
         Message: "Hello, World!",
     }
     log.Printf("Server: Greetings streamed reply: %v", greeting)
@@ -82,7 +82,7 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
                 continue
             }
             log.Printf("Server: Payload: %v", eventMessage.Payload)
-            event := grpcExample.GreetedEvent{}
+            event := grpc_example.GreetedEvent{}
             e = proto.Unmarshal(eventMessage.Payload.Data, &event)
             if e != nil {
                 log.Printf("Server: Error while unmarshalling GreetedEvent")
@@ -98,10 +98,10 @@ func (s *GreeterServer) Greetings(empty *grpcExample.Empty, greetingsServer grpc
     return nil
 }
 
-var empty = grpcExample.Empty{}
+var empty = grpc_example.Empty{}
 
-func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (*grpcExample.Empty, error) {
-    command := grpcExample.RecordCommand {
+func (s *GreeterServer) Record(c context.Context, greeting *grpc_example.Empty) (*grpc_example.Empty, error) {
+    command := grpc_example.RecordCommand {
         AggregateIdentifier: "single_aggregate",
     }
     err := axon_utils.SendCommand("RecordCommand", &command, s.conn, s.clientInfo)
@@ -111,8 +111,8 @@ func (s *GreeterServer) Record(c context.Context, greeting *grpcExample.Empty) (
     return &empty, nil
 }
 
-func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*grpcExample.Empty, error) {
-    command := grpcExample.StopCommand {
+func (s *GreeterServer) Stop(c context.Context, greeting *grpc_example.Empty) (*grpc_example.Empty, error) {
+    command := grpc_example.StopCommand {
         AggregateIdentifier: "single_aggregate",
     }
     err := axon_utils.SendCommand("StopCommand", &command, s.conn, s.clientInfo)
@@ -122,8 +122,8 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpcExample.Empty) (*g
     return &empty, nil
 }
 
-func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer grpcExample.GreeterService_SearchServer) error {
-    greeting := grpcExample.Greeting {
+func (s *GreeterServer) Search(query *grpc_example.SearchQuery, greetingsServer grpc_example.GreeterService_SearchServer) error {
+    greeting := grpc_example.Greeting {
         Message: "Hello, World!",
     }
     log.Printf("Server: Search streamed reply: %v", greeting)
@@ -170,7 +170,7 @@ func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer g
                 continue
             }
             log.Printf("Server: Payload: %v", queryResponse.Payload)
-            greeting := grpcExample.Greeting{}
+            greeting := grpc_example.Greeting{}
             e = proto.Unmarshal(queryResponse.Payload.Data, &greeting)
             if e != nil {
                 log.Printf("Server: Error while unmarshalling Greeting")
@@ -185,8 +185,8 @@ func (s *GreeterServer) Search(query *grpcExample.SearchQuery, greetingsServer g
     return nil
 }
 
-func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpcExample.Credentials) (*grpcExample.AccessToken, error) {
-    accessToken := grpcExample.AccessToken{
+func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpc_example.Credentials) (*grpc_example.AccessToken, error) {
+    accessToken := grpc_example.AccessToken{
         Jwt: "",
     }
     if authentication.Authenticate(credentials.Identifier, credentials.Secret) {
@@ -202,8 +202,8 @@ func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpcExample.
     return &accessToken, nil
 }
 
-func (s *GreeterServer) ListTrustedKeys(req *grpcExample.Empty, streamServer grpcExample.GreeterService_ListTrustedKeysServer) error {
-    trustedKey := grpcExample.PublicKey {}
+func (s *GreeterServer) ListTrustedKeys(req *grpc_example.Empty, streamServer grpc_example.GreeterService_ListTrustedKeysServer) error {
+    trustedKey := grpc_example.PublicKey {}
     for name, key := range trusted.GetTrustedKeys() {
         trustedKey.Name = name
         trustedKey.PublicKey = key
@@ -214,16 +214,16 @@ func (s *GreeterServer) ListTrustedKeys(req *grpcExample.Empty, streamServer grp
     return nil
 }
 
-func (s *GreeterServer) SetPrivateKey(ctx context.Context, request *grpcExample.PrivateKey) (*grpcExample.Empty, error) {
+func (s *GreeterServer) SetPrivateKey(ctx context.Context, request *grpc_example.PrivateKey) (*grpc_example.Empty, error) {
     trusted.SetPrivateKey(request.Name, request.PrivateKey)
 
-    empty := grpcExample.Empty{}
+    empty := grpc_example.Empty{}
     return &empty, nil
 }
 
-func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_ChangeTrustedKeysServer) error {
-    var status = grpcExample.Status{}
-    response := grpcExample.TrustedKeyResponse{}
+func (s *GreeterServer) ChangeTrustedKeys(stream grpc_example.GreeterService_ChangeTrustedKeysServer) error {
+    var status = grpc_example.Status{}
+    response := grpc_example.TrustedKeyResponse{}
     nonce := make([]byte, 64)
     first := true
     for true {
@@ -274,7 +274,7 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpcExample.GreeterService_Chan
     return errors.New("Server: Change trusted keys: unexpected end of stream")
 }
 
-func (s *GreeterServer) ChangeCredentials(stream grpcExample.GreeterService_ChangeCredentialsServer) error {
+func (s *GreeterServer) ChangeCredentials(stream grpc_example.GreeterService_ChangeCredentialsServer) error {
     for true {
         credentials, e := stream.Recv()
         if e != nil {
@@ -286,15 +286,15 @@ func (s *GreeterServer) ChangeCredentials(stream grpcExample.GreeterService_Chan
         }
         authentication.SetCredentials(credentials)
     }
-    empty = grpcExample.Empty{}
+    empty = grpc_example.Empty{}
     return stream.SendAndClose(&empty)
 }
 
-func (s *GreeterServer) Time(ctx context.Context, accessToken *grpcExample.AccessToken) (*grpcExample.Greeting, error) {
+func (s *GreeterServer) Time(ctx context.Context, accessToken *grpc_example.AccessToken) (*grpc_example.Greeting, error) {
     if !authentication.Verify(accessToken) {
         return nil, errors.New("Authentication failed: JWT: " + accessToken.Jwt)
     }
-    greeting := grpcExample.Greeting{
+    greeting := grpc_example.Greeting{
         Message: "Hi!",
     }
     return &greeting, nil
@@ -309,7 +309,7 @@ func Serve(conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) 
     }
     log.Printf("Server: Listening on port: %d", port)
     grpcServer := grpc.NewServer()
-    grpcExample.RegisterGreeterServiceServer(grpcServer, &GreeterServer{conn,clientInfo})
+    grpc_example.RegisterGreeterServiceServer(grpcServer, &GreeterServer{conn,clientInfo})
     reflection.Register(grpcServer)
     // ... // determine whether to use TLS
     grpcServer.Serve(lis)

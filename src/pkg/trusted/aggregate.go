@@ -8,13 +8,13 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
 func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    command := grpcExample.RegisterTrustedKeyCommand{}
+    command := grpc_example.RegisterTrustedKeyCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterTrustedKeyCommand")
@@ -32,14 +32,14 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
     var data []byte
     if len(newValue) > 0 {
         eventType = "TrustedKeyAddedEvent"
-        event := grpcExample.TrustedKeyAddedEvent{
+        event := grpc_example.TrustedKeyAddedEvent{
             PublicKey: command.PublicKey,
         }
         log.Printf("Trusted aggregate: emit: %v", event)
         data, e = proto.Marshal(&event)
     } else {
         eventType = "TrustedKeyRemovedEvent"
-        event := grpcExample.TrustedKeyRemovedEvent{
+        event := grpc_example.TrustedKeyRemovedEvent{
             Name: command.PublicKey.Name,
         }
         log.Printf("Trusted aggregate: emit: %v", event)
@@ -60,7 +60,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
 }
 
 func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    command := grpcExample.RegisterKeyManagerCommand{}
+    command := grpc_example.RegisterKeyManagerCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterKeyManagerCommand")
@@ -78,14 +78,14 @@ func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream
     var data []byte
     if len(newValue) > 0 {
         eventType = "KeyMangerAddedEvent"
-        event := grpcExample.KeyManagerAddedEvent{
+        event := grpc_example.KeyManagerAddedEvent{
             PublicKey: command.PublicKey,
         }
         log.Printf("Trusted aggregate: emit: %v", event)
         data, e = proto.Marshal(&event)
     } else {
         eventType = "KeyManagerRemovedEvent"
-        event := grpcExample.KeyManagerRemovedEvent{
+        event := grpc_example.KeyManagerRemovedEvent{
             Name: command.PublicKey.Name,
         }
         log.Printf("Trusted aggregate: emit: %v", event)

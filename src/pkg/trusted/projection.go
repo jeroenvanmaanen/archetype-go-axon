@@ -9,7 +9,7 @@ import (
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 type Projection struct {
@@ -50,28 +50,28 @@ func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Proje
             log.Printf("Trusted Keys Projection: Payload type: %v", eventMessage.Payload.Type)
             payloadType := eventMessage.Payload.Type
             if (payloadType == "TrustedKeyAddedEvent") {
-                event := grpcExample.TrustedKeyAddedEvent{}
+                event := grpc_example.TrustedKeyAddedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal TrustedKeyAddedEvent")
                 }
                 projection.TrustedKeys[event.PublicKey.Name] = event.PublicKey.PublicKey
             } else if (payloadType == "TrustedKeyRemovedEvent") {
-                event := grpcExample.TrustedKeyRemovedEvent{}
+                event := grpc_example.TrustedKeyRemovedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal TrustedKeyRemovedEvent")
                 }
                 projection.TrustedKeys[event.Name] = ""
             } else if (payloadType == "KeyManagerAddedEvent") {
-                event := grpcExample.KeyManagerAddedEvent{}
+                event := grpc_example.KeyManagerAddedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal KeyManagerAddedEvent")
                 }
                 projection.KeyManagers[event.PublicKey.Name] = event.PublicKey.PublicKey
             } else if (payloadType == "KeyManagerRemovedEvent") {
-                event := grpcExample.KeyManagerRemovedEvent{}
+                event := grpc_example.KeyManagerRemovedEvent{}
                 e := proto.Unmarshal(eventMessage.Payload.Data, &event)
                 if (e != nil) {
                     log.Printf("Could not unmarshal KeyManagerRemovedEvent")

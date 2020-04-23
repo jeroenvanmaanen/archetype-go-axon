@@ -14,7 +14,7 @@ import (
     grpc "google.golang.org/grpc"
     ssh "golang.org/x/crypto/ssh"
 
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -28,7 +28,7 @@ func main() {
     }
     defer conn.Close()
 
-    client := grpcExample.NewGreeterServiceClient(conn)
+    client := grpc_example.NewGreeterServiceClient(conn)
     log.Printf("Greeter service client: %v", client)
 
     stream, e := client.ChangeTrustedKeys(context.Background())
@@ -38,7 +38,7 @@ func main() {
     }
     log.Printf("ChangeTrustedKeys stream: %v", stream)
 
-    request := grpcExample.TrustedKeyRequest{}
+    request := grpc_example.TrustedKeyRequest{}
     e = stream.Send(&request)
     if e != nil {
         log.Printf("Error when sending first (empty) request for ChangeTrustedKeys: %v", e)
@@ -83,7 +83,7 @@ func main() {
             name = getName(line)
             pem, line = readPem(reader)
             log.Printf("Identity Provider name: %v: %d", name, len(pem))
-            grpcPrivateKey := grpcExample.PrivateKey{
+            grpcPrivateKey := grpc_example.PrivateKey{
                 Name: name,
                 PrivateKey: pem,
             }
@@ -155,7 +155,7 @@ func readPem(reader *bufio.Reader) (pem string, nextLine string) {
     return
 }
 
-func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, signatureName string, startNonce []byte, stream grpcExample.GreeterService_ChangeTrustedKeysClient) (line string, nonce []byte) {
+func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, signatureName string, startNonce []byte, stream grpc_example.GreeterService_ChangeTrustedKeysClient) (line string, nonce []byte) {
     nonce = startNonce
     for true {
         line = readLine(reader)
@@ -168,7 +168,7 @@ func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, 
             continue
         }
         log.Printf("Trusted public key: %v: %v", parts[2], parts[1])
-        publicKey := grpcExample.PublicKey{
+        publicKey := grpc_example.PublicKey{
             Name: parts[2],
             PublicKey: parts[1],
         }
@@ -179,13 +179,13 @@ func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, 
             panic("Could not sign nonce")
         }
         log.Printf("Signature: %v", signature)
-        grpcSignature := grpcExample.Signature{
+        grpcSignature := grpc_example.Signature{
             Format: signature.Format,
             Blob: signature.Blob,
             Rest: signature.Rest,
             SignatureName: signatureName,
         }
-        request := grpcExample.TrustedKeyRequest{
+        request := grpc_example.TrustedKeyRequest{
             PublicKey: &publicKey,
             Nonce: nonce,
             Signature: &grpcSignature,
@@ -208,7 +208,7 @@ func addPublicKeys(isKeyManager bool, reader *bufio.Reader, signer *ssh.Signer, 
     return "", nonce
 }
 
-func addSecrets(client grpcExample.GreeterServiceClient, reader *bufio.Reader, signatureName string, signer *ssh.Signer) (line string) {
+func addSecrets(client grpc_example.GreeterServiceClient, reader *bufio.Reader, signatureName string, signer *ssh.Signer) (line string) {
     log.Printf("Add secrets: client: %v", client)
     stream, e := client.ChangeCredentials(context.Background())
     if e != nil {
@@ -232,14 +232,14 @@ func addSecrets(client grpcExample.GreeterServiceClient, reader *bufio.Reader, s
             panic("Could not sign nonce")
         }
         log.Printf("Add secrets: Signature: %v", signature)
-        grpcSignature := grpcExample.Signature{
+        grpcSignature := grpc_example.Signature{
             Format: signature.Format,
             Blob: signature.Blob,
             Rest: signature.Rest,
             SignatureName: signatureName,
         }
 
-        credentials := grpcExample.Credentials{
+        credentials := grpc_example.Credentials{
             Identifier: parts[0],
             Secret: parts[1],
             Signature: &grpcSignature,
@@ -251,7 +251,7 @@ func addSecrets(client grpcExample.GreeterServiceClient, reader *bufio.Reader, s
             panic("Could not send credentials")
         }
     }
-    emptyCredentials := grpcExample.Credentials{
+    emptyCredentials := grpc_example.Credentials{
         Identifier: "",
         Secret: "",
         Signature: nil,

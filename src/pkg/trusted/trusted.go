@@ -17,7 +17,7 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 var keyManagers map[string]string
@@ -69,7 +69,7 @@ func SetPrivateKey(name string, pemString string) error {
     return nil
 }
 
-func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
+func AddTrustedKey(request *grpc_example.TrustedKeyRequest, nonce []byte, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
     name := request.PublicKey.Name
     publicKey := request.PublicKey.PublicKey
     protoSignature := request.Signature
@@ -102,7 +102,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *g
 
     trustedKeys[name] = publicKey
     if isKeyManager {
-        command := grpcExample.RegisterKeyManagerCommand{
+        command := grpc_example.RegisterKeyManagerCommand{
             PublicKey: request.PublicKey,
         }
         e = axon_utils.SendCommand("RegisterKeyManagerCommand", &command, conn, clientInfo)
@@ -110,7 +110,7 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *g
             log.Printf("Trusted: Error when sending RegisterKeyManagerCommand: %v", e)
         }
     } else {
-        command := grpcExample.RegisterTrustedKeyCommand{
+        command := grpc_example.RegisterTrustedKeyCommand{
             PublicKey: request.PublicKey,
         }
         e = axon_utils.SendCommand("RegisterTrustedKeyCommand", &command, conn, clientInfo)
@@ -122,11 +122,11 @@ func AddTrustedKey(request *grpcExample.TrustedKeyRequest, nonce []byte, conn *g
     return nil
 }
 
-func UnsafeSetTrustedKey(publicKey *grpcExample.PublicKey) {
+func UnsafeSetTrustedKey(publicKey *grpc_example.PublicKey) {
     trustedKeys[publicKey.Name] = publicKey.PublicKey
 }
 
-func UnsafeSetKeyManager(publicKey *grpcExample.PublicKey) {
+func UnsafeSetKeyManager(publicKey *grpc_example.PublicKey) {
     keyManagers[publicKey.Name] = publicKey.PublicKey
 }
 

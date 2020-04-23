@@ -11,7 +11,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -115,7 +115,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
 
         payloadType := eventMessage.Event.Payload.Type
         if payloadType == "TrustedKeyAddedEvent" {
-            event := grpcExample.TrustedKeyAddedEvent{}
+            event := grpc_example.TrustedKeyAddedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of TrustedKeyAddedEvent failed: %v", e)
                 return
@@ -123,7 +123,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
             log.Printf("Configuration event processor worker: Payload of TrustedKeyAddedEvent event: %v", event)
             trusted.UnsafeSetTrustedKey(event.PublicKey)
         } else if payloadType == "TrustedKeyRemovedEvent" {
-            event := grpcExample.TrustedKeyRemovedEvent{}
+            event := grpc_example.TrustedKeyRemovedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of TrustedKeyRemovedEvent failed: %v", e)
                 return
@@ -131,7 +131,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
             log.Printf("Configuration event processor worker: Payload of TrustedKeyRemovedEvent event: %v", event)
             trusted.UnsafeSetTrustedKey(getEmptyPublicKey(event.Name))
         } else if payloadType == "KeyManagerAddedEvent" {
-            event := grpcExample.KeyManagerAddedEvent{}
+            event := grpc_example.KeyManagerAddedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of KeyManagerAddedEvent failed: %v", e)
                 return
@@ -139,7 +139,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
             log.Printf("Configuration event processor worker: Payload of KeyManagerAddedEvent event: %v", event)
             trusted.UnsafeSetKeyManager(event.PublicKey)
         } else if payloadType == "KeyManagerRemovedEvent" {
-            event := grpcExample.KeyManagerRemovedEvent{}
+            event := grpc_example.KeyManagerRemovedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of KeyManagerRemovedEvent failed: %v", e)
                 return
@@ -147,7 +147,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
             log.Printf("Configuration event processor worker: Payload of KeyManagerRemovedEvent event: %v", event)
             trusted.UnsafeSetKeyManager(getEmptyPublicKey(event.Name))
         } else if payloadType == "CredentialsAddedEvent" {
-            event := grpcExample.CredentialsAddedEvent{}
+            event := grpc_example.CredentialsAddedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of CredentialsAddedEvent failed: %v", e)
                 return
@@ -155,13 +155,13 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
             log.Printf("Configuration event processor worker: Payload of CredentialsAddedEvent event: %v", event)
             authentication.UnsafeSetCredentials(event.Credentials)
         } else if payloadType == "CredentialsRemovedEvent" {
-            event := grpcExample.CredentialsRemovedEvent{}
+            event := grpc_example.CredentialsRemovedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
                 log.Printf("Configuration event processor worker: Unmarshalling of CredentialsRemovedEvent failed: %v", e)
                 return
             }
             log.Printf("Configuration event processor worker: Payload of CredentialsRemovedEvent event: %v", event)
-            emptyCredentials := grpcExample.Credentials{
+            emptyCredentials := grpc_example.Credentials{
                 Identifier: event.Identifier,
                 Secret: "",
             }
@@ -172,8 +172,8 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
     }
 }
 
-func getEmptyPublicKey(name string) *grpcExample.PublicKey {
-    return &grpcExample.PublicKey{
+func getEmptyPublicKey(name string) *grpc_example.PublicKey {
+    return &grpc_example.PublicKey{
         Name: name,
         PublicKey: "",
     }

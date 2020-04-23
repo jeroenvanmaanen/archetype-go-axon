@@ -10,7 +10,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -71,7 +71,7 @@ func commandWorker(stream axon_server.CommandService_OpenStreamClient, conn *grp
 }
 
 func handleGreetCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    deserializedCommand := grpcExample.GreetCommand{}
+    deserializedCommand := grpc_example.GreetCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
         log.Printf("Could not unmarshal GreetCommand")
@@ -83,7 +83,7 @@ func handleGreetCommand(command *axon_server.Command, stream axon_server.Command
         return
     }
 
-    event := grpcExample.GreetedEvent {
+    event := grpc_example.GreetedEvent {
         Message: deserializedCommand.Message,
     }
     data, err := proto.Marshal(&event)
@@ -101,12 +101,12 @@ func handleGreetCommand(command *axon_server.Command, stream axon_server.Command
 }
 
 func handleRecordCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    deserializedCommand := grpcExample.RecordCommand{}
+    deserializedCommand := grpc_example.RecordCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
         log.Printf("Could not unmarshal RecordCommand")
     }
-    event := grpcExample.StartedRecordingEvent {}
+    event := grpc_example.StartedRecordingEvent {}
     data, err := proto.Marshal(&event)
     if err != nil {
         log.Printf("Server: Error while marshalling event")
@@ -122,12 +122,12 @@ func handleRecordCommand(command *axon_server.Command, stream axon_server.Comman
 }
 
 func handleStopCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    deserializedCommand := grpcExample.StopCommand{}
+    deserializedCommand := grpc_example.StopCommand{}
     e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
     if (e != nil) {
         log.Printf("Could not unmarshal StopCommand")
     }
-    event := grpcExample.StoppedRecordingEvent {}
+    event := grpc_example.StoppedRecordingEvent {}
     data, err := proto.Marshal(&event)
     if err != nil {
         log.Printf("Server: Error while marshalling event")

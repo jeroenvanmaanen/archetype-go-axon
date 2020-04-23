@@ -8,13 +8,13 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 const AggregateIdentifier = "credentials-aggregate"
 
 func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
-    command := grpcExample.RegisterCredentialsCommand{}
+    command := grpc_example.RegisterCredentialsCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterCredentialsCommand")
@@ -33,14 +33,14 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
     var data []byte
     if len(newValue) > 0 {
         eventType = "CredentialsAddedEvent"
-        event := grpcExample.CredentialsAddedEvent{
+        event := grpc_example.CredentialsAddedEvent{
             Credentials: command.Credentials,
         }
         log.Printf("Credentials aggregate: emit: %v", event)
         data, e = proto.Marshal(&event)
     } else {
         eventType = "CredentialsRemovedEvent"
-        event := grpcExample.CredentialsRemovedEvent{
+        event := grpc_example.CredentialsRemovedEvent{
             Identifier: command.Credentials.Identifier,
         }
         log.Printf("Credentials aggregate: emit: %v", event)

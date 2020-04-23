@@ -12,7 +12,7 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
@@ -84,13 +84,13 @@ func queryWorker(stream axon_server.QueryService_OpenStreamClient, conn *grpc.Cl
 
 func handleSearchQuery(axonQuery *axon_server.QueryRequest, stream axon_server.QueryService_OpenStreamClient, es7 *elasticSearch7.Client) {
     defer queryComplete(stream, axonQuery.MessageIdentifier)
-    query := grpcExample.SearchQuery{}
+    query := grpc_example.SearchQuery{}
     e := proto.Unmarshal(axonQuery.Payload.Data, &query)
     if (e != nil) {
         log.Printf("Query handler: Could not unmarshal SearchQuery")
     }
 
-    reply := grpcExample.Greeting{
+    reply := grpc_example.Greeting{
         Message: "Query: '" + query.Query + "'",
     }
     queryRespond(&reply, stream, axonQuery.MessageIdentifier)
@@ -124,7 +124,7 @@ func handleSearchQuery(axonQuery *axon_server.QueryRequest, stream axon_server.Q
     queryRespond(&reply, stream, axonQuery.MessageIdentifier)
 }
 
-func queryRespond(response *grpcExample.Greeting, stream axon_server.QueryService_OpenStreamClient, requestId string) {
+func queryRespond(response *grpc_example.Greeting, stream axon_server.QueryService_OpenStreamClient, requestId string) {
     responseData, e := proto.Marshal(response)
     if e != nil {
         log.Printf("Query handler: Error while marshalling query response: %v", e)

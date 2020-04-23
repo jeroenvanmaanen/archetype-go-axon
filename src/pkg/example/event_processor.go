@@ -18,7 +18,7 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    grpcExample "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 func ProcessEvents(host string, port int) *grpc.ClientConn {
@@ -137,7 +137,7 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
 
         payloadType := eventMessage.Event.Payload.Type
         if payloadType == "GreetedEvent" {
-            greetedEvent := grpcExample.GreetedEvent{}
+            greetedEvent := grpc_example.GreetedEvent{}
             if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &greetedEvent); e != nil {
                 log.Printf("Event processor worker: Unmarshalling of GreetedEvent failed: %v", e)
                 return
@@ -154,8 +154,8 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
     }
 }
 
-func getEmptyPublicKey(name string) *grpcExample.PublicKey {
-    return &grpcExample.PublicKey{
+func getEmptyPublicKey(name string) *grpc_example.PublicKey {
+    return &grpc_example.PublicKey{
         Name: name,
         PublicKey: "",
     }
