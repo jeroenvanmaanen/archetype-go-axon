@@ -185,6 +185,16 @@ func (s *GreeterServer) Search(query *grpc_example.SearchQuery, greetingsServer 
     return nil
 }
 
+func (s *GreeterServer) Time(ctx context.Context, accessToken *grpc_example.AccessToken) (*grpc_example.Greeting, error) {
+    if !authentication.Verify(accessToken) {
+        return nil, errors.New("Authentication failed: JWT: " + accessToken.Jwt)
+    }
+    greeting := grpc_example.Greeting{
+        Message: "Hi!",
+    }
+    return &greeting, nil
+}
+
 func (s *GreeterServer) Authorize(ctx context.Context, credentials *grpc_example.Credentials) (*grpc_example.AccessToken, error) {
     accessToken := grpc_example.AccessToken{
         Jwt: "",
@@ -290,14 +300,10 @@ func (s *GreeterServer) ChangeCredentials(stream grpc_example.GreeterService_Cha
     return stream.SendAndClose(&empty)
 }
 
-func (s *GreeterServer) Time(ctx context.Context, accessToken *grpc_example.AccessToken) (*grpc_example.Greeting, error) {
-    if !authentication.Verify(accessToken) {
-        return nil, errors.New("Authentication failed: JWT: " + accessToken.Jwt)
-    }
-    greeting := grpc_example.Greeting{
-        Message: "Hi!",
-    }
-    return &greeting, nil
+func (s *GreeterServer) SetProperty(ctx context.Context, keyValue *grpc_example.KeyValue) (*grpc_example.Empty, error) {
+    log.Printf("Server: Set property: %v: %v", keyValue.Key, keyValue.Value)
+    empty = grpc_example.Empty{}
+    return &empty, nil
 }
 
 func Serve(conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) {
