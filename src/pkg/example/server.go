@@ -284,7 +284,7 @@ func (s *GreeterServer) ChangeCredentials(stream grpc_example.GreeterService_Cha
         if credentials.Signature == nil {
             break
         }
-        authentication.SetCredentials(credentials)
+        authentication.SetCredentials(credentials, s.conn, s.clientInfo)
     }
     empty = grpc_example.Empty{}
     return stream.SendAndClose(&empty)

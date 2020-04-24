@@ -18,20 +18,20 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterCredentialsCommand")
+        axon_utils.ReportError(stream, commandMessage.MessageIdentifier, "EX001", "Could not unmarshal RegisterCredentialsCommand")
         return
     }
 
     projection := RestoreProjection(AggregateIdentifier, conn)
 
-    currentValue := projection.Credentials[command.Credentials.Identifier]
-    newValue := command.Credentials.Secret
-    if newValue == currentValue {
+    if CheckKnown(command.Credentials, projection) {
+        axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
         return
     }
 
     var eventType string
     var data []byte
-    if len(newValue) > 0 {
+    if len(command.Credentials.Secret) > 0 {
         eventType = "CredentialsAddedEvent"
         event := grpc_example.CredentialsAddedEvent{
             Credentials: command.Credentials,
@@ -49,6 +49,7 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
 
     if e != nil {
         log.Printf("Server: Error while marshalling event: %v", e)
+        axon_utils.ReportError(stream, commandMessage.MessageIdentifier, "EX001", "Error while marshalling event")
         return
     }
     serializedEvent := axon_server.SerializedObject{

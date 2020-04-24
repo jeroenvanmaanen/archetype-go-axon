@@ -10,8 +10,11 @@ import (
     sha256 "crypto/sha256"
 
     jwt "github.com/pascaldekloe/jwt"
+    grpc "google.golang.org/grpc"
     ssh "golang.org/x/crypto/ssh"
 
+    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
@@ -26,7 +29,7 @@ func UnsafeSetCredentials(credentials *grpc_example.Credentials) {
     acceptedCredentials[credentials.Identifier] = credentials.Secret
 }
 
-func SetCredentials(credentials *grpc_example.Credentials) error {
+func SetCredentials(credentials *grpc_example.Credentials, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
     payload := credentials.Identifier + "=" + credentials.Secret
     signatureKey, e := trusted.GetKeyManagerKey(credentials.Signature.SignatureName)
     if e != nil {
@@ -39,12 +42,36 @@ func SetCredentials(credentials *grpc_example.Credentials) error {
     }
     signatureKey.Verify([]byte(payload), &signature)
     log.Printf("Set credentials: %v: %v", credentials.Identifier, credentials.Secret)
-    UnsafeSetCredentials(credentials)
-    return nil
+
+    var encryptedSecret string
+    if credentials.Secret == "" {
+        encryptedSecret = ""
+    } else {
+        encryptedSecret, e = trusted.EncryptString(credentials.Secret)
+        if e != nil {
+            return e
+        }
+    }
+    commandCredentials := grpc_example.Credentials{
+        Identifier: credentials.Identifier,
+        Secret: encryptedSecret,
+    }
+    command := grpc_example.RegisterCredentialsCommand{
+        Credentials: &commandCredentials,
+    }
+    e = axon_utils.SendCommand("RegisterCredentialsCommand", &command, conn, clientInfo)
+    return e
 }
 
 func Authenticate(username string, password string) bool {
-    hashedPassword := acceptedCredentials[username]
+    encryptedHashedPassword := acceptedCredentials[username]
+    log.Printf("Authenticate: %v: encryptedHashedPassword: '%v'", username, encryptedHashedPassword)
+    hashedPassword, e := trusted.DecryptString(encryptedHashedPassword)
+    if e != nil {
+        log.Printf("Authenticate: %v: could not decrypt hashed password: %v", username, e)
+        return false
+    }
+
     log.Printf("Authenticate: %v: hashedPassword: '%v'", username, hashedPassword)
     parts := strings.Split(hashedPassword, ":")
     if len(parts) != 3 {
@@ -74,6 +101,20 @@ func Authenticate(username string, password string) bool {
     log.Printf("Authenticate: %v: given hash: %v", username, givenHash)
 
     return bytes.Compare(givenHash[:], storedHash) == 0
+}
+
+func CheckKnown(credentials *grpc_example.Credentials, projection *Projection) bool {
+    newHashedPassword, e := trusted.DecryptString(credentials.Secret)
+    if e != nil {
+        log.Printf("Authenticate: %v: cannot decrypt new hash: assuming unknown", credentials.Identifier)
+        return false
+    }
+    oldHashedPassword, e := trusted.DecryptString((*projection).Credentials[credentials.Identifier])
+    if e != nil {
+        log.Printf("Authenticate: %v: cannot decrypt old hash: assuming unknown", credentials.Identifier)
+        return false
+    }
+    return newHashedPassword == oldHashedPassword
 }
 
 func Encode(password string) string {

@@ -25,6 +25,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
     currentValue := projection.TrustedKeys[command.PublicKey.Name]
     newValue := command.PublicKey.PublicKey
     if newValue == currentValue {
+        axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
         return
     }
 
