@@ -302,6 +302,15 @@ func (s *GreeterServer) ChangeCredentials(stream grpc_example.GreeterService_Cha
 
 func (s *GreeterServer) SetProperty(ctx context.Context, keyValue *grpc_example.KeyValue) (*grpc_example.Empty, error) {
     log.Printf("Server: Set property: %v: %v", keyValue.Key, keyValue.Value)
+
+    command := grpc_example.ChangePropertyCommand{
+        Property: keyValue,
+    }
+    e := axon_utils.SendCommand("ChangePropertyCommand", &command, s.conn, s.clientInfo)
+    if e != nil {
+        log.Printf("Trusted: Error when sending ChangePropertyCommand: %v", e)
+    }
+
     empty = grpc_example.Empty{}
     return &empty, nil
 }

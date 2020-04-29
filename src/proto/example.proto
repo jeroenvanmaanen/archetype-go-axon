@@ -58,6 +58,10 @@ message RegisterCredentialsCommand {
     Credentials credentials = 1;
 }
 
+message ChangePropertyCommand {
+    KeyValue property = 1;
+}
+
 // Events
 
 message GreetedEvent {
@@ -68,28 +72,32 @@ message StartedRecordingEvent {}
 
 message StoppedRecordingEvent {}
 
-message TrustedKeyAddedEvent{
+message TrustedKeyAddedEvent {
     PublicKey publicKey = 1;
 }
 
-message TrustedKeyRemovedEvent{
+message TrustedKeyRemovedEvent {
     string name = 1;
 }
 
-message KeyManagerAddedEvent{
+message KeyManagerAddedEvent {
     PublicKey publicKey = 1;
 }
 
-message KeyManagerRemovedEvent{
+message KeyManagerRemovedEvent {
     string name = 1;
 }
 
-message CredentialsAddedEvent{
+message CredentialsAddedEvent {
     Credentials credentials = 1;
 }
 
-message CredentialsRemovedEvent{
+message CredentialsRemovedEvent {
     string identifier = 1;
+}
+
+message PropertyChangedEvent {
+    KeyValue property = 1;
 }
 
 // Queries

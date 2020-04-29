@@ -10,6 +10,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
+    configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
@@ -30,6 +31,7 @@ func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
     axon_utils.SubscribeCommand("RegisterTrustedKeyCommand", stream, clientInfo)
     axon_utils.SubscribeCommand("RegisterKeyManagerCommand", stream, clientInfo)
     axon_utils.SubscribeCommand("RegisterCredentialsCommand", stream, clientInfo)
+    axon_utils.SubscribeCommand("ChangePropertyCommand", stream, clientInfo)
 
     go commandWorker(stream, conn, clientInfo.ClientId)
 
@@ -63,6 +65,8 @@ func commandWorker(stream axon_server.CommandService_OpenStreamClient, conn *grp
                 trusted.HandleRegisterKeyManagerCommand(command, stream, conn)
             } else if (commandName == "RegisterCredentialsCommand") {
                 authentication.HandleRegisterCredentialsCommand(command, stream, conn)
+            } else if (commandName == "ChangePropertyCommand") {
+                configuration.HandleChangePropertyCommand(command, stream, conn)
             } else {
                 log.Printf("Received unknown command: %v", commandName)
             }

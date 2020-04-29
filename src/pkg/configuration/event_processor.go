@@ -15,7 +15,13 @@ import (
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
+var projection Projection
+
 func ProcessEvents(host string, port int) *grpc.ClientConn {
+    projection = Projection{
+        Configuration: make(map[string]string),
+    }
+
     conn, clientInfo, stream := axon_utils.WaitForServer(host, port, "Configuration event processor")
     log.Printf("Connection and client info: %v: %v: %v", conn, clientInfo, stream)
 
@@ -166,10 +172,22 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
                 Secret: "",
             }
             authentication.UnsafeSetCredentials(&emptyCredentials)
+        } else if payloadType == "PropertyChangedEvent" {
+            event := grpc_example.PropertyChangedEvent{}
+            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
+                log.Printf("Configuration event processor worker: Unmarshalling of PropertyChangedEvent failed: %v", e)
+                return
+            }
+            log.Printf("Configuration event processor worker: Payload of PropertyChangedEvent event: %v", event)
+            projection.Configuration[event.Property.Key] = event.Property.Value
         } else {
             log.Printf("Configuration event processor worker: no processing necessary for payload type: %v", payloadType)
         }
     }
+}
+
+func GetProperty(key string) string {
+    return projection.Configuration[key]
 }
 
 func getEmptyPublicKey(name string) *grpc_example.PublicKey {
