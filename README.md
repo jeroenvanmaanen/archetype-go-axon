@@ -38,12 +38,20 @@ The current project communicates with Axon Server properly:
 8. ☑ Register a query handler and handle queries
    * ☑ Show query results in UI
 
+Other features:
+
+* Configuration properties in event store
+* Public key management in event store
+  * Public key of initially trusted key manager compiled into binary
+  * Private key to sign JWT tokens and decode credentials must be uploaded on startup with a challenge signed by a trusted key manager
+* Claim-based security based on JWT
+  * Todo: supply JWT in headers/metadata rather than payload
+
 After that:
 
 * Cache projections
 * Store snapshots
 * Use TLS
-* Add claim-based security
 * Extract reusable code into a proper library that can be included as a dependency (evolve into a proper framework on par with AxonFramework for Java)
 * Add context management with proper canceling of operations
 * Support distributable segmented tracking event processors
