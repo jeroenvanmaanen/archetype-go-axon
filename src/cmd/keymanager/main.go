@@ -94,6 +94,8 @@ func main() {
             }
         } else if strings.HasPrefix(line, ">>> Secrets") {
             line = addSecrets(client, reader, signatureName, &signer)
+        } else if strings.HasPrefix(line, ">>> Properties") {
+            line = addProperties(client, reader)
         } else if strings.HasPrefix(line, ">>> End") {
             log.Printf("End")
             request.PublicKey = nil
@@ -257,5 +259,33 @@ func addSecrets(client grpc_example.GreeterServiceClient, reader *bufio.Reader, 
         Signature: nil,
     }
     stream.Send(&emptyCredentials)
+    return
+}
+
+func addProperties(client grpc_example.GreeterServiceClient, reader *bufio.Reader) (line string) {
+    log.Printf("Add properties: client: %v", client)
+
+    for true {
+        line = readLine(reader)
+        if strings.HasPrefix(line, ">>>") {
+            break
+        }
+        log.Printf("Add property: %v", line)
+        parts := strings.SplitN(line, "=", 2)
+        log.Printf("Number of parts: %v", len(parts))
+        key := strings.TrimSpace(parts[0])
+        value := strings.TrimSpace(parts[1])
+
+        keyValue := grpc_example.KeyValue{
+            Key: key,
+            Value: value,
+        }
+        log.Printf("Add property: KeyValue: %v", keyValue)
+        _, e := client.SetProperty(context.Background(), &keyValue)
+        if e != nil {
+            log.Printf("Add properties: Unable to set property: %v: %v", key, e)
+            panic("Could not set property")
+        }
+    }
     return
 }
