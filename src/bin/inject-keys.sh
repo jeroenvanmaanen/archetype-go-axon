@@ -50,5 +50,5 @@ fi
     fi
 
     echo '>>> End'
-  ) | docker exec -i example_example-command-api_1 target/bin/keymanager
+  ) | docker exec -i example_example-command-api_1 target/bin/configmanager
 )
