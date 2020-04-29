@@ -62,7 +62,7 @@ compiled commands
 * Provide CMD or PowerShell script to run Docker-in-Docker for Windows users
 
 This project started as a clone of [archetype-nix-go](https://github.com/jeroenvanmaanen/archetype-nix-go).
-I mostly followed [Golang Demo](https://github.com/MatrixAI/Golang-Demo)
+To setup [Golang](https://golang.org) in combination with [Nix](https://nixos.org/nix/), I mostly followed [Golang Demo](https://github.com/MatrixAI/Golang-Demo)
 by _Roger Qiu_. Any flaws are of course my own.
 
 ## Quick start
