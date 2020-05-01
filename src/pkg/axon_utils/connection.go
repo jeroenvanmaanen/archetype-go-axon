@@ -11,7 +11,12 @@ import (
     uuid "github.com/google/uuid"
 )
 
-func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *axon_server.ClientIdentification, *axon_server.PlatformService_OpenStreamClient) {
+type ClientConnection struct {
+    Connection *grpc.ClientConn
+    ClientInfo *axon_server.ClientIdentification
+}
+
+func WaitForServer(host string, port int, qualifier string) (*ClientConnection, *axon_server.PlatformService_OpenStreamClient) {
     id := uuid.New()
     clientInfo := axon_server.ClientIdentification {
         ClientId: id.String(),
@@ -53,7 +58,11 @@ func WaitForServer(host string, port int, qualifier string) (*grpc.ClientConn, *
         if e != nil {
             continue
         }
-        return conn, &clientInfo, streamClient
+        clientConnection := ClientConnection{
+            Connection: conn,
+            ClientInfo: &clientInfo,
+        }
+        return &clientConnection, streamClient
     }
 }
 

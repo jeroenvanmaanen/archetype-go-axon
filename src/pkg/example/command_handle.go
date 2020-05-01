@@ -16,7 +16,9 @@ import (
 )
 
 func HandleCommands(host string, port int) (conn *grpc.ClientConn) {
-    conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Command Handler")
+    clientConnection, _ := axon_utils.WaitForServer(host, port, "Command Handler")
+    conn = clientConnection.Connection
+    clientInfo := clientConnection.ClientInfo
 
     log.Printf("Command handler: Connection: %v", conn)
     client := axon_server.NewCommandServiceClient(conn)

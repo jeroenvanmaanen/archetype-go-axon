@@ -315,7 +315,7 @@ func (s *GreeterServer) SetProperty(ctx context.Context, keyValue *grpc_example.
     return &empty, nil
 }
 
-func Serve(conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) {
+func Serve(clientConnection *axon_utils.ClientConnection) {
     port := 8181
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
     if err != nil {
@@ -324,7 +324,7 @@ func Serve(conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) 
     }
     log.Printf("Server: Listening on port: %d", port)
     grpcServer := grpc.NewServer()
-    grpc_example.RegisterGreeterServiceServer(grpcServer, &GreeterServer{conn,clientInfo})
+    grpc_example.RegisterGreeterServiceServer(grpcServer, &GreeterServer{clientConnection.Connection,clientConnection.ClientInfo})
     reflection.Register(grpcServer)
     // ... // determine whether to use TLS
     grpcServer.Serve(lis)

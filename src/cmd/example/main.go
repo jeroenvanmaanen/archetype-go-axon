@@ -26,9 +26,9 @@ func main() {
 
     host := "axon-server" // "example-proxy" or "axon-server"
     port := 8124
-    conn, clientInfo, streamClient := axon_utils.WaitForServer(host, port, "API")
-    defer conn.Close()
-    log.Printf("Main connection: %v: %v: %v", conn, clientInfo, streamClient)
+    clientConnection, streamClient := axon_utils.WaitForServer(host, port, "API")
+    defer clientConnection.Connection.Close()
+    log.Printf("Main connection: %v: %v", clientConnection, streamClient)
 
     // Send a heartbeat
     heartbeat := axon_server.Heartbeat{}
@@ -60,5 +60,5 @@ func main() {
     defer queryHandlerConn.Close()
 
     // Listen to incoming gRPC requests
-    example.Serve(conn, clientInfo)
+    example.Serve(clientConnection)
 }

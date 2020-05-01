@@ -16,7 +16,9 @@ import (
 )
 
 func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
-    conn, clientInfo, _ := axon_utils.WaitForServer(host, port, "Query Handler")
+    clientConnection, _ := axon_utils.WaitForServer(host, port, "Query Handler")
+    conn = clientConnection.Connection
+    clientInfo := clientConnection.ClientInfo
 
     log.Printf("Query handler: Connection: %v", conn)
     client := axon_server.NewQueryServiceClient(conn)

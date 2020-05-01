@@ -22,16 +22,17 @@ func ProcessEvents(host string, port int) *grpc.ClientConn {
         Configuration: make(map[string]string),
     }
 
-    conn, clientInfo, stream := axon_utils.WaitForServer(host, port, "Configuration event processor")
-    log.Printf("Connection and client info: %v: %v: %v", conn, clientInfo, stream)
+    clientConnection, stream := axon_utils.WaitForServer(host, port, "Configuration event processor")
+    log.Printf("Connection and client info: %v: %v", clientConnection, stream)
+    conn := clientConnection.Connection
 
     processorName := "configuration-event-processor"
 
-    if e := registerProcessor(processorName, stream, clientInfo); e != nil {
+    if e := registerProcessor(processorName, stream, clientConnection.ClientInfo); e != nil {
         return conn
     }
 
-    go eventProcessorWorker(stream, conn, clientInfo, processorName)
+    go eventProcessorWorker(stream, clientConnection, processorName)
 
     return conn;
 }
@@ -72,7 +73,9 @@ func registerProcessor(processorName string, stream *axon_server.PlatformService
     return nil
 }
 
-func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification, processorName string) {
+func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, clientConnection *axon_utils.ClientConnection, processorName string) {
+    conn := clientConnection.Connection
+    clientInfo := clientConnection.ClientInfo
     var token *int64
 
     eventStoreClient := axon_server.NewEventStoreClient(conn)
