@@ -1,14 +1,13 @@
 package authentication
 
 import (
-    context "context"
-    io "io"
     log "log"
 
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -16,54 +15,54 @@ type Projection struct {
     Credentials map[string]string
 }
 
+type CredentialsAddedSourceEvent struct {
+    event *grpc_example.CredentialsAddedEvent
+}
+
+type CredentialsRemovedSourceEvent struct {
+    event *grpc_example.CredentialsRemovedEvent
+}
+
 func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Projection {
     projection := Projection{
         Credentials: make(map[string]string),
     }
-    log.Printf("Credentials Projection: %v", projection)
-
-    eventStoreClient := axon_server.NewEventStoreClient(conn)
-    requestEvents := axon_server.GetAggregateEventsRequest {
-        AggregateId: aggregateIdentifier,
-        InitialSequence: 0,
-        AllowSnapshots: false,
-    }
-    log.Printf("Credentials Projection: Request events: %v", requestEvents)
-    client, e := eventStoreClient.ListAggregateEvents(context.Background(), &requestEvents)
-    if e != nil {
-        log.Printf("Credentials Projection: Error while requesting aggregate events: %v", e)
-        return nil
-    }
-    for {
-        eventMessage, e := client.Recv()
-        if e == io.EOF {
-            log.Printf("Credentials Projection: End of stream")
-            break
-        } else if e != nil {
-            log.Printf("Credentials Projection: Error while receiving next event: %v", e)
-            break
-        }
-        log.Printf("Credentials Projection: Received event: %v", eventMessage)
-        if eventMessage.Payload != nil {
-            log.Printf("Credentials Projection: Payload type: %v", eventMessage.Payload.Type)
-            payloadType := eventMessage.Payload.Type
-            if (payloadType == "CredentialsAddedEvent") {
-                event := grpc_example.CredentialsAddedEvent{}
-                e := proto.Unmarshal(eventMessage.Payload.Data, &event)
-                if (e != nil) {
-                    log.Printf("Could not unmarshal CredentialsAddedEvent")
-                }
-                projection.Credentials[event.Credentials.Identifier] = event.Credentials.Secret
-            } else if (payloadType == "CredentialsRemovedEvent") {
-                event := grpc_example.CredentialsRemovedEvent{}
-                e := proto.Unmarshal(eventMessage.Payload.Data, &event)
-                if (e != nil) {
-                    log.Printf("Could not unmarshal CredentialsRemovedEvent")
-                }
-                projection.Credentials[event.Identifier] = ""
-            }
-        }
-    }
-
+    axon_utils.RestoreProjection("Authentication", aggregateIdentifier, projection, conn, prepareUnmarshal)
     return &projection
+}
+
+func Apply(event axon_utils.SourceEvent, aggregateIdentifier string, conn *grpc.ClientConn) {
+    projection := RestoreProjection(aggregateIdentifier, conn)
+    event.ApplyTo(projection)
+}
+
+func prepareUnmarshal(eventMessage *axon_server.Event) (sourceEvent axon_utils.SourceEvent) {
+    payloadType := eventMessage.Payload.Type
+    log.Printf("Credentials Projection: Payload type: %v", payloadType)
+    if (payloadType == "CredentialsAddedEvent") {
+        sourceEvent = &CredentialsAddedSourceEvent{
+            event: &grpc_example.CredentialsAddedEvent{},
+        }
+    } else if (payloadType == "CredentialsRemovedEvent") {
+        sourceEvent = &CredentialsRemovedSourceEvent{
+            event: &grpc_example.CredentialsRemovedEvent{},
+        }
+    }
+    return sourceEvent
+}
+
+func (sourceEvent *CredentialsAddedSourceEvent) GetEvent() proto.Message {
+    return sourceEvent.event
+}
+func (sourceEvent *CredentialsAddedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+    projection := projectionWrapper.(Projection)
+    projection.Credentials[sourceEvent.event.Credentials.Identifier] = sourceEvent.event.Credentials.Secret
+}
+
+func (sourceEvent *CredentialsRemovedSourceEvent) GetEvent() proto.Message {
+    return sourceEvent.event
+}
+func (sourceEvent *CredentialsRemovedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+    projection := projectionWrapper.(Projection)
+    projection.Credentials[sourceEvent.event.Identifier] = ""
 }
