@@ -6,7 +6,6 @@ import (
     grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
-    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
@@ -36,8 +35,7 @@ func Apply(event axon_utils.SourceEvent, aggregateIdentifier string, conn *grpc.
     event.ApplyTo(projection)
 }
 
-func prepareUnmarshal(eventMessage *axon_server.Event) (sourceEvent axon_utils.SourceEvent) {
-    payloadType := eventMessage.Payload.Type
+func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
     log.Printf("Credentials Projection: Payload type: %v", payloadType)
     if (payloadType == "CredentialsAddedEvent") {
         sourceEvent = &CredentialsAddedSourceEvent{

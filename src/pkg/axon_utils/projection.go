@@ -16,7 +16,7 @@ type SourceEvent interface {
     ApplyTo(projection interface{})
 }
 
-func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, conn *grpc.ClientConn, prepareUnmarshal func (eventMessage *axon_server.Event)SourceEvent) {
+func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, conn *grpc.ClientConn, prepareUnmarshal func (payloadType string)SourceEvent) {
     log.Printf("%v Projection: %v", label, projection)
 
     eventStoreClient := axon_server.NewEventStoreClient(conn)
@@ -42,7 +42,8 @@ func RestoreProjection(label string, aggregateIdentifier string, projection inte
         }
         log.Printf("%v Projection: Received event: %v", label, eventMessage)
         if eventMessage.Payload != nil {
-            event := prepareUnmarshal(eventMessage)
+            payloadType := eventMessage.Payload.Type
+            event := prepareUnmarshal(payloadType)
             e := proto.Unmarshal(eventMessage.Payload.Data, event.GetEvent())
             if (e != nil) {
                 log.Printf("%v Projection: Could not unmarshal %v", label, eventMessage.Payload.Type)
