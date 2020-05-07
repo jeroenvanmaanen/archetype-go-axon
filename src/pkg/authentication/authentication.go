@@ -10,10 +10,8 @@ import (
     sha256 "crypto/sha256"
 
     jwt "github.com/pascaldekloe/jwt"
-    grpc "google.golang.org/grpc"
     ssh "golang.org/x/crypto/ssh"
 
-    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
@@ -29,7 +27,7 @@ func UnsafeSetCredentials(credentials *grpc_example.Credentials) {
     acceptedCredentials[credentials.Identifier] = credentials.Secret
 }
 
-func SetCredentials(credentials *grpc_example.Credentials, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
+func SetCredentials(credentials *grpc_example.Credentials, clientConnection *axon_utils.ClientConnection) error {
     payload := credentials.Identifier + "=" + credentials.Secret
     signatureKey, e := trusted.GetKeyManagerKey(credentials.Signature.SignatureName)
     if e != nil {
@@ -59,7 +57,7 @@ func SetCredentials(credentials *grpc_example.Credentials, conn *grpc.ClientConn
     command := grpc_example.RegisterCredentialsCommand{
         Credentials: &commandCredentials,
     }
-    e = axon_utils.SendCommand("RegisterCredentialsCommand", &command, conn, clientInfo)
+    e = axon_utils.SendCommand("RegisterCredentialsCommand", &command, clientConnection)
     return e
 }
 

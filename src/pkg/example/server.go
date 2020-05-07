@@ -3,10 +3,8 @@ package example
 import (
     context "context"
     errors "errors"
-    fmt "fmt"
     io "io"
     log "log"
-    net "net"
     time "time"
 
     hex "encoding/hex"
@@ -15,7 +13,6 @@ import (
     grpc "google.golang.org/grpc"
     jwt "github.com/pascaldekloe/jwt"
     proto "github.com/golang/protobuf/proto"
-    reflection "google.golang.org/grpc/reflection"
     uuid "github.com/google/uuid"
 
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
@@ -40,7 +37,7 @@ func (s *GreeterServer) Greet(c context.Context, greeting *grpc_example.Greeting
         AggregateIdentifier: "single_aggregate",
         Message: greeting,
     }
-    if e := axon_utils.SendCommand("GreetCommand", &command, s.conn, s.clientInfo); e != nil {
+    if e := axon_utils.SendCommand("GreetCommand", &command, toClientConnection(s)); e != nil {
         return nil, e
     }
     return &ack, nil
@@ -104,7 +101,7 @@ func (s *GreeterServer) Record(c context.Context, greeting *grpc_example.Empty) 
     command := grpc_example.RecordCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    err := axon_utils.SendCommand("RecordCommand", &command, s.conn, s.clientInfo)
+    err := axon_utils.SendCommand("RecordCommand", &command, toClientConnection(s))
     if err != nil {
         return nil, err
     }
@@ -115,7 +112,7 @@ func (s *GreeterServer) Stop(c context.Context, greeting *grpc_example.Empty) (*
     command := grpc_example.StopCommand {
         AggregateIdentifier: "single_aggregate",
     }
-    err := axon_utils.SendCommand("StopCommand", &command, s.conn, s.clientInfo)
+    err := axon_utils.SendCommand("StopCommand", &command, toClientConnection(s))
     if err != nil {
         return nil, err
     }
@@ -259,7 +256,7 @@ func (s *GreeterServer) ChangeTrustedKeys(stream grpc_example.GreeterService_Cha
                 _ = stream.Send(&response)
                 return nil
             }
-            e = trusted.AddTrustedKey(request, nonce, s.conn, s.clientInfo)
+            e = trusted.AddTrustedKey(request, nonce, toClientConnection(s))
             if e == nil {
                 status.Code = 200
                 status.Message = "OK"
@@ -294,7 +291,7 @@ func (s *GreeterServer) ChangeCredentials(stream grpc_example.GreeterService_Cha
         if credentials.Signature == nil {
             break
         }
-        authentication.SetCredentials(credentials, s.conn, s.clientInfo)
+        authentication.SetCredentials(credentials, toClientConnection(s))
     }
     empty = grpc_example.Empty{}
     return stream.SendAndClose(&empty)
@@ -306,7 +303,7 @@ func (s *GreeterServer) SetProperty(ctx context.Context, keyValue *grpc_example.
     command := grpc_example.ChangePropertyCommand{
         Property: keyValue,
     }
-    e := axon_utils.SendCommand("ChangePropertyCommand", &command, s.conn, s.clientInfo)
+    e := axon_utils.SendCommand("ChangePropertyCommand", &command, toClientConnection(s))
     if e != nil {
         log.Printf("Trusted: Error when sending ChangePropertyCommand: %v", e)
     }
@@ -315,17 +312,14 @@ func (s *GreeterServer) SetProperty(ctx context.Context, keyValue *grpc_example.
     return &empty, nil
 }
 
-func Serve(clientConnection *axon_utils.ClientConnection) {
-    port := 8181
-    lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-    if err != nil {
-        log.Fatalf("Server: Failed to listen: %v", err)
-        panic("Server: Panic!")
-    }
-    log.Printf("Server: Listening on port: %d", port)
-    grpcServer := grpc.NewServer()
+func RegisterWithServer(grpcServer *grpc.Server, clientConnection *axon_utils.ClientConnection) {
     grpc_example.RegisterGreeterServiceServer(grpcServer, &GreeterServer{clientConnection.Connection,clientConnection.ClientInfo})
-    reflection.Register(grpcServer)
-    // ... // determine whether to use TLS
-    grpcServer.Serve(lis)
+}
+
+func toClientConnection(s *GreeterServer) *axon_utils.ClientConnection {
+    result := axon_utils.ClientConnection{
+        Connection: s.conn,
+        ClientInfo: s.clientInfo,
+    }
+    return &result
 }

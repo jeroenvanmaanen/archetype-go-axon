@@ -5,7 +5,6 @@ import (
     io "io"
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -16,7 +15,8 @@ type SourceEvent interface {
     ApplyTo(projection interface{})
 }
 
-func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, conn *grpc.ClientConn, prepareUnmarshal func (payloadType string)SourceEvent) {
+func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)SourceEvent) {
+    conn := clientConnection.Connection
     log.Printf("%v Projection: %v", label, projection)
 
     eventStoreClient := axon_server.NewEventStoreClient(conn)

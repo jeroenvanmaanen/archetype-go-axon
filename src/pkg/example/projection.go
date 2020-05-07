@@ -4,15 +4,17 @@ import (
     context "context"
     io "io"
     log "log"
+
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
-    grpc "google.golang.org/grpc"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
 )
 
 type Projection struct {
     Recording bool
 }
 
-func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Projection {
+func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
+    conn := clientConnection.Connection
     projection := Projection{
         Recording: true,
     }

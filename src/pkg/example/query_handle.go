@@ -6,7 +6,6 @@ import (
     log "log"
 
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
@@ -15,10 +14,9 @@ import (
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
-func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
-    clientConnection, _ := axon_utils.WaitForServer(host, port, "Query Handler")
-    conn = clientConnection.Connection
-    clientInfo := clientConnection.ClientInfo
+func HandleQueries(host string, port int) (clientConnection *axon_utils.ClientConnection) {
+    clientConnection, _ = axon_utils.WaitForServer(host, port, "Query Handler")
+    conn := clientConnection.Connection
 
     log.Printf("Query handler: Connection: %v", conn)
     client := axon_server.NewQueryServiceClient(conn)
@@ -27,14 +25,15 @@ func HandleQueries(host string, port int) (conn *grpc.ClientConn) {
     stream, e := client.OpenStream(context.Background())
     log.Printf("Query handler: Stream: %v: %v", stream, e)
 
-    querySubscribe("SearchQuery", stream, clientInfo)
+    querySubscribe("SearchQuery", stream, clientConnection)
 
-    go queryWorker(stream, conn, clientInfo.ClientId)
+    go queryWorker(stream, clientConnection)
 
-    return conn;
+    return clientConnection;
 }
 
-func querySubscribe(queryName string, stream axon_server.QueryService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) {
+func querySubscribe(queryName string, stream axon_server.QueryService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+    clientInfo := clientConnection.ClientInfo
     id := uuid.New()
     subscription := axon_server.QuerySubscription {
         MessageId: id.String(),
@@ -57,7 +56,8 @@ func querySubscribe(queryName string, stream axon_server.QueryService_OpenStream
     }
 }
 
-func queryWorker(stream axon_server.QueryService_OpenStreamClient, conn *grpc.ClientConn, clientId string) {
+func queryWorker(stream axon_server.QueryService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+    clientId := clientConnection.ClientInfo.ClientId
     es7 := WaitForElasticSearch();
     log.Printf("Query handler: Elastic Search client: %v", es7)
 

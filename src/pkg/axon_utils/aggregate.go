@@ -6,7 +6,6 @@ import (
     log "log"
     time "time"
 
-    grpc "google.golang.org/grpc"
     uuid "github.com/google/uuid"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -35,7 +34,8 @@ func SubscribeCommand(commandName string, stream axon_server.CommandService_Open
     }
 }
 
-func AppendEvent(message *axon_server.SerializedObject, aggregateId string, conn *grpc.ClientConn) {
+func AppendEvent(message *axon_server.SerializedObject, aggregateId string, clientConnection *ClientConnection) {
+    conn := clientConnection.Connection
     client := axon_server.NewEventStoreClient(conn)
 
     readRequest := axon_server.ReadHighestSequenceNrRequest {

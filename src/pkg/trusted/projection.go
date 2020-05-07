@@ -5,10 +5,10 @@ import (
     io "io"
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -17,14 +17,14 @@ type Projection struct {
     KeyManagers map[string]string
 }
 
-func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Projection {
+func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
     projection := Projection{
         TrustedKeys: make(map[string]string),
         KeyManagers: make(map[string]string),
     }
     log.Printf("Trusted Keys Projection: %v", projection)
 
-    eventStoreClient := axon_server.NewEventStoreClient(conn)
+    eventStoreClient := axon_server.NewEventStoreClient(clientConnection.Connection)
     requestEvents := axon_server.GetAggregateEventsRequest {
         AggregateId: aggregateIdentifier,
         InitialSequence: 0,

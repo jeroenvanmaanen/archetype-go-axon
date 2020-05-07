@@ -3,7 +3,6 @@ package trusted
 import (
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -13,14 +12,14 @@ import (
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
-func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     command := grpc_example.RegisterTrustedKeyCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterTrustedKeyCommand")
     }
 
-    projection := RestoreProjection(AggregateIdentifier, conn)
+    projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
     currentValue := projection.TrustedKeys[command.PublicKey.Name]
     newValue := command.PublicKey.PublicKey
@@ -56,18 +55,18 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
         Data: data,
     }
 
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }
 
-func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     command := grpc_example.RegisterKeyManagerCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
         log.Printf("Could not unmarshal RegisterKeyManagerCommand")
     }
 
-    projection := RestoreProjection(AggregateIdentifier, conn)
+    projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
     currentValue := projection.KeyManagers[command.PublicKey.Name]
     newValue := command.PublicKey.PublicKey
@@ -102,6 +101,6 @@ func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream
         Data: data,
     }
 
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

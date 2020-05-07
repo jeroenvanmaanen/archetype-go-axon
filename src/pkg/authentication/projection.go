@@ -3,7 +3,6 @@ package authentication
 import (
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
@@ -22,16 +21,16 @@ type CredentialsRemovedSourceEvent struct {
     event *grpc_example.CredentialsRemovedEvent
 }
 
-func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Projection {
+func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
     projection := Projection{
         Credentials: make(map[string]string),
     }
-    axon_utils.RestoreProjection("Authentication", aggregateIdentifier, projection, conn, prepareUnmarshal)
+    axon_utils.RestoreProjection("Authentication", aggregateIdentifier, projection, clientConnection, prepareUnmarshal)
     return &projection
 }
 
-func Apply(event axon_utils.SourceEvent, aggregateIdentifier string, conn *grpc.ClientConn) {
-    projection := RestoreProjection(aggregateIdentifier, conn)
+func Apply(event axon_utils.SourceEvent, aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) {
+    projection := RestoreProjection(aggregateIdentifier, clientConnection)
     event.ApplyTo(projection)
 }
 

@@ -46,19 +46,19 @@ func main() {
 
     // Handle commands
     commandHandlerConn := example.HandleCommands(host, port)
-    defer commandHandlerConn.Close()
+    defer commandHandlerConn.Connection.Close()
 
     // Process Events
     eventProcessorConn := example.ProcessEvents(host, port)
-    defer eventProcessorConn.Close()
+    defer eventProcessorConn.Connection.Close()
 
     configurationEventProcessorConn := configuration.ProcessEvents(host, port)
-    defer configurationEventProcessorConn.Close()
+    defer configurationEventProcessorConn.Connection.Close()
 
     // Handle queries
     queryHandlerConn := example.HandleQueries(host, port)
-    defer queryHandlerConn.Close()
+    defer queryHandlerConn.Connection.Close()
 
     // Listen to incoming gRPC requests
-    example.Serve(clientConnection)
+    axon_utils.Serve(clientConnection, example.RegisterWithServer)
 }

@@ -12,7 +12,6 @@ import (
     sha256 "crypto/sha256"
 
     elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
@@ -21,19 +20,19 @@ import (
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
-func ProcessEvents(host string, port int) *grpc.ClientConn {
+func ProcessEvents(host string, port int) *axon_utils.ClientConnection {
     clientConnection, stream := axon_utils.WaitForServer(host, port, "Event processor")
     log.Printf("Connection and client info: %v: %v", clientConnection, stream)
 
     processorName := "example-processor"
 
     if e := registerProcessor(processorName, stream, clientConnection.ClientInfo); e != nil {
-        return clientConnection.Connection
+        return clientConnection
     }
 
     go eventProcessorWorker(stream, clientConnection, processorName)
 
-    return clientConnection.Connection;
+    return clientConnection;
 }
 
 func registerProcessor(processorName string, stream *axon_server.PlatformService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) error {

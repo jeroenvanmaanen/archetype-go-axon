@@ -5,14 +5,13 @@ import (
     errors "errors"
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-func SendCommand(commandType string, command proto.Message, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
+func SendCommand(commandType string, command proto.Message, clientConnection *ClientConnection) error {
     data, err := proto.Marshal(command)
     if err != nil {
         log.Printf("Server: Error while marshalling command: %v", commandType)
@@ -23,14 +22,16 @@ func SendCommand(commandType string, command proto.Message, conn *grpc.ClientCon
         Data: data,
     }
 
-    return submitCommand(&serializedCommand, conn, clientInfo)
+    return submitCommand(&serializedCommand, clientConnection)
 }
 
-func submitCommand(message *axon_server.SerializedObject, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
+func submitCommand(message *axon_server.SerializedObject, clientConnection *ClientConnection) error {
+    conn := clientConnection.Connection
     log.Printf("Submit command: %v: %v", message.Type, conn)
     client := axon_server.NewCommandServiceClient(conn)
     log.Printf("Submit command: Client: %v", client)
 
+    clientInfo := clientConnection.ClientInfo
     id := uuid.New()
     command := axon_server.Command {
         MessageIdentifier: id.String(),

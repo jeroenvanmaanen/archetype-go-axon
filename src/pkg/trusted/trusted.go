@@ -12,11 +12,9 @@ import (
     rsa "crypto/rsa"
     x509 "crypto/x509"
 
-    grpc "google.golang.org/grpc"
     jwt "github.com/pascaldekloe/jwt"
     ssh "golang.org/x/crypto/ssh"
 
-    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
@@ -70,7 +68,7 @@ func SetPrivateKey(name string, pemString string) error {
     return nil
 }
 
-func AddTrustedKey(request *grpc_example.TrustedKeyRequest, nonce []byte, conn *grpc.ClientConn, clientInfo *axon_server.ClientIdentification) error {
+func AddTrustedKey(request *grpc_example.TrustedKeyRequest, nonce []byte, clientConnection *axon_utils.ClientConnection) error {
     name := request.PublicKey.Name
     publicKey := request.PublicKey.PublicKey
     protoSignature := request.Signature
@@ -106,7 +104,7 @@ func AddTrustedKey(request *grpc_example.TrustedKeyRequest, nonce []byte, conn *
         command := grpc_example.RegisterKeyManagerCommand{
             PublicKey: request.PublicKey,
         }
-        e = axon_utils.SendCommand("RegisterKeyManagerCommand", &command, conn, clientInfo)
+        e = axon_utils.SendCommand("RegisterKeyManagerCommand", &command, clientConnection)
         if e != nil {
             log.Printf("Trusted: Error when sending RegisterKeyManagerCommand: %v", e)
         }
@@ -114,7 +112,7 @@ func AddTrustedKey(request *grpc_example.TrustedKeyRequest, nonce []byte, conn *
         command := grpc_example.RegisterTrustedKeyCommand{
             PublicKey: request.PublicKey,
         }
-        e = axon_utils.SendCommand("RegisterTrustedKeyCommand", &command, conn, clientInfo)
+        e = axon_utils.SendCommand("RegisterTrustedKeyCommand", &command, clientConnection)
         if e != nil {
             log.Printf("Trusted: Error when sending RegisterTrustedKeyCommand: %v", e)
         }

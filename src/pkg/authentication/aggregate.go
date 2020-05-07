@@ -3,7 +3,6 @@ package authentication
 import (
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -13,7 +12,7 @@ import (
 
 const AggregateIdentifier = "credentials-aggregate"
 
-func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     command := grpc_example.RegisterCredentialsCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
@@ -22,7 +21,7 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
         return
     }
 
-    projection := RestoreProjection(AggregateIdentifier, conn)
+    projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
     if CheckKnown(command.Credentials, projection) {
         axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
@@ -57,6 +56,6 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
         Data: data,
     }
 
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

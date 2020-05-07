@@ -3,7 +3,6 @@ package configuration
 import (
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -13,7 +12,7 @@ import (
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
-func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, conn *grpc.ClientConn) {
+func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     command := grpc_example.ChangePropertyCommand{}
     e := proto.Unmarshal(commandMessage.Payload.Data, &command)
     if (e != nil) {
@@ -22,7 +21,7 @@ func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axo
         return
     }
 
-    projection := RestoreProjection(AggregateIdentifier, conn)
+    projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
     key := command.Property.Key
     newValue := command.Property.Value
@@ -42,7 +41,7 @@ func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axo
             Type: "PropertyChangedEvent",
             Data: data,
         }
-        axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, conn)
+        axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
     }
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

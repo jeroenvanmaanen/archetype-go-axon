@@ -4,7 +4,6 @@ import (
     context "context"
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
@@ -17,24 +16,23 @@ import (
 
 var projection Projection
 
-func ProcessEvents(host string, port int) *grpc.ClientConn {
+func ProcessEvents(host string, port int) *axon_utils.ClientConnection {
     projection = Projection{
         Configuration: make(map[string]string),
     }
 
     clientConnection, stream := axon_utils.WaitForServer(host, port, "Configuration event processor")
     log.Printf("Connection and client info: %v: %v", clientConnection, stream)
-    conn := clientConnection.Connection
 
     processorName := "configuration-event-processor"
 
     if e := registerProcessor(processorName, stream, clientConnection.ClientInfo); e != nil {
-        return conn
+        return clientConnection
     }
 
     go eventProcessorWorker(stream, clientConnection, processorName)
 
-    return conn;
+    return clientConnection;
 }
 
 func registerProcessor(processorName string, stream *axon_server.PlatformService_OpenStreamClient, clientInfo *axon_server.ClientIdentification) error {

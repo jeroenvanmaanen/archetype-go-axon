@@ -5,10 +5,10 @@ import (
     io "io"
     log "log"
 
-    grpc "google.golang.org/grpc"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
+    axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -16,7 +16,8 @@ type Projection struct {
     Configuration map[string]string
 }
 
-func RestoreProjection(aggregateIdentifier string, conn *grpc.ClientConn) *Projection {
+func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
+    conn := clientConnection.Connection
     projection := Projection{
         Configuration: make(map[string]string),
     }
