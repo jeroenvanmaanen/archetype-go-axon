@@ -43,6 +43,10 @@ func RestoreProjection(label string, aggregateIdentifier string, projection inte
         if eventMessage.Payload != nil {
             payloadType := eventMessage.Payload.Type
             event := prepareUnmarshal(payloadType)
+            if event == nil {
+                log.Printf("%v Projection: unrecognized payload type: %v", label, payloadType)
+                continue
+            }
             e := proto.Unmarshal(eventMessage.Payload.Data, event.(proto.Message))
             if (e != nil) {
                 log.Printf("%v Projection: Could not unmarshal %v", label, eventMessage.Payload.Type)

@@ -10,7 +10,7 @@ import (
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
-const AggregateIdentifier = "trusted-keys-aggregate"
+const AggregateIdentifier = "configuration-aggregate"
 
 func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     command := grpc_example.ChangePropertyCommand{}
