@@ -11,7 +11,6 @@ import (
 )
 
 type SourceEvent interface {
-    GetEvent() proto.Message
     ApplyTo(projection interface{})
 }
 
@@ -44,7 +43,7 @@ func RestoreProjection(label string, aggregateIdentifier string, projection inte
         if eventMessage.Payload != nil {
             payloadType := eventMessage.Payload.Type
             event := prepareUnmarshal(payloadType)
-            e := proto.Unmarshal(eventMessage.Payload.Data, event.GetEvent())
+            e := proto.Unmarshal(eventMessage.Payload.Data, event.(proto.Message))
             if (e != nil) {
                 log.Printf("%v Projection: Could not unmarshal %v", label, eventMessage.Payload.Type)
             }
