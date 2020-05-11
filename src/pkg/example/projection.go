@@ -1,57 +1,56 @@
 package example
 
 import (
-    context "context"
-    io "io"
     log "log"
 
-    axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
+    grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
+
+// Redeclare event types, so that they can be extended with event handler methods.
+type StartedRecordingSourceEvent struct { grpc_example.StartedRecordingEvent }
+type StoppedRecordingSourceEvent struct { grpc_example.StoppedRecordingEvent }
+
+// Projection
 
 type Projection struct {
     Recording bool
 }
 
 func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
-    conn := clientConnection.Connection
-    projection := Projection{
+    projection := &Projection{
         Recording: true,
     }
-    log.Printf("Projection: %v", projection)
+    axon_utils.RestoreProjection("Example", aggregateIdentifier, projection, clientConnection, prepareUnmarshal)
+    log.Printf("Example is recording: %v", projection.Recording)
+    return projection
+}
 
-    eventStoreClient := axon_server.NewEventStoreClient(conn)
-    requestEvents := axon_server.GetAggregateEventsRequest {
-        AggregateId: aggregateIdentifier,
-        InitialSequence: 0,
-        AllowSnapshots: false,
-    }
-    log.Printf("Projection: Request events: %v", requestEvents)
-    client, e := eventStoreClient.ListAggregateEvents(context.Background(), &requestEvents)
-    if e != nil {
-        log.Printf("Projection: Error while requesting aggregate events: %v", e)
-        return nil
-    }
-    for {
-        eventMessage, e := client.Recv()
-        if e == io.EOF {
-            log.Printf("Projection: End of stream")
-            break
-        } else if e != nil {
-            log.Printf("Projection: Error while receiving next event: %v", e)
-            break
-        }
-        log.Printf("Projection: Received event: %v", eventMessage)
-        if eventMessage.Payload != nil {
-            log.Printf("Projection: Payload type: %v", eventMessage.Payload.Type)
-            payloadType := eventMessage.Payload.Type
-            if (payloadType == "StartedRecordingEvent") {
-                projection.Recording = true
-            } else if (payloadType == "StoppedRecordingEvent") {
-                projection.Recording = false
-            }
-        }
-    }
+func (projection *Projection) Apply(event axon_utils.SourceEvent) {
+    event.ApplyTo(projection)
+}
 
-    return &projection
+// Map an event name as stored in AxonServer to an object that has two aspects:
+// 1. It is a proto.Message, so it can be unmarshalled from the Axon event
+// 2. It is an axon_utils.SourceEvent, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
+    log.Printf("Example Projection: Payload type: %v", payloadType)
+    switch payloadType {
+        case "StartedRecordingEvent": sourceEvent = &StartedRecordingSourceEvent{}
+        case "StoppedRecordingEvent": sourceEvent = &StoppedRecordingSourceEvent{}
+        default: sourceEvent = nil
+    }
+    return sourceEvent
+}
+
+// Event Handlers
+
+func (sourceEvent *StartedRecordingSourceEvent) ApplyTo(projectionWrapper interface{}) {
+    projection := projectionWrapper.(*Projection)
+    projection.Recording = true
+}
+
+func (sourceEvent *StoppedRecordingSourceEvent) ApplyTo(projectionWrapper interface{}) {
+    projection := projectionWrapper.(*Projection)
+    projection.Recording = false
 }

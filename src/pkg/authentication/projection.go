@@ -18,11 +18,11 @@ type Projection struct {
 }
 
 func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
-    projection := Projection{
+    projection := &Projection{
         Credentials: make(map[string]string),
     }
     axon_utils.RestoreProjection("Authentication", aggregateIdentifier, projection, clientConnection, prepareUnmarshal)
-    return &projection
+    return projection
 }
 
 func (projection *Projection) Apply(event axon_utils.SourceEvent) {
@@ -45,11 +45,11 @@ func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
 // Event Handlers
 
 func (sourceEvent *CredentialsAddedSourceEvent) ApplyTo(projectionWrapper interface{}) {
-    projection := projectionWrapper.(Projection)
+    projection := projectionWrapper.(*Projection)
     projection.Credentials[sourceEvent.Credentials.Identifier] = sourceEvent.Credentials.Secret
 }
 
 func (sourceEvent *CredentialsRemovedSourceEvent) ApplyTo(projectionWrapper interface{}) {
-    projection := projectionWrapper.(Projection)
+    projection := projectionWrapper.(*Projection)
     projection.Credentials[sourceEvent.Identifier] = ""
 }
