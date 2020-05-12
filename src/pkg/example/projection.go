@@ -8,8 +8,8 @@ import (
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
-type StartedRecordingSourceEvent struct { grpc_example.StartedRecordingEvent }
-type StoppedRecordingSourceEvent struct { grpc_example.StoppedRecordingEvent }
+type StartedRecordingEvent struct { grpc_example.StartedRecordingEvent }
+type StoppedRecordingEvent struct { grpc_example.StoppedRecordingEvent }
 
 // Projection
 
@@ -26,31 +26,31 @@ func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.
     return projection
 }
 
-func (projection *Projection) Apply(event axon_utils.SourceEvent) {
+func (projection *Projection) Apply(event axon_utils.Event) {
     event.ApplyTo(projection)
 }
 
 // Map an event name as stored in AxonServer to an object that has two aspects:
 // 1. It is a proto.Message, so it can be unmarshalled from the Axon event
-// 2. It is an axon_utils.SourceEvent, so it can be applied to a projection
-func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
+// 2. It is an axon_utils.Event, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
     log.Printf("Example Projection: Payload type: %v", payloadType)
     switch payloadType {
-        case "StartedRecordingEvent": sourceEvent = &StartedRecordingSourceEvent{}
-        case "StoppedRecordingEvent": sourceEvent = &StoppedRecordingSourceEvent{}
-        default: sourceEvent = nil
+        case "StartedRecordingEvent": event = &StartedRecordingEvent{}
+        case "StoppedRecordingEvent": event = &StoppedRecordingEvent{}
+        default: event = nil
     }
-    return sourceEvent
+    return event
 }
 
 // Event Handlers
 
-func (sourceEvent *StartedRecordingSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *StartedRecordingEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
     projection.Recording = true
 }
 
-func (sourceEvent *StoppedRecordingSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *StoppedRecordingEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
     projection.Recording = false
 }

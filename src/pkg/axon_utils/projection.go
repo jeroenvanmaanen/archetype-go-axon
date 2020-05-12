@@ -10,11 +10,11 @@ import (
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-type SourceEvent interface {
+type Event interface {
     ApplyTo(projection interface{})
 }
 
-func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)SourceEvent) {
+func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)Event) {
     conn := clientConnection.Connection
     log.Printf("%v Projection: %v", label, projection)
 

@@ -8,7 +8,7 @@ import (
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
-type PropertyChangedSourceEvent struct { grpc_example.PropertyChangedEvent }
+type PropertyChangedEvent struct { grpc_example.PropertyChangedEvent }
 
 // Projection
 
@@ -24,25 +24,25 @@ func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.
     return projection
 }
 
-func (projection *Projection) Apply(event axon_utils.SourceEvent) {
+func (projection *Projection) Apply(event axon_utils.Event) {
     event.ApplyTo(projection)
 }
 
 // Map an event name as stored in AxonServer to an object that has two aspects:
 // 1. It is a proto.Message, so it can be unmarshalled from the Axon event
-// 2. It is an axon_utils.SourceEvent, so it can be applied to a projection
-func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
+// 2. It is an axon_utils.Event, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
     log.Printf("Configuration Projection: Payload type: %v", payloadType)
     switch payloadType {
-        case "PropertyChangedEvent": sourceEvent = &PropertyChangedSourceEvent{}
-        default: sourceEvent = nil
+        case "PropertyChangedEvent": event = &PropertyChangedEvent{}
+        default: event = nil
     }
-    return sourceEvent
+    return event
 }
 
 // Event Handlers
 
-func (sourceEvent *PropertyChangedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *PropertyChangedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.Configuration[sourceEvent.Property.Key] = sourceEvent.Property.Value
+    projection.Configuration[event.Property.Key] = event.Property.Value
 }

@@ -8,10 +8,10 @@ import (
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
-type TrustedKeyAddedSourceEvent   struct { grpc_example.TrustedKeyAddedEvent   }
-type TrustedKeyRemovedSourceEvent struct { grpc_example.TrustedKeyRemovedEvent }
-type KeyManagerAddedSourceEvent   struct { grpc_example.KeyManagerAddedEvent   }
-type KeyManagerRemovedSourceEvent struct { grpc_example.KeyManagerRemovedEvent }
+type TrustedKeyAddedEvent   struct { grpc_example.TrustedKeyAddedEvent   }
+type TrustedKeyRemovedEvent struct { grpc_example.TrustedKeyRemovedEvent }
+type KeyManagerAddedEvent   struct { grpc_example.KeyManagerAddedEvent   }
+type KeyManagerRemovedEvent struct { grpc_example.KeyManagerRemovedEvent }
 
 // Projection
 
@@ -29,43 +29,43 @@ func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.
     return projection
 }
 
-func (projection *Projection) Apply(event axon_utils.SourceEvent) {
+func (projection *Projection) Apply(event axon_utils.Event) {
     event.ApplyTo(projection)
 }
 
 // Map an event name as stored in AxonServer to an object that has two aspects:
 // 1. It is a proto.Message, so it can be unmarshalled from the Axon event
-// 2. It is an axon_utils.SourceEvent, so it can be applied to a projection
-func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
+// 2. It is an axon_utils.Event, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
     log.Printf("Configuration Projection: Payload type: %v", payloadType)
     switch payloadType {
-        case "TrustedKeyAddedEvent":   sourceEvent = &TrustedKeyAddedSourceEvent{}
-        case "TrustedKeyRemovedEvent": sourceEvent = &TrustedKeyRemovedSourceEvent{}
-        case "KeyManagerAddedEvent":   sourceEvent = &KeyManagerAddedSourceEvent{}
-        case "KeyManagerRemovedEvent": sourceEvent = &KeyManagerRemovedSourceEvent{}
-        default: sourceEvent = nil
+        case "TrustedKeyAddedEvent":   event = &TrustedKeyAddedEvent{}
+        case "TrustedKeyRemovedEvent": event = &TrustedKeyRemovedEvent{}
+        case "KeyManagerAddedEvent":   event = &KeyManagerAddedEvent{}
+        case "KeyManagerRemovedEvent": event = &KeyManagerRemovedEvent{}
+        default: event = nil
     }
-    return sourceEvent
+    return event
 }
 
 // Event Handlers
 
-func (sourceEvent *TrustedKeyAddedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *TrustedKeyAddedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.TrustedKeys[sourceEvent.PublicKey.Name] = sourceEvent.PublicKey.PublicKey
+    projection.TrustedKeys[event.PublicKey.Name] = event.PublicKey.PublicKey
 }
 
-func (sourceEvent *TrustedKeyRemovedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *TrustedKeyRemovedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.TrustedKeys[sourceEvent.Name] = ""
+    projection.TrustedKeys[event.Name] = ""
 }
 
-func (sourceEvent *KeyManagerAddedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *KeyManagerAddedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.KeyManagers[sourceEvent.PublicKey.Name] = sourceEvent.PublicKey.PublicKey
+    projection.KeyManagers[event.PublicKey.Name] = event.PublicKey.PublicKey
 }
 
-func (sourceEvent *KeyManagerRemovedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *KeyManagerRemovedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.KeyManagers[sourceEvent.Name] = ""
+    projection.KeyManagers[event.Name] = ""
 }

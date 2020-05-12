@@ -8,8 +8,8 @@ import (
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
-type CredentialsAddedSourceEvent   struct { grpc_example.CredentialsAddedEvent }
-type CredentialsRemovedSourceEvent struct { grpc_example.CredentialsRemovedEvent }
+type CredentialsAddedEvent   struct { grpc_example.CredentialsAddedEvent }
+type CredentialsRemovedEvent struct { grpc_example.CredentialsRemovedEvent }
 
 // Projection
 
@@ -25,31 +25,31 @@ func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.
     return projection
 }
 
-func (projection *Projection) Apply(event axon_utils.SourceEvent) {
+func (projection *Projection) Apply(event axon_utils.Event) {
     event.ApplyTo(projection)
 }
 
 // Map an event name as stored in AxonServer to an object that has two aspects:
 // 1. It is a proto.Message, so it can be unmarshalled from the Axon event
-// 2. It is an axon_utils.SourceEvent, so it can be applied to a projection
-func prepareUnmarshal(payloadType string) (sourceEvent axon_utils.SourceEvent) {
+// 2. It is an axon_utils.Event, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
     log.Printf("Credentials Projection: Payload type: %v", payloadType)
     switch payloadType {
-        case "CredentialsAddedEvent":   sourceEvent = &CredentialsAddedSourceEvent{}
-        case "CredentialsRemovedEvent": sourceEvent = &CredentialsRemovedSourceEvent{}
-        default: sourceEvent = nil
+        case "CredentialsAddedEvent":   event = &CredentialsAddedEvent{}
+        case "CredentialsRemovedEvent": event = &CredentialsRemovedEvent{}
+        default: event = nil
     }
-    return sourceEvent
+    return event
 }
 
 // Event Handlers
 
-func (sourceEvent *CredentialsAddedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *CredentialsAddedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.Credentials[sourceEvent.Credentials.Identifier] = sourceEvent.Credentials.Secret
+    projection.Credentials[event.Credentials.Identifier] = event.Credentials.Secret
 }
 
-func (sourceEvent *CredentialsRemovedSourceEvent) ApplyTo(projectionWrapper interface{}) {
+func (event *CredentialsRemovedEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)
-    projection.Credentials[sourceEvent.Identifier] = ""
+    projection.Credentials[event.Identifier] = ""
 }
