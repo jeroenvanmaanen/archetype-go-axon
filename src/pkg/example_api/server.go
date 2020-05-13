@@ -1,4 +1,4 @@
-package example
+package example_api
 
 import (
     context "context"

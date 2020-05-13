@@ -1,4 +1,4 @@
-package example
+package example_command
 
 import (
     context "context"

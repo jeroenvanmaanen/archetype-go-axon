@@ -10,7 +10,9 @@ import (
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
     configuration_query "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_query"
-    example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
+    example_api "github.com/jeroenvm/archetype-go-axon/src/pkg/example_api"
+    example_command "github.com/jeroenvm/archetype-go-axon/src/pkg/example_command"
+    example_query "github.com/jeroenvm/archetype-go-axon/src/pkg/example_query"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -45,20 +47,20 @@ func main() {
     }
 
     // Handle commands
-    commandHandlerConn := example.HandleCommands(host, port)
+    commandHandlerConn := example_command.HandleCommands(host, port)
     defer commandHandlerConn.Connection.Close()
 
     // Process Events
-    eventProcessorConn := example.ProcessEvents(host, port)
+    eventProcessorConn := example_query.ProcessEvents(host, port)
     defer eventProcessorConn.Connection.Close()
 
     configurationEventProcessorConn := configuration_query.ProcessEvents(host, port)
     defer configurationEventProcessorConn.Connection.Close()
 
     // Handle queries
-    queryHandlerConn := example.HandleQueries(host, port)
+    queryHandlerConn := example_query.HandleQueries(host, port)
     defer queryHandlerConn.Connection.Close()
 
     // Listen to incoming gRPC requests
-    axon_utils.Serve(clientConnection, example.RegisterWithServer)
+    axon_utils.Serve(clientConnection, example_api.RegisterWithServer)
 }
