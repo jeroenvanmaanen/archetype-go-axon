@@ -1,4 +1,4 @@
-package configuration
+package configuration_query
 
 import (
     context "context"
@@ -13,6 +13,21 @@ import (
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
+
+// Redeclare event types, so that they can be extended with event handler methods.
+type PropertyChangedEvent    struct { grpc_example.PropertyChangedEvent    }
+type TrustedKeyAddedEvent    struct { grpc_example.TrustedKeyAddedEvent    }
+type TrustedKeyRemovedEvent  struct { grpc_example.TrustedKeyRemovedEvent  }
+type KeyManagerAddedEvent    struct { grpc_example.KeyManagerAddedEvent    }
+type KeyManagerRemovedEvent  struct { grpc_example.KeyManagerRemovedEvent  }
+type CredentialsAddedEvent   struct { grpc_example.CredentialsAddedEvent   }
+type CredentialsRemovedEvent struct { grpc_example.CredentialsRemovedEvent }
+
+// Projection
+
+type Projection struct {
+    Configuration map[string]string
+}
 
 var projection Projection
 
@@ -71,6 +86,24 @@ func registerProcessor(processorName string, stream *axon_server.PlatformService
     return nil
 }
 
+// Map an event name as stored in AxonServer to an object that has two aspects:
+// 1. It is a proto.Message, so it can be unmarshalled from the Axon event
+// 2. It is an axon_utils.Event, so it can be applied to a projection
+func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
+    log.Printf("Configuration event processor: Payload type: %v", payloadType)
+    switch payloadType {
+        case "PropertyChangedEvent":    event = &PropertyChangedEvent{}
+        case "TrustedKeyAddedEvent":    event = &TrustedKeyAddedEvent{}
+        case "TrustedKeyRemovedEvent":  event = &TrustedKeyRemovedEvent{}
+        case "KeyManagerAddedEvent":    event = &KeyManagerAddedEvent{}
+        case "KeyManagerRemovedEvent":  event = &KeyManagerRemovedEvent{}
+        case "CredentialsAddedEvent":   event = &CredentialsAddedEvent{}
+        case "CredentialsRemovedEvent": event = &CredentialsRemovedEvent{}
+        default: event = nil
+    }
+    return event
+}
+
 func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, clientConnection *axon_utils.ClientConnection, processorName string) {
     conn := clientConnection.Connection
     clientInfo := clientConnection.ClientInfo
@@ -121,75 +154,64 @@ func eventProcessorWorker(stream *axon_server.PlatformService_OpenStreamClient, 
         }
 
         payloadType := eventMessage.Event.Payload.Type
-        if payloadType == "TrustedKeyAddedEvent" {
-            event := grpc_example.TrustedKeyAddedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of TrustedKeyAddedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of TrustedKeyAddedEvent event: %v", event)
-            trusted.UnsafeSetTrustedKey(event.PublicKey)
-        } else if payloadType == "TrustedKeyRemovedEvent" {
-            event := grpc_example.TrustedKeyRemovedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of TrustedKeyRemovedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of TrustedKeyRemovedEvent event: %v", event)
-            trusted.UnsafeSetTrustedKey(getEmptyPublicKey(event.Name))
-        } else if payloadType == "KeyManagerAddedEvent" {
-            event := grpc_example.KeyManagerAddedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of KeyManagerAddedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of KeyManagerAddedEvent event: %v", event)
-            trusted.UnsafeSetKeyManager(event.PublicKey)
-        } else if payloadType == "KeyManagerRemovedEvent" {
-            event := grpc_example.KeyManagerRemovedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of KeyManagerRemovedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of KeyManagerRemovedEvent event: %v", event)
-            trusted.UnsafeSetKeyManager(getEmptyPublicKey(event.Name))
-        } else if payloadType == "CredentialsAddedEvent" {
-            event := grpc_example.CredentialsAddedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of CredentialsAddedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of CredentialsAddedEvent event: %v", event)
-            authentication.UnsafeSetCredentials(event.Credentials)
-        } else if payloadType == "CredentialsRemovedEvent" {
-            event := grpc_example.CredentialsRemovedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of CredentialsRemovedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of CredentialsRemovedEvent event: %v", event)
-            emptyCredentials := grpc_example.Credentials{
-                Identifier: event.Identifier,
-                Secret: "",
-            }
-            authentication.UnsafeSetCredentials(&emptyCredentials)
-        } else if payloadType == "PropertyChangedEvent" {
-            event := grpc_example.PropertyChangedEvent{}
-            if e = proto.Unmarshal(eventMessage.Event.Payload.Data, &event); e != nil {
-                log.Printf("Configuration event processor worker: Unmarshalling of PropertyChangedEvent failed: %v", e)
-                return
-            }
-            log.Printf("Configuration event processor worker: Payload of PropertyChangedEvent event: %v", event)
-            projection.Configuration[event.Property.Key] = event.Property.Value
-        } else {
-            log.Printf("Configuration event processor worker: no processing necessary for payload type: %v", payloadType)
+        event := prepareUnmarshal(payloadType)
+        if event == nil {
+            log.Printf("Configuration event processor worker: Skipped unknown event: %v", payloadType)
+            continue
         }
+        if e = proto.Unmarshal(eventMessage.Event.Payload.Data, event.(proto.Message)); e != nil {
+            log.Printf("Configuration event processor worker: Unmarshalling of %v failed: %v", payloadType, e)
+            return
+        }
+        event.ApplyTo(&projection)
     }
 }
+
+// Event Handlers
+
+func (event *PropertyChangedEvent) ApplyTo(projectionWrapper interface{}) {
+    projection := projectionWrapper.(*Projection)
+    key := event.Property.Key
+    value := event.Property.Value
+    log.Printf("Configuration event handler: Set property: %v: %v", key, value)
+    projection.Configuration[key] = value
+}
+
+func (event *TrustedKeyAddedEvent) ApplyTo(projectionWrapper interface{}) {
+    trusted.UnsafeSetTrustedKey(event.PublicKey)
+}
+
+func (event *TrustedKeyRemovedEvent) ApplyTo(projectionWrapper interface{}) {
+    trusted.UnsafeSetTrustedKey(getEmptyPublicKey(event.Name))
+}
+
+func (event *KeyManagerAddedEvent) ApplyTo(projectionWrapper interface{}) {
+    trusted.UnsafeSetKeyManager(event.PublicKey)
+}
+
+func (event *KeyManagerRemovedEvent) ApplyTo(projectionWrapper interface{}) {
+    trusted.UnsafeSetKeyManager(getEmptyPublicKey(event.Name))
+}
+
+func (event *CredentialsAddedEvent) ApplyTo(projectionWrapper interface{}) {
+    authentication.UnsafeSetCredentials(event.Credentials)
+}
+
+func (event *CredentialsRemovedEvent) ApplyTo(projectionWrapper interface{}) {
+    emptyCredentials := grpc_example.Credentials{
+        Identifier: event.Identifier,
+        Secret: "",
+    }
+    authentication.UnsafeSetCredentials(&emptyCredentials)
+}
+
+// Public accessor
 
 func GetProperty(key string) string {
     return projection.Configuration[key]
 }
+
+// Helper functions
 
 func getEmptyPublicKey(name string) *grpc_example.PublicKey {
     return &grpc_example.PublicKey{

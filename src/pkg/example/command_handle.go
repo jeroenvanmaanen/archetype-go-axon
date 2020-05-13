@@ -9,7 +9,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
+    configuration_command "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_command"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
@@ -68,7 +68,7 @@ func commandWorker(stream axon_server.CommandService_OpenStreamClient, clientCon
             } else if (commandName == "RegisterCredentialsCommand") {
                 authentication.HandleRegisterCredentialsCommand(command, stream, clientConnection)
             } else if (commandName == "ChangePropertyCommand") {
-                configuration.HandleChangePropertyCommand(command, stream, clientConnection)
+                configuration_command.HandleChangePropertyCommand(command, stream, clientConnection)
             } else {
                 log.Printf("Received unknown command: %v", commandName)
             }

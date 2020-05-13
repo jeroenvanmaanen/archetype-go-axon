@@ -9,7 +9,7 @@ import (
     authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
-    configuration "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration"
+    configuration_query "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_query"
     example "github.com/jeroenvm/archetype-go-axon/src/pkg/example"
     trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
@@ -52,7 +52,7 @@ func main() {
     eventProcessorConn := example.ProcessEvents(host, port)
     defer eventProcessorConn.Connection.Close()
 
-    configurationEventProcessorConn := configuration.ProcessEvents(host, port)
+    configurationEventProcessorConn := configuration_query.ProcessEvents(host, port)
     defer configurationEventProcessorConn.Connection.Close()
 
     // Handle queries
