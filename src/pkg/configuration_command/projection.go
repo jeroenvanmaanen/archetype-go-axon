@@ -17,11 +17,13 @@ type Projection struct {
 }
 
 func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
-    projection := &Projection{
+    return axon_utils.RestoreProjection("Configuration", aggregateIdentifier, createInitialProjection, clientConnection, prepareUnmarshal).(*Projection)
+}
+
+func createInitialProjection() interface{} {
+    return &Projection{
         Configuration: make(map[string]string),
     }
-    axon_utils.RestoreProjection("Configuration", aggregateIdentifier, projection, clientConnection, prepareUnmarshal)
-    return projection
 }
 
 func (projection *Projection) Apply(event axon_utils.Event) {

@@ -14,8 +14,9 @@ type Event interface {
     ApplyTo(projection interface{})
 }
 
-func RestoreProjection(label string, aggregateIdentifier string, projection interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)Event) {
+func RestoreProjection(label string, aggregateIdentifier string, createInitialProjection func()interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)Event) interface{} {
     conn := clientConnection.Connection
+    projection := createInitialProjection()
     log.Printf("%v Projection: %v", label, projection)
 
     eventStoreClient := axon_server.NewEventStoreClient(conn)
@@ -28,7 +29,7 @@ func RestoreProjection(label string, aggregateIdentifier string, projection inte
     client, e := eventStoreClient.ListAggregateEvents(context.Background(), &requestEvents)
     if e != nil {
         log.Printf("%v Projection: Error while requesting aggregate events: %v", label, e)
-        return
+        return nil
     }
     for {
         eventMessage, e := client.Recv()
@@ -54,4 +55,5 @@ func RestoreProjection(label string, aggregateIdentifier string, projection inte
             event.ApplyTo(projection)
         }
     }
+    return projection
 }

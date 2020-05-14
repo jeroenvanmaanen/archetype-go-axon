@@ -18,12 +18,15 @@ type Projection struct {
 }
 
 func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
-    projection := &Projection{
-        Recording: true,
-    }
-    axon_utils.RestoreProjection("Example", aggregateIdentifier, projection, clientConnection, prepareUnmarshal)
+    projection := axon_utils.RestoreProjection("Example", aggregateIdentifier, createInitialProjection, clientConnection, prepareUnmarshal).(*Projection)
     log.Printf("Example is recording: %v", projection.Recording)
     return projection
+}
+
+func createInitialProjection() interface{} {
+    return &Projection{
+        Recording: true,
+    }
 }
 
 func (projection *Projection) Apply(event axon_utils.Event) {
