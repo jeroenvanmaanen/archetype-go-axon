@@ -30,7 +30,8 @@ func ProcessEvents(host string, port int) *axon_utils.ClientConnection {
     projection = Projection{
         Configuration: make(map[string]string),
     }
-    return axon_utils.ProcessEvents("Configuration", host, port, "configuration-event-processor", &projection, prepareUnmarshal)
+    tokenStore := &axon_utils.NullTokenStore{}
+    return axon_utils.ProcessEvents("Configuration", host, port, "configuration-event-processor", &projection, prepareUnmarshal, tokenStore)
 }
 
 // Map an event name as stored in AxonServer to an object that has two aspects:

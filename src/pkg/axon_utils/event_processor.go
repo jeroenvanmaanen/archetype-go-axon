@@ -10,7 +10,7 @@ import (
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
-func ProcessEvents(labelPrefix string, host string, port int, processorName string, projection interface{}, prepareUnmarshal func (payloadType string)Event) *ClientConnection {
+func ProcessEvents(labelPrefix string, host string, port int, processorName string, projection interface{}, prepareUnmarshal func (payloadType string)Event, tokenStore TokenStore) *ClientConnection {
     label := labelPrefix + " event processor"
 
     clientConnection, stream := WaitForServer(host, port, label)
@@ -20,7 +20,7 @@ func ProcessEvents(labelPrefix string, host string, port int, processorName stri
         return clientConnection
     }
 
-    go eventProcessorWorker(label + " worker", stream, clientConnection, processorName, projection, prepareUnmarshal)
+    go eventProcessorWorker(label + " worker", stream, clientConnection, processorName, projection, prepareUnmarshal, tokenStore)
 
     return clientConnection;
 }
@@ -61,10 +61,11 @@ func registerProcessor(label string, processorName string, stream *axon_server.P
     return nil
 }
 
-func eventProcessorWorker(label string, stream *axon_server.PlatformService_OpenStreamClient, clientConnection *ClientConnection, processorName string, projection interface{}, prepareUnmarshal func (payloadType string)Event) {
+func eventProcessorWorker(label string, stream *axon_server.PlatformService_OpenStreamClient, clientConnection *ClientConnection, processorName string, projection interface{}, prepareUnmarshal func (payloadType string)Event, tokenStore TokenStore) {
     conn := clientConnection.Connection
     clientInfo := clientConnection.ClientInfo
-    var token *int64
+
+    token := tokenStore.ReadToken()
 
     eventStoreClient := axon_server.NewEventStoreClient(conn)
     log.Printf("%v: Event store client: %v", label, eventStoreClient)
@@ -121,6 +122,12 @@ func eventProcessorWorker(label string, stream *axon_server.PlatformService_Open
             return
         }
         event.ApplyTo(projection)
+
+        e = tokenStore.WriteToken(getEventsRequest.TrackingToken)
+        if e != nil {
+            log.Printf("%v: Error while writing token: %v", label, e)
+            return
+        }
     }
 }
 

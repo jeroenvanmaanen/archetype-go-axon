@@ -11,6 +11,7 @@ import (
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
     axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
+    elastic_search_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/elastic_search_utils"
     grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
@@ -58,7 +59,7 @@ func querySubscribe(queryName string, stream axon_server.QueryService_OpenStream
 
 func queryWorker(stream axon_server.QueryService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
     clientId := clientConnection.ClientInfo.ClientId
-    es7 := WaitForElasticSearch();
+    es7 := elastic_search_utils.WaitForElasticSearch();
     log.Printf("Query handler: Elastic Search client: %v", es7)
 
     for true {
@@ -101,7 +102,7 @@ func handleSearchQuery(axonQuery *axon_server.QueryRequest, stream axon_server.Q
     if e != nil {
         return
     }
-    result, e := unwrapElasticSearchResponse(response)
+    result, e := elastic_search_utils.UnwrapElasticSearchResponse(response)
     log.Printf("Query handler: result: %v", result)
     hitsWrapper := result["hits"].(map[string](interface{}))
     log.Printf("Query handler: hits: %v", hitsWrapper)

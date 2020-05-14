@@ -1,4 +1,4 @@
-package example_query
+package elastic_search_utils
 
 import (
     context "context"
@@ -43,7 +43,7 @@ func waitForStatusReady(es7 *elasticSearch7.Client) {
         statsRequest := esapi.ClusterStatsRequest{}
         statsResponse, e := statsRequest.Do(context.Background(), es7)
         if e == nil {
-            stats, e := unwrapElasticSearchResponse(statsResponse)
+            stats, e := UnwrapElasticSearchResponse(statsResponse)
             if e == nil {
                 status = stats["status"].(string)
                 if status != "red" {
@@ -66,7 +66,7 @@ func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {
     }
     log.Printf("Elastic Search: info: %v", info)
 
-    result, e := unwrapElasticSearchResponse(info)
+    result, e := UnwrapElasticSearchResponse(info)
     if e != nil {
         return e
     }
@@ -78,7 +78,7 @@ func getElasticSearchInfo(es7 *elasticSearch7.Client) error  {
     return nil
 }
 
-func unwrapElasticSearchResponse(response *esapi.Response) (map[string](interface{}), error) {
+func UnwrapElasticSearchResponse(response *esapi.Response) (map[string](interface{}), error) {
     if response.IsError() {
         log.Printf("Error: %s", response.String())
         return nil, errors.New("Elastic Search error: " + response.String())
@@ -99,7 +99,7 @@ func unwrapElasticSearchResponse(response *esapi.Response) (map[string](interfac
     return result, nil
 }
 
-func addToIndex(indexName string, id string, body string, es7 *elasticSearch7.Client) error {
+func AddToIndex(indexName string, id string, body string, es7 *elasticSearch7.Client) error {
     log.Printf("Add to index: %s: Document ID: %v", indexName, id)
 
     // Set up the request object.
