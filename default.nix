@@ -8,5 +8,5 @@ buildGoModule {
   src = nix-gitignore.gitignoreSource [] ./.;
   goPackagePath = "github.com/jeroenvm/archetype-go-axon";
   goDeps = ./deps.nix;
-  modSha256 = "0fli1cnh6y5i8aww43i80kchd2sz1wmcd55hycr0mq0cnqpvzmzv";
+  modSha256 = "1c6j9fs95nghnmlawc1gyvzrkgb6kra5vsnnx14yaj627w2ip3mj";
 }

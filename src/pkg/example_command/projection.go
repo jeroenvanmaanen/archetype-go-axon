@@ -8,6 +8,7 @@ import (
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
+type GreetedEvent          struct { grpc_example.GreetedEvent          }
 type StartedRecordingEvent struct { grpc_example.StartedRecordingEvent }
 type StoppedRecordingEvent struct { grpc_example.StoppedRecordingEvent }
 
@@ -47,6 +48,8 @@ func prepareUnmarshal(payloadType string) (event axon_utils.Event) {
 }
 
 // Event Handlers
+
+func (event *GreetedEvent) ApplyTo(projectionWrapper interface{}) {}
 
 func (event *StartedRecordingEvent) ApplyTo(projectionWrapper interface{}) {
     projection := projectionWrapper.(*Projection)

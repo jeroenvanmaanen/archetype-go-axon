@@ -4,22 +4,41 @@ import (
     context "context"
     io "io"
     log "log"
+    time "time"
 
+    go_cache "github.com/patrickmn/go-cache"
     proto "github.com/golang/protobuf/proto"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
 
 type Event interface {
+    proto.Message
     ApplyTo(projection interface{})
 }
 
+var cache *go_cache.Cache
+
+func InitializeCache() {
+    expireDuration, _ := time.ParseDuration("5m")
+    cleanupInterval, _ := time.ParseDuration("10s")
+    cache = go_cache.New(expireDuration, cleanupInterval)
+}
+
 func RestoreProjection(label string, aggregateIdentifier string, createInitialProjection func()interface{}, clientConnection *ClientConnection, prepareUnmarshal func (payloadType string)Event) interface{} {
-    conn := clientConnection.Connection
-    projection := createInitialProjection()
+    var projection interface{}
+    if cache != nil {
+        projection, found := cache.Get(aggregateIdentifier)
+        if found {
+            log.Printf("Restore projection: cache hit: %v", aggregateIdentifier)
+            return projection
+        }
+    }
+
+    projection = createInitialProjection()
     log.Printf("%v Projection: %v", label, projection)
 
-    eventStoreClient := axon_server.NewEventStoreClient(conn)
+    eventStoreClient := axon_server.NewEventStoreClient(clientConnection.Connection)
     requestEvents := axon_server.GetAggregateEventsRequest {
         AggregateId: aggregateIdentifier,
         InitialSequence: 0,
@@ -54,6 +73,9 @@ func RestoreProjection(label string, aggregateIdentifier string, createInitialPr
             }
             event.ApplyTo(projection)
         }
+    }
+    if cache != nil {
+        cache.SetDefault(aggregateIdentifier, projection)
     }
     return projection
 }

@@ -89,20 +89,12 @@ func handleGreetCommand(command *axon_server.Command, stream axon_server.Command
         return
     }
 
-    event := grpc_example.GreetedEvent {
-        Message: deserializedCommand.Message,
+    event := &GreetedEvent{
+        grpc_example.GreetedEvent {
+            Message: deserializedCommand.Message,
+        },
     }
-    data, err := proto.Marshal(&event)
-    if err != nil {
-        log.Printf("Server: Error while marshalling event")
-        return
-    }
-    serializedEvent := axon_server.SerializedObject{
-        Type: "GreetedEvent",
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, clientConnection)
+    axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
     axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
@@ -112,18 +104,11 @@ func handleRecordCommand(command *axon_server.Command, stream axon_server.Comman
     if (e != nil) {
         log.Printf("Could not unmarshal RecordCommand")
     }
-    event := grpc_example.StartedRecordingEvent {}
-    data, err := proto.Marshal(&event)
-    if err != nil {
-        log.Printf("Server: Error while marshalling event")
-        return
+    projection := RestoreProjection(deserializedCommand.AggregateIdentifier, clientConnection)
+    if !projection.Recording {
+        event := &StartedRecordingEvent{grpc_example.StartedRecordingEvent {},}
+        axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
     }
-    serializedEvent := axon_server.SerializedObject{
-        Type: "StartedRecordingEvent",
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, clientConnection)
     axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }
 
@@ -133,17 +118,10 @@ func handleStopCommand(command *axon_server.Command, stream axon_server.CommandS
     if (e != nil) {
         log.Printf("Could not unmarshal StopCommand")
     }
-    event := grpc_example.StoppedRecordingEvent {}
-    data, err := proto.Marshal(&event)
-    if err != nil {
-        log.Printf("Server: Error while marshalling event")
-        return
+    projection := RestoreProjection(deserializedCommand.AggregateIdentifier, clientConnection)
+    if projection.Recording {
+        event := &StoppedRecordingEvent{grpc_example.StoppedRecordingEvent {},}
+        axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
     }
-    serializedEvent := axon_server.SerializedObject{
-        Type: "StoppedRecordingEvent",
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, deserializedCommand.AggregateIdentifier, clientConnection)
     axon_utils.CommandRespond(stream, command.MessageIdentifier)
 }

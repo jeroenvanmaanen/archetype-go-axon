@@ -29,33 +29,23 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
     }
 
     var eventType string
-    var data []byte
+    var event axon_utils.Event
     if len(command.Credentials.Secret) > 0 {
         eventType = "CredentialsAddedEvent"
-        event := grpc_example.CredentialsAddedEvent{
-            Credentials: command.Credentials,
+        event = &CredentialsAddedEvent{
+            grpc_example.CredentialsAddedEvent{
+                Credentials: command.Credentials,
+            },
         }
-        log.Printf("Credentials aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     } else {
         eventType = "CredentialsRemovedEvent"
-        event := grpc_example.CredentialsRemovedEvent{
-            Identifier: command.Credentials.Identifier,
+        event = &CredentialsRemovedEvent{
+            grpc_example.CredentialsRemovedEvent{
+                Identifier: command.Credentials.Identifier,
+            },
         }
-        log.Printf("Credentials aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     }
-
-    if e != nil {
-        log.Printf("Server: Error while marshalling event: %v", e)
-        axon_utils.ReportError(stream, commandMessage.MessageIdentifier, "EX001", "Error while marshalling event")
-        return
-    }
-    serializedEvent := axon_server.SerializedObject{
-        Type: eventType,
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
+    log.Printf("Credentials aggregate: emit: %v: %v", eventType, event)
+    axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

@@ -28,20 +28,13 @@ func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axo
     oldValue := projection.Configuration[key]
 
     if newValue != oldValue {
-        event := grpc_example.PropertyChangedEvent{
-            Property: command.Property,
+        event := &PropertyChangedEvent{
+            grpc_example.PropertyChangedEvent{
+                Property: command.Property,
+            },
         }
-        log.Printf("Trusted aggregate: emit: %v", event)
-        data, e := proto.Marshal(&event)
-        if e != nil {
-            log.Printf("Server: Error while marshalling event: %v", e)
-            return
-        }
-        serializedEvent := axon_server.SerializedObject{
-            Type: "PropertyChangedEvent",
-            Data: data,
-        }
-        axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
+        log.Printf("Trusted aggregate: emit: %v: %v", event)
+        axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
     }
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

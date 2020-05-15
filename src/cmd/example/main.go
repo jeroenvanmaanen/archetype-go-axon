@@ -46,6 +46,9 @@ func main() {
         panic(fmt.Sprintf("Error sending clientInfo %v", e))
     }
 
+    // Initialize cache
+    axon_utils.InitializeCache()
+
     // Handle commands
     commandHandlerConn := example_command.HandleCommands(host, port)
     defer commandHandlerConn.Connection.Close()

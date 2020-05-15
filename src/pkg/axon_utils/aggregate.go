@@ -4,8 +4,10 @@ import (
     context "context"
     fmt "fmt"
     log "log"
+    reflect "reflect"
     time "time"
 
+    proto "github.com/golang/protobuf/proto"
     uuid "github.com/google/uuid"
 
     axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
@@ -19,7 +21,7 @@ func SubscribeCommand(commandName string, stream axon_server.CommandService_Open
         ClientId: clientInfo.ClientId,
         ComponentName: clientInfo.ComponentName,
     }
-    log.Printf("Command handler: Subscription: %v", subscription)
+    log.Printf("Subscribe command: Subscription: %v", subscription)
     subscriptionRequest := axon_server.CommandProviderOutbound_Subscribe {
         Subscribe: &subscription,
     }
@@ -30,11 +32,23 @@ func SubscribeCommand(commandName string, stream axon_server.CommandService_Open
 
     e := stream.Send(&outbound)
     if e != nil {
-        panic(fmt.Sprintf("Command handler: Error sending subscription", e))
+        panic(fmt.Sprintf("Subscribe command: Error sending subscription", e))
     }
 }
 
-func AppendEvent(message *axon_server.SerializedObject, aggregateId string, clientConnection *ClientConnection) {
+func AppendEvent(event Event, aggregateId string, projection interface{}, clientConnection *ClientConnection) {
+    log.Printf("Append event: event type kind: %v", reflect.TypeOf(event).Kind())
+    eventType := reflect.TypeOf(event).Elem().Name()
+    log.Printf("Append event: %v: %v", aggregateId, eventType)
+    data, e := proto.Marshal(event)
+    if e != nil {
+        panic(fmt.Sprintf("Append event: could not marshal event: %v: %v", aggregateId, eventType))
+    }
+    message := &axon_server.SerializedObject{
+        Type: eventType,
+        Data: data,
+    }
+
     conn := clientConnection.Connection
     client := axon_server.NewEventStoreClient(conn)
 
@@ -42,22 +56,22 @@ func AppendEvent(message *axon_server.SerializedObject, aggregateId string, clie
         AggregateId: aggregateId,
         FromSequenceNr: 0,
     }
-    log.Printf("Command handler: Read highest sequence-nr request: %v", readRequest)
+    log.Printf("Append event: Read highest sequence-nr request: %v", readRequest)
 
     response, e := client.ReadHighestSequenceNr(context.Background(), &readRequest);
     if (e != nil) {
-        log.Fatalf("Command handler: Error while reading highest sequence-nr: %v", e)
+        log.Fatalf("Append event: Error while reading highest sequence-nr: %v", e)
         return
     }
 
-    log.Printf("Command handler: Response: %v", response)
+    log.Printf("Append event: Response: %v", response)
     next := response.ToSequenceNr + 1;
-    log.Printf("Command handler: Next sequence number: %v", next)
+    log.Printf("Append event: Next sequence number: %v", next)
 
     timestamp := time.Now().UnixNano() / 1000000
 
     id := uuid.New()
-    event := axon_server.Event {
+    event_message := axon_server.Event {
         MessageIdentifier: id.String(),
         AggregateIdentifier: aggregateId,
         AggregateSequenceNumber: next,
@@ -66,27 +80,28 @@ func AppendEvent(message *axon_server.SerializedObject, aggregateId string, clie
         Snapshot: false,
         Payload: message,
     }
-    log.Printf("Command handler: Event: %v", event)
+    log.Printf("Append event: Event: %v", event_message)
 
     stream, e := client.AppendEvent(context.Background())
     if (e != nil) {
-        log.Fatalf("Command handler: Error while preparing to append event: %v", e)
+        log.Fatalf("Append event: Error while preparing to append event: %v", e)
         return
     }
 
-    e = stream.Send(&event)
+    e = stream.Send(&event_message)
     if (e != nil) {
-        log.Fatalf("Command handler: Error while sending event: %v", e)
+        log.Fatalf("Append event: Error while sending event: %v", e)
         return
     }
 
     confirmation, e := stream.CloseAndRecv()
     if (e != nil) {
-        log.Fatalf("Command handler: Error while sending event: %v", e)
+        log.Fatalf("Append event: Error while sending event: %v", e)
         return
     }
 
-    log.Printf("Command handler: Confirmation: %v", confirmation)
+    log.Printf("Append event: Confirmation: %v", confirmation)
+    event.ApplyTo(projection)
 }
 
 func CommandRespond(stream axon_server.CommandService_OpenStreamClient, requestId string) {
@@ -95,7 +110,7 @@ func CommandRespond(stream axon_server.CommandService_OpenStreamClient, requestI
         MessageIdentifier: id.String(),
         RequestIdentifier: requestId,
     }
-    log.Printf("Command handler: Command response: %v", commandResponse)
+    log.Printf("Command respond: Command response: %v", commandResponse)
     commandResponseRequest := axon_server.CommandProviderOutbound_CommandResponse {
         CommandResponse: &commandResponse,
     }
@@ -106,7 +121,7 @@ func CommandRespond(stream axon_server.CommandService_OpenStreamClient, requestI
 
     e := stream.Send(&outbound)
     if e != nil {
-        panic(fmt.Sprintf("Command handler: Error sending command response", e))
+        panic(fmt.Sprintf("Command respond: Error sending command response", e))
     }
 }
 

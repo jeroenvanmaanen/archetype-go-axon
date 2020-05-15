@@ -29,33 +29,24 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
     }
 
     var eventType string
-    var data []byte
+    var event axon_utils.Event
     if len(newValue) > 0 {
         eventType = "TrustedKeyAddedEvent"
-        event := grpc_example.TrustedKeyAddedEvent{
-            PublicKey: command.PublicKey,
+        event = &TrustedKeyAddedEvent{
+            grpc_example.TrustedKeyAddedEvent{
+                PublicKey: command.PublicKey,
+            },
         }
-        log.Printf("Trusted aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     } else {
         eventType = "TrustedKeyRemovedEvent"
-        event := grpc_example.TrustedKeyRemovedEvent{
-            Name: command.PublicKey.Name,
+        event = &TrustedKeyRemovedEvent{
+            grpc_example.TrustedKeyRemovedEvent{
+                Name: command.PublicKey.Name,
+            },
         }
-        log.Printf("Trusted aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     }
-
-    if e != nil {
-        log.Printf("Server: Error while marshalling event: %v", e)
-        return
-    }
-    serializedEvent := axon_server.SerializedObject{
-        Type: eventType,
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
+    log.Printf("Trusted aggregate: emit: %v: %v", eventType, event)
+    axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }
 
@@ -75,32 +66,23 @@ func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream
     }
 
     var eventType string
-    var data []byte
+    var event axon_utils.Event
     if len(newValue) > 0 {
         eventType = "KeyMangerAddedEvent"
-        event := grpc_example.KeyManagerAddedEvent{
-            PublicKey: command.PublicKey,
+        event = &KeyManagerAddedEvent{
+            grpc_example.KeyManagerAddedEvent{
+                PublicKey: command.PublicKey,
+            },
         }
-        log.Printf("Trusted aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     } else {
         eventType = "KeyManagerRemovedEvent"
-        event := grpc_example.KeyManagerRemovedEvent{
-            Name: command.PublicKey.Name,
+        event = &KeyManagerRemovedEvent{
+            grpc_example.KeyManagerRemovedEvent{
+                Name: command.PublicKey.Name,
+            },
         }
-        log.Printf("Trusted aggregate: emit: %v", event)
-        data, e = proto.Marshal(&event)
     }
-
-    if e != nil {
-        log.Printf("Server: Error while marshalling event: %v", e)
-        return
-    }
-    serializedEvent := axon_server.SerializedObject{
-        Type: eventType,
-        Data: data,
-    }
-
-    axon_utils.AppendEvent(&serializedEvent, AggregateIdentifier, clientConnection)
+    log.Printf("Trusted aggregate: emit: %v: %v", eventType, event)
+    axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
     axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
 }

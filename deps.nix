@@ -118,6 +118,15 @@
     };
   }
   {
+    goPackagePath = "github.com/patrickmn/go-cache";
+    fetch = {
+      type = "git";
+      url = "https://github.com/patrickmn/go-cache";
+      rev = "v2.1.0";
+      sha256 = "10020inkzrm931r4bixf8wqr9n39wcrb78vfyxmbvjavvw4zybgs";
+    };
+  }
+  {
     goPackagePath = "github.com/prometheus/client_model";
     fetch = {
       type = "git";
