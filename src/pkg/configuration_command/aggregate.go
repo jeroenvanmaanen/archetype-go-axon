@@ -12,13 +12,12 @@ import (
 
 const AggregateIdentifier = "configuration-aggregate"
 
-func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.ChangePropertyCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
 		log.Printf("Could not unmarshal ChangePropertyCommand")
-		axon_utils.ReportError(stream, commandMessage.MessageIdentifier, "EX001", "Could not unmarshal ChangePropertyCommand")
-		return
+		return nil, e
 	}
 
 	projection := RestoreProjection(AggregateIdentifier, clientConnection)
@@ -34,7 +33,7 @@ func HandleChangePropertyCommand(commandMessage *axon_server.Command, stream axo
 			},
 		}
 		log.Printf("Trusted aggregate: emit: %v", event)
-		axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
+		return axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
 	}
-	axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
+	return nil, nil
 }

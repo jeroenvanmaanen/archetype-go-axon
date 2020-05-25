@@ -17,12 +17,37 @@ type Event interface {
 	ApplyTo(projection interface{})
 }
 
+type CachedProjection interface {
+	GetAggregateState() AggregateState
+}
+
+type AggregateState interface {
+	GetSequenceNumber() int64
+	SetSequenceNumber(int64)
+}
+
+type aggregateState struct {
+	sequenceNumber int64
+}
+
 var cache *go_cache.Cache
 
 func InitializeCache() {
 	expireDuration, _ := time.ParseDuration("5m")
 	cleanupInterval, _ := time.ParseDuration("10s")
 	cache = go_cache.New(expireDuration, cleanupInterval)
+}
+
+func (s *aggregateState) GetSequenceNumber() int64 {
+	return s.sequenceNumber
+}
+
+func (s *aggregateState) SetSequenceNumber(n int64) {
+	s.sequenceNumber = n
+}
+
+func NewAggregateState() AggregateState {
+	return &aggregateState{sequenceNumber: 0}
 }
 
 func RestoreProjection(label string, aggregateIdentifier string, createInitialProjection func() interface{}, clientConnection *ClientConnection, prepareUnmarshal func(payloadType string) Event) interface{} {
@@ -50,6 +75,7 @@ func RestoreProjection(label string, aggregateIdentifier string, createInitialPr
 		log.Printf("%v Projection: Error while requesting aggregate events: %v", label, e)
 		return nil
 	}
+	var lastSequenceNumber int64
 	for {
 		eventMessage, e := client.Recv()
 		if e == io.EOF {
@@ -73,9 +99,20 @@ func RestoreProjection(label string, aggregateIdentifier string, createInitialPr
 			}
 			event.ApplyTo(projection)
 		}
+		lastSequenceNumber = eventMessage.AggregateSequenceNumber
 	}
 	if cache != nil {
+		switch p := projection.(type) {
+		case CachedProjection:
+			p.GetAggregateState().SetSequenceNumber(lastSequenceNumber)
+		}
 		cache.SetDefault(aggregateIdentifier, projection)
 	}
 	return projection
+}
+
+func cacheEvict(aggregateIdentifier string) {
+	if cache != nil {
+		cache.Delete(aggregateIdentifier)
+	}
 }

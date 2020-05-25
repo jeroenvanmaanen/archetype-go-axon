@@ -34,49 +34,34 @@ func HandleCommands(host string, port int) *axon_utils.ClientConnection {
 	axon_utils.SubscribeCommand("RegisterCredentialsCommand", stream, clientInfo)
 	axon_utils.SubscribeCommand("ChangePropertyCommand", stream, clientInfo)
 
-	go commandWorker(stream, clientConnection)
+	go axon_utils.CommandWorker(stream, clientConnection, commandDispatch)
 
 	return clientConnection
 }
 
-func commandWorker(stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
-	clientId := clientConnection.ClientInfo.ClientId
-	for true {
-		axon_utils.CommandAddPermits(1, stream, clientId)
-
-		log.Printf("Command handler: Waiting for command")
-		inbound, e := stream.Recv()
-		if e != nil {
-			log.Printf("Command handler: Error on receive: %v", e)
-			break
-		}
-		log.Printf("Command handler: Inbound: %v", inbound)
-		command := inbound.GetCommand()
-		if command != nil {
-			commandName := command.Name
-			log.Printf("Received %v", commandName)
-			if commandName == "GreetCommand" {
-				handleGreetCommand(command, stream, clientConnection)
-			} else if commandName == "RecordCommand" {
-				handleRecordCommand(command, stream, clientConnection)
-			} else if commandName == "StopCommand" {
-				handleStopCommand(command, stream, clientConnection)
-			} else if commandName == "RegisterTrustedKeyCommand" {
-				trusted.HandleRegisterTrustedKeyCommand(command, stream, clientConnection)
-			} else if commandName == "RegisterKeyManagerCommand" {
-				trusted.HandleRegisterKeyManagerCommand(command, stream, clientConnection)
-			} else if commandName == "RegisterCredentialsCommand" {
-				authentication.HandleRegisterCredentialsCommand(command, stream, clientConnection)
-			} else if commandName == "ChangePropertyCommand" {
-				configuration_command.HandleChangePropertyCommand(command, stream, clientConnection)
-			} else {
-				log.Printf("Received unknown command: %v", commandName)
-			}
-		}
+func commandDispatch(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+	commandName := command.Name
+	if commandName == "GreetCommand" {
+		return handleGreetCommand(command, stream, clientConnection)
+	} else if commandName == "RecordCommand" {
+		return handleRecordCommand(command, stream, clientConnection)
+	} else if commandName == "StopCommand" {
+		return handleStopCommand(command, stream, clientConnection)
+	} else if commandName == "RegisterTrustedKeyCommand" {
+		return trusted.HandleRegisterTrustedKeyCommand(command, stream, clientConnection)
+	} else if commandName == "RegisterKeyManagerCommand" {
+		return trusted.HandleRegisterKeyManagerCommand(command, stream, clientConnection)
+	} else if commandName == "RegisterCredentialsCommand" {
+		return authentication.HandleRegisterCredentialsCommand(command, stream, clientConnection)
+	} else if commandName == "ChangePropertyCommand" {
+		return configuration_command.HandleChangePropertyCommand(command, stream, clientConnection)
+	} else {
+		log.Printf("Received unknown command: %v", commandName)
 	}
+	return nil, nil
 }
 
-func handleGreetCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func handleGreetCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.GreetCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {
@@ -85,8 +70,11 @@ func handleGreetCommand(command *axon_server.Command, stream axon_server.Command
 
 	projection := RestoreProjection(deserializedCommand.AggregateIdentifier, clientConnection)
 	if !projection.Recording {
-		axon_utils.ReportError(stream, command.MessageIdentifier, "EX001", "Not recording: "+deserializedCommand.AggregateIdentifier)
-		return
+		return &axon_utils.Error{
+			Code:                "EX001",
+			Message:             "Not recording: " + deserializedCommand.AggregateIdentifier,
+			AggregateIdentifier: deserializedCommand.AggregateIdentifier,
+		}, nil
 	}
 
 	event := &GreetedEvent{
@@ -94,11 +82,10 @@ func handleGreetCommand(command *axon_server.Command, stream axon_server.Command
 			Message: deserializedCommand.Message,
 		},
 	}
-	axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
-	axon_utils.CommandRespond(stream, command.MessageIdentifier)
+	return axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
 }
 
-func handleRecordCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func handleRecordCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.RecordCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {
@@ -107,12 +94,12 @@ func handleRecordCommand(command *axon_server.Command, stream axon_server.Comman
 	projection := RestoreProjection(deserializedCommand.AggregateIdentifier, clientConnection)
 	if !projection.Recording {
 		event := &StartedRecordingEvent{grpc_example.StartedRecordingEvent{}}
-		axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
+		return axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
 	}
-	axon_utils.CommandRespond(stream, command.MessageIdentifier)
+	return nil, nil
 }
 
-func handleStopCommand(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func handleStopCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.StopCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {
@@ -121,7 +108,7 @@ func handleStopCommand(command *axon_server.Command, stream axon_server.CommandS
 	projection := RestoreProjection(deserializedCommand.AggregateIdentifier, clientConnection)
 	if projection.Recording {
 		event := &StoppedRecordingEvent{grpc_example.StoppedRecordingEvent{}}
-		axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
+		return axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
 	}
-	axon_utils.CommandRespond(stream, command.MessageIdentifier)
+	return nil, nil
 }

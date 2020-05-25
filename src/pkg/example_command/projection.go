@@ -19,7 +19,12 @@ type StoppedRecordingEvent struct {
 // Projection
 
 type Projection struct {
-	Recording bool
+	Recording      bool
+	AggregateState axon_utils.AggregateState
+}
+
+func (projection *Projection) GetAggregateState() axon_utils.AggregateState {
+	return projection.AggregateState
 }
 
 func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.ClientConnection) *Projection {
@@ -30,7 +35,8 @@ func RestoreProjection(aggregateIdentifier string, clientConnection *axon_utils.
 
 func createInitialProjection() interface{} {
 	return &Projection{
-		Recording: true,
+		Recording:      true,
+		AggregateState: axon_utils.NewAggregateState(),
 	}
 }
 

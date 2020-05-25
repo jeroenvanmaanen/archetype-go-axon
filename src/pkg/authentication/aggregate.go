@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	log "log"
 
 	proto "github.com/golang/protobuf/proto"
@@ -12,20 +13,19 @@ import (
 
 const AggregateIdentifier = "credentials-aggregate"
 
-func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterCredentialsCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
 		log.Printf("Could not unmarshal RegisterCredentialsCommand")
-		axon_utils.ReportError(stream, commandMessage.MessageIdentifier, "EX001", "Could not unmarshal RegisterCredentialsCommand")
-		return
+		return nil, e
 	}
 
 	projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
 	if CheckKnown(command.Credentials, projection) {
 		axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
-		return
+		return nil, errors.New("credentials unknown")
 	}
 
 	var eventType string
@@ -46,6 +46,5 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
 		}
 	}
 	log.Printf("Credentials aggregate: emit: %v: %v", eventType, event)
-	axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
-	axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
+	return axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
 }

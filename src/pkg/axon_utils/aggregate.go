@@ -9,6 +9,8 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 	uuid "github.com/google/uuid"
+	grpc_codes "google.golang.org/grpc/codes"
+	grpc_status "google.golang.org/grpc/status"
 
 	axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 )
@@ -36,7 +38,7 @@ func SubscribeCommand(commandName string, stream axon_server.CommandService_Open
 	}
 }
 
-func AppendEvent(event Event, aggregateId string, projection interface{}, clientConnection *ClientConnection) {
+func AppendEvent(event Event, aggregateId string, projection interface{}, clientConnection *ClientConnection) (*Error, error) {
 	log.Printf("Append event: event type kind: %v", reflect.TypeOf(event).Kind())
 	eventType := reflect.TypeOf(event).Elem().Name()
 	log.Printf("Append event: %v: %v", aggregateId, eventType)
@@ -52,20 +54,27 @@ func AppendEvent(event Event, aggregateId string, projection interface{}, client
 	conn := clientConnection.Connection
 	client := axon_server.NewEventStoreClient(conn)
 
-	readRequest := axon_server.ReadHighestSequenceNrRequest{
-		AggregateId:    aggregateId,
-		FromSequenceNr: 0,
-	}
-	log.Printf("Append event: Read highest sequence-nr request: %v", readRequest)
+	var next int64
+	switch p := projection.(type) {
+	case CachedProjection:
+		next = p.GetAggregateState().GetSequenceNumber() + 1
+		log.Printf("Append event: Next sequence-nr after cached projection: %v", next)
+	default:
+		readRequest := axon_server.ReadHighestSequenceNrRequest{
+			AggregateId:    aggregateId,
+			FromSequenceNr: 0,
+		}
+		log.Printf("Append event: Read highest sequence-nr request: %v", readRequest)
 
-	response, e := client.ReadHighestSequenceNr(context.Background(), &readRequest)
-	if e != nil {
-		log.Fatalf("Append event: Error while reading highest sequence-nr: %v", e)
-		return
-	}
+		response, e := client.ReadHighestSequenceNr(context.Background(), &readRequest)
+		if e != nil {
+			log.Fatalf("Append event: Error while reading highest sequence-nr: %v", e)
+			return nil, e
+		}
 
-	log.Printf("Append event: Response: %v", response)
-	next := response.ToSequenceNr + 1
+		log.Printf("Append event: Response: %v", response)
+		next = response.ToSequenceNr + 1
+	}
 	log.Printf("Append event: Next sequence number: %v", next)
 
 	timestamp := time.Now().UnixNano() / 1000000
@@ -85,23 +94,33 @@ func AppendEvent(event Event, aggregateId string, projection interface{}, client
 	stream, e := client.AppendEvent(context.Background())
 	if e != nil {
 		log.Fatalf("Append event: Error while preparing to append event: %v", e)
-		return
+		return nil, e
 	}
 
 	e = stream.Send(&eventMessage)
 	if e != nil {
 		log.Fatalf("Append event: Error while sending event: %v", e)
-		return
+		return nil, e
 	}
 
 	confirmation, e := stream.CloseAndRecv()
 	if e != nil {
-		log.Fatalf("Append event: Error while sending event: %v", e)
-		return
+		code := grpc_status.Code(e)
+		if code == grpc_codes.OutOfRange {
+			log.Printf("Append event: Out of range: %v", e)
+			return &Error{
+				Code:                "",
+				Message:             "Out of range",
+				AggregateIdentifier: aggregateId,
+			}, nil
+		}
+		log.Fatalf("Append event: Error while closing event stream: %v: %v", e, code)
+		return nil, e
 	}
 
 	log.Printf("Append event: Confirmation: %v", confirmation)
 	event.ApplyTo(projection)
+	return nil, nil
 }
 
 func CommandRespond(stream axon_server.CommandService_OpenStreamClient, requestId string) {

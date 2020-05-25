@@ -12,11 +12,12 @@ import (
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
-func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterTrustedKeyCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
 		log.Printf("Could not unmarshal RegisterTrustedKeyCommand")
+		return nil, e
 	}
 
 	projection := RestoreProjection(AggregateIdentifier, clientConnection)
@@ -24,8 +25,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
 	currentValue := projection.TrustedKeys[command.PublicKey.Name]
 	newValue := command.PublicKey.PublicKey
 	if newValue == currentValue {
-		axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
-		return
+		return nil, nil
 	}
 
 	var eventType string
@@ -46,15 +46,15 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
 		}
 	}
 	log.Printf("Trusted aggregate: emit: %v: %v", eventType, event)
-	axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
-	axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
+	return axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
 }
 
-func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) {
+func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterKeyManagerCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
 		log.Printf("Could not unmarshal RegisterKeyManagerCommand")
+		return nil, e
 	}
 
 	projection := RestoreProjection(AggregateIdentifier, clientConnection)
@@ -62,7 +62,7 @@ func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream
 	currentValue := projection.KeyManagers[command.PublicKey.Name]
 	newValue := command.PublicKey.PublicKey
 	if newValue == currentValue {
-		return
+		return nil, nil
 	}
 
 	var eventType string
@@ -83,6 +83,5 @@ func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream
 		}
 	}
 	log.Printf("Trusted aggregate: emit: %v: %v", eventType, event)
-	axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
-	axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
+	return axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
 }
