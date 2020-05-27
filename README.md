@@ -46,10 +46,10 @@ Other features:
   * Private key to sign JWT tokens and decode credentials must be uploaded on startup with a challenge signed by a trusted key manager
 * Claim-based security based on JWT
   * Todo: supply JWT in headers/metadata rather than payload
+* Cache projections
 
 After that:
 
-* Cache projections
 * Store snapshots
 * Use TLS
 * Extract reusable code into a proper library that can be included as a dependency (evolve into a proper framework on par with AxonFramework for Java)
