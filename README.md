@@ -47,12 +47,13 @@ Other features:
 * Claim-based security based on JWT
   * Todo: supply JWT in headers/metadata rather than payload
 * Cache projections
+* Extracted reusable code into a proper library that can be included as a dependency:
+  [dendrite](https://github.com/jeroenvanmaanen/dendrite)
 
 After that:
 
 * Store snapshots
 * Use TLS
-* Extract reusable code into a proper library that can be included as a dependency (evolve into a proper framework on par with AxonFramework for Java)
 * Add context management with proper canceling of operations
 * Support distributable segmented tracking event processors
 * Fix bug with disappearing connections when Go applications talk to
