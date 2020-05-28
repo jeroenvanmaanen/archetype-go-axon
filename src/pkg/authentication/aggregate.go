@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"errors"
 	log "log"
 
 	proto "github.com/golang/protobuf/proto"
@@ -13,7 +12,7 @@ import (
 
 const AggregateIdentifier = "credentials-aggregate"
 
-func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterCredentialsCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
@@ -24,8 +23,7 @@ func HandleRegisterCredentialsCommand(commandMessage *axon_server.Command, strea
 	projection := RestoreProjection(AggregateIdentifier, clientConnection)
 
 	if CheckKnown(command.Credentials, projection) {
-		axon_utils.CommandRespond(stream, commandMessage.MessageIdentifier)
-		return nil, errors.New("credentials unknown")
+		return nil, nil
 	}
 
 	var eventType string
