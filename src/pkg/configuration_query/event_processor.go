@@ -3,8 +3,8 @@ package configuration_query
 import (
 	log "log"
 
+	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
 	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )

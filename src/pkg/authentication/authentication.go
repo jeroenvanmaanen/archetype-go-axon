@@ -12,7 +12,7 @@ import (
 	jwt "github.com/pascaldekloe/jwt"
 	ssh "golang.org/x/crypto/ssh"
 
-	axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
+	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )

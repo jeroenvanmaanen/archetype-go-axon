@@ -6,10 +6,10 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 
+	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
+	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
 	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
 	configuration_command "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_command"
-	axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )

@@ -6,13 +6,14 @@ import (
 
 	uuid "github.com/google/uuid"
 
+	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
+	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
 	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	axon_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/axon_utils"
+	cache_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/cache_utils"
 	configuration_query "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_query"
 	example_api "github.com/jeroenvm/archetype-go-axon/src/pkg/example_api"
 	example_command "github.com/jeroenvm/archetype-go-axon/src/pkg/example_command"
 	example_query "github.com/jeroenvm/archetype-go-axon/src/pkg/example_query"
-	axon_server "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/axon_server"
 	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
@@ -47,7 +48,7 @@ func main() {
 	}
 
 	// Initialize cache
-	axon_utils.InitializeCache()
+	cache_utils.InitializeCache()
 
 	// Handle commands
 	commandHandlerConn := example_command.HandleCommands(host, port)
