@@ -9,9 +9,9 @@ import (
 
 	elasticSearch7 "github.com/elastic/go-elasticsearch/v7"
 
+	elastic_search_utils "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/elastic_search_utils"
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
-	elastic_search_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/elastic_search_utils"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.

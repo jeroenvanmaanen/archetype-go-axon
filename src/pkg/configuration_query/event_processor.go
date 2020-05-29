@@ -3,10 +3,10 @@ package configuration_query
 import (
 	log "log"
 
+	authentication "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/authentication"
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
+	trusted "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/trusted"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
-	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
-	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
@@ -114,6 +114,7 @@ func (event *CredentialsRemovedEvent) ApplyTo(_ interface{}) {
 
 // Public accessor
 
+//noinspection GoUnusedExportedFunction
 func GetProperty(key string) string {
 	return projection.Configuration[key]
 }

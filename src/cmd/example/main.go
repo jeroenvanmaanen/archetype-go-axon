@@ -6,15 +6,16 @@ import (
 
 	uuid "github.com/google/uuid"
 
+	authentication "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/authentication"
+	cache_utils "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/cache_utils"
+	configuration_query "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/configuration_query"
+	example_api "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/example_api"
+	example_command "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/example_command"
+	example_query "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/example_query"
+	trusted "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/trusted"
+	utils "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/utils"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
-	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	cache_utils "github.com/jeroenvm/archetype-go-axon/src/pkg/cache_utils"
-	configuration_query "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_query"
-	example_api "github.com/jeroenvm/archetype-go-axon/src/pkg/example_api"
-	example_command "github.com/jeroenvm/archetype-go-axon/src/pkg/example_command"
-	example_query "github.com/jeroenvm/archetype-go-axon/src/pkg/example_query"
-	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	host := "axon-server" // "example-proxy" or "axon-server"
 	port := 8124
 	clientConnection, streamClient := axon_utils.WaitForServer(host, port, "API")
-	defer clientConnection.Connection.Close()
+	defer utils.ReportError("Close clientConnection", clientConnection.Connection.Close)
 	log.Printf("Main connection: %v: %v", clientConnection, streamClient)
 
 	// Send a heartbeat
@@ -52,18 +53,18 @@ func main() {
 
 	// Handle commands
 	commandHandlerConn := example_command.HandleCommands(host, port)
-	defer commandHandlerConn.Connection.Close()
+	defer utils.ReportError("Close commandHandlerConn", commandHandlerConn.Connection.Close)
 
 	// Process Events
 	eventProcessorConn := example_query.ProcessEvents(host, port)
-	defer eventProcessorConn.Connection.Close()
+	defer utils.ReportError("Close eventProcessorConn", eventProcessorConn.Connection.Close)
 
 	configurationEventProcessorConn := configuration_query.ProcessEvents(host, port)
-	defer configurationEventProcessorConn.Connection.Close()
+	defer utils.ReportError("Close configurationEventProcessorConn", configurationEventProcessorConn.Connection.Close)
 
 	// Handle queries
 	queryHandlerConn := example_query.HandleQueries(host, port)
-	defer queryHandlerConn.Connection.Close()
+	defer utils.ReportError("Close queryHandlerConn", queryHandlerConn.Connection.Close)
 
 	// Listen to incoming gRPC requests
 	_ = axon_utils.Serve(clientConnection, example_api.RegisterWithServer)

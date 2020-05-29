@@ -15,11 +15,11 @@ import (
 	jwt "github.com/pascaldekloe/jwt"
 	grpc "google.golang.org/grpc"
 
+	authentication "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/authentication"
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
+	trusted "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/trusted"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
-	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
-	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 type GreeterServer struct {

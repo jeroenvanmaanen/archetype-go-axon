@@ -5,14 +5,14 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 const AggregateIdentifier = "trusted-keys-aggregate"
 
-func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterTrustedKeyCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {
@@ -49,7 +49,7 @@ func HandleRegisterTrustedKeyCommand(commandMessage *axon_server.Command, stream
 	return axon_utils.AppendEvent(event, AggregateIdentifier, projection, clientConnection)
 }
 
-func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func HandleRegisterKeyManagerCommand(commandMessage *axon_server.Command, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	command := grpc_example.RegisterKeyManagerCommand{}
 	e := proto.Unmarshal(commandMessage.Payload.Data, &command)
 	if e != nil {

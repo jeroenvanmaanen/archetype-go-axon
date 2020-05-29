@@ -6,12 +6,12 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 
+	authentication "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/authentication"
+	configuration_command "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/configuration_command"
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
+	trusted "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/trusted"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
 	axon_server "github.com/jeroenvanmaanen/dendrite/src/pkg/grpc/axon_server"
-	authentication "github.com/jeroenvm/archetype-go-axon/src/pkg/authentication"
-	configuration_command "github.com/jeroenvm/archetype-go-axon/src/pkg/configuration_command"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
-	trusted "github.com/jeroenvm/archetype-go-axon/src/pkg/trusted"
 )
 
 func HandleCommands(host string, port int) *axon_utils.ClientConnection {
@@ -42,26 +42,26 @@ func HandleCommands(host string, port int) *axon_utils.ClientConnection {
 func commandDispatch(command *axon_server.Command, stream axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	commandName := command.Name
 	if commandName == "GreetCommand" {
-		return handleGreetCommand(command, stream, clientConnection)
+		return handleGreetCommand(command, clientConnection)
 	} else if commandName == "RecordCommand" {
-		return handleRecordCommand(command, stream, clientConnection)
+		return handleRecordCommand(command, clientConnection)
 	} else if commandName == "StopCommand" {
-		return handleStopCommand(command, stream, clientConnection)
+		return handleStopCommand(command, clientConnection)
 	} else if commandName == "RegisterTrustedKeyCommand" {
-		return trusted.HandleRegisterTrustedKeyCommand(command, stream, clientConnection)
+		return trusted.HandleRegisterTrustedKeyCommand(command, clientConnection)
 	} else if commandName == "RegisterKeyManagerCommand" {
-		return trusted.HandleRegisterKeyManagerCommand(command, stream, clientConnection)
+		return trusted.HandleRegisterKeyManagerCommand(command, clientConnection)
 	} else if commandName == "RegisterCredentialsCommand" {
-		return authentication.HandleRegisterCredentialsCommand(command, stream, clientConnection)
+		return authentication.HandleRegisterCredentialsCommand(command, clientConnection)
 	} else if commandName == "ChangePropertyCommand" {
-		return configuration_command.HandleChangePropertyCommand(command, stream, clientConnection)
+		return configuration_command.HandleChangePropertyCommand(command, clientConnection)
 	} else {
 		log.Printf("Received unknown command: %v", commandName)
 	}
 	return nil, nil
 }
 
-func handleGreetCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func handleGreetCommand(command *axon_server.Command, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.GreetCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {
@@ -85,7 +85,7 @@ func handleGreetCommand(command *axon_server.Command, _ axon_server.CommandServi
 	return axon_utils.AppendEvent(event, deserializedCommand.AggregateIdentifier, projection, clientConnection)
 }
 
-func handleRecordCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func handleRecordCommand(command *axon_server.Command, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.RecordCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {
@@ -99,7 +99,7 @@ func handleRecordCommand(command *axon_server.Command, _ axon_server.CommandServ
 	return nil, nil
 }
 
-func handleStopCommand(command *axon_server.Command, _ axon_server.CommandService_OpenStreamClient, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
+func handleStopCommand(command *axon_server.Command, clientConnection *axon_utils.ClientConnection) (*axon_utils.Error, error) {
 	deserializedCommand := grpc_example.StopCommand{}
 	e := proto.Unmarshal(command.Payload.Data, &deserializedCommand)
 	if e != nil {

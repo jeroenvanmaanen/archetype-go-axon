@@ -15,8 +15,8 @@ import (
 	jwt "github.com/pascaldekloe/jwt"
 	ssh "golang.org/x/crypto/ssh"
 
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 var keyManagers map[string]string

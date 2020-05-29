@@ -3,8 +3,8 @@ package authentication
 import (
 	log "log"
 
+	grpc_example "github.com/jeroenvanmaanen/archetype-go-axon/src/pkg/grpc/example"
 	axon_utils "github.com/jeroenvanmaanen/dendrite/src/pkg/axon_utils"
-	grpc_example "github.com/jeroenvm/archetype-go-axon/src/pkg/grpc/example"
 )
 
 // Redeclare event types, so that they can be extended with event handler methods.
