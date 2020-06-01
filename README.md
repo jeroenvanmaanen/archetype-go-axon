@@ -1,5 +1,7 @@
 # Archetype of a Go project that uses Axon for Event Sourcing and CQRS
 
+**This project has moved to [dendrite2go/archetype-go-axon](https://github.com/dendrite2go/archetype-go-axon).**
+
 ## Introduction
 
 This aims to be a project that can be used as a template for future
