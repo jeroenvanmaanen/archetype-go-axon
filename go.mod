@@ -9,6 +9,6 @@ require (
 	github.com/jeroenvanmaanen/dendrite v0.0.6
 	github.com/pascaldekloe/jwt v1.8.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
+	golang.org/x/crypto v0.1.0
 	google.golang.org/grpc v1.27.0
 )
